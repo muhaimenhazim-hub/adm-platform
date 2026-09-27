@@ -27,8 +27,8 @@ body {
     background-color: var(--bg-body);
     color: var(--text-primary);
     min-height: 100vh;
+    min-width: 1200px;
     padding-bottom: calc(var(--bottom-nav-height) + 30px);
-    overflow-x: hidden;
 }
 
 /* ================= هدر صفحه و افکت شعاع و امواج نوری لوگو ================= */
@@ -228,7 +228,7 @@ body {
 /* ۴ کارت آمار مالی ردیف بالا */
 .summary-cards-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    grid-template-columns: repeat(4, 1fr);
     gap: 16px;
     margin-bottom: 24px;
 }
@@ -287,7 +287,7 @@ body {
 /* دکمه‌های عملیات سریع */
 .quick-actions-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    grid-template-columns: repeat(4, 1fr);
     gap: 14px;
     margin-bottom: 28px;
 }
@@ -551,6 +551,7 @@ body {
 /* نوار ناوبری پایین */
 .bottom-nav {
     position: fixed; bottom: 0; left: 0; right: 0;
+    min-width: 1200px;
     height: var(--bottom-nav-height);
     background-color: rgba(24, 26, 32, 0.95);
     backdrop-filter: blur(12px);
