@@ -438,7 +438,7 @@ body {
 
 .box-title { font-size: 14px; font-weight: 700; margin-bottom: 14px; }
 
-.table-responsive { width: 100%; overflow-x: auto; }
+.table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
 
 .binance-table {
     width: 100%;
@@ -673,6 +673,7 @@ body {
 
 .bottom-nav {
     position: fixed; bottom: 0; left: 0; right: 0;
+    width: 100%;
     height: var(--bottom-nav-height);
     background-color: rgba(24, 26, 32, 0.95);
     backdrop-filter: blur(12px);
@@ -712,3 +713,145 @@ body {
 .toast-alert.show { transform: translateX(-50%) translateY(0); opacity: 1; }
 .toast-alert.error { border-color: var(--text-red); }
 .hidden { display: none !important; }
+
+/* ================= استایل‌های واکنش‌گرا و متقارن اختصاصی برای موبایل ================= */
+@media screen and (max-width: 768px) {
+    body {
+        padding-bottom: calc(var(--bottom-nav-height) + 20px);
+    }
+
+    .app-header {
+        padding: 10px 16px;
+    }
+
+    .header-logo-img {
+        height: 34px;
+    }
+
+    .admin-badge-btn {
+        padding: 6px 12px;
+        font-size: 11px;
+    }
+
+    .lang-trigger {
+        padding: 6px 10px;
+        font-size: 12px;
+    }
+
+    .main-content-area {
+        padding: 16px 12px;
+    }
+
+    /* کارت‌های آمار: دو کارت اول ۲ ستونه کنار هم، و کارت سوم تمام‌عرض و متوازن زیر آنها */
+    .summary-cards-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+
+    .summary-card {
+        padding: 16px 14px;
+        border-radius: 14px;
+        min-height: 90px;
+    }
+
+    .summary-card:nth-child(3) {
+        grid-column: 1 / -1;
+    }
+
+    .card-caption {
+        font-size: 12px;
+        margin-bottom: 8px;
+    }
+
+    .card-amount {
+        font-size: 21px;
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
+
+    .yield-badge {
+        font-size: 11px;
+        padding: 2px 6px;
+    }
+
+    .profit-release-status {
+        font-size: 11px;
+    }
+
+    .capital-breakdown {
+        font-size: 11px;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    /* کارت نمودار */
+    .analytics-card-wrapper {
+        padding: 16px 14px;
+        border-radius: 14px;
+        margin-bottom: 20px;
+    }
+
+    .analytics-head {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 14px;
+        margin-bottom: 16px;
+    }
+
+    .timeframe-pills {
+        width: 100%;
+        justify-content: space-between;
+        overflow-x: auto;
+    }
+
+    .tf-btn {
+        padding: 6px 10px;
+        font-size: 11px;
+        flex: 1;
+        text-align: center;
+        white-space: nowrap;
+    }
+
+    /* ماژول سود مرکب */
+    .compound-module-card {
+        padding: 16px 14px;
+        border-radius: 14px;
+        margin-bottom: 20px;
+    }
+
+    .compound-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+        margin-bottom: 16px;
+        padding-bottom: 14px;
+    }
+
+    .current-profit-badge {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    /* جدول لات‌ها */
+    .lots-section-card {
+        padding: 16px 14px;
+        border-radius: 14px;
+    }
+
+    /* نوار پایین */
+    .bottom-nav {
+        height: 62px;
+    }
+
+    .nav-label {
+        font-size: 10px;
+    }
+
+    .nav-item .nav-icon svg {
+        width: 20px;
+        height: 20px;
+    }
+}
