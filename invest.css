@@ -371,7 +371,7 @@ body {
     font-weight: 700;
 }
 
-/* ساختار دیوار فیصدی چسبان و اسکرول نرم */
+/* ساختار دیوار فیصدی چسبان و اسکرول نرم (عرض بهینه‌شده) */
 .chart-viewport-wrapper {
     position: relative;
     display: flex;
@@ -383,11 +383,21 @@ body {
 
 .y-axis-sticky-canvas {
     flex-shrink: 0;
-    width: 58px;
+    width: 38px;
     height: 290px;
     background-color: var(--bg-card);
-    border-right: 1px solid var(--border-color);
+    border-left: 1px solid var(--border-color);
     z-index: 20;
+}
+
+[dir="rtl"] .y-axis-sticky-canvas {
+    border-left: 1px solid var(--border-color);
+    border-right: none;
+}
+
+[dir="ltr"] .y-axis-sticky-canvas {
+    border-right: 1px solid var(--border-color);
+    border-left: none;
 }
 
 .chart-scroll-container {
@@ -811,6 +821,11 @@ body {
         flex: 1;
         text-align: center;
         white-space: nowrap;
+    }
+
+    /* تنظیم دقیق و باریک عرض نوار عمودی فیصدی نمودار در موبایل */
+    .y-axis-sticky-canvas {
+        width: 36px;
     }
 
     /* ماژول سود مرکب */
