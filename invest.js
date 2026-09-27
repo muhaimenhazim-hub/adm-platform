@@ -1,0 +1,993 @@
+/**
+ * پلتفرم سرمایه‌گذاری بایننس - صفحه سرمایه‌گذاری، سود و آمار واقعی
+ * File: invest.js (پشتیبانی کامل از ۵ زبان، ۲۴ ساعته امروز و دیوار چسبان فیصدی)
+ */
+const dashboardI18n = {
+    en: {
+        dir: 'ltr',
+        langName: 'English',
+        adminPanel: 'Admin Panel',
+        accumulatedProfit: 'Total Accumulated Profit',
+        todayProfit: "Today's Profit",
+        pendingRelease: 'Calculating / Daily Settlement in Progress',
+        profitReleased: 'Profit Credited & Unlocked',
+        noInvestmentNotice: 'No Active Investment (Min. $50)',
+        totalCapitalTitle: 'Total Capital',
+        lockedCapLabel: 'Locked:',
+        unlockedCapLabel: 'Unlocked:',
+        chartSectionTitle: 'Daily Yield & Profit Distribution History',
+        chartSectionSub: 'Historical yield performance strictly between 0.8% and 1.3%',
+        tfToday: 'Today (24h)',
+        tf7Days: 'Last 7 Days',
+        tf30Days: 'Last 30 Days',
+        tfAll: 'All History',
+        dailyHistoryTableTitle: 'Recent Daily Profit Records',
+        thDate: 'Date',
+        thDailyYield: 'Yield Rate',
+        thAmount: 'Profit Amount',
+        thStatus: 'Status',
+        statusCredited: 'Credited',
+        statusPending: 'Pending',
+        noLotsFound: 'No active investment lots found',
+        noRecordsFound: 'No profit records found',
+        compoundModuleTitle: 'Compound Profit Module (Reinvest)',
+        compoundModuleDesc: 'Reinvest accumulated profits back into your principal to boost your daily yield.',
+        currentAvailableProfit: 'Available Profit Balance:',
+        amountToCompound: 'Amount to Compound (USDT):',
+        profitHoldDuration: 'Profit Holding Duration:',
+        commissionFeeRate: 'Platform Fee Rate:',
+        commissionAmount: 'Fee Deduction:',
+        netCapitalAdded: 'Net Capital Added to Principal:',
+        btnCompoundNow: 'Compound & Add to Principal',
+        matrixTitle: 'Compound Fee Calculation Rules:',
+        lotSectionTitle: 'Lot-Based 90-Day Capital Lock Table',
+        lotSectionSub: 'Each deposit or compound is recorded as an independent lot with a dedicated 90-day lock cycle.',
+        thLotId: 'Lot ID',
+        thRegDate: 'Creation Date',
+        thLotAmount: 'Amount (USDT)',
+        thLotSource: 'Deposit Source',
+        thDaysLeft: 'Days Remaining',
+        thLockStatus: 'Status',
+        sourceDirect: 'Direct Deposit',
+        sourceCompound: 'Compound Profit',
+        daysLeftTxt: '{days} days left',
+        completedTxt: 'Matured (0 days)',
+        badgeLocked: '🔒 Locked',
+        badgeUnlocked: '🔓 Unlocked',
+        navHome: 'Dashboard',
+        navInvest: 'Invest',
+        navTeam: 'Team',
+        navWallet: 'Wallet',
+        navProfile: 'Profile',
+        comingSoon: 'This section will be available soon.',
+        copiedNotice: 'Copied to clipboard!',
+        compoundSuccess: 'Successfully compounded! Added to principal with a new 90-day lot.',
+        errBelow10Days: 'Cannot compound yet! Minimum 10 days of holding required.',
+        errExceedBalance: 'Entered amount exceeds available profit balance.',
+        daysUnit: 'Days',
+        tiers: [
+            { label: 'Under 10 days:', val: 'Disallowed (Error)', isErr: true },
+            { label: 'Between 10 to 15 days:', val: '5% Fee' },
+            { label: 'Between 15 to 25 days:', val: '3% Fee' },
+            { label: 'Between 25 to 35 days:', val: '1% Fee' },
+            { label: 'Between 35 to 50 days:', val: '0% (Free)', isGreen: true },
+            { label: 'Over 50 days:', val: '0% + 3% Bonus', isGreen: true }
+        ]
+    },
+    fr: {
+        dir: 'ltr',
+        langName: 'Français',
+        adminPanel: 'Panneau Admin',
+        accumulatedProfit: 'Profit Cumulé Total',
+        todayProfit: "Profit d'aujourd'hui",
+        pendingRelease: 'En cours / Règlement quotidien en attente',
+        profitReleased: 'Profit crédité et débloqué',
+        noInvestmentNotice: 'Aucun investissement actif (Min. 50$)',
+        totalCapitalTitle: 'Capital Total',
+        lockedCapLabel: 'Bloqué :',
+        unlockedCapLabel: 'Libéré :',
+        chartSectionTitle: 'Historique des distributions de profits',
+        chartSectionSub: 'Rendements quotidiens entre 0.8% et 1.3%',
+        tfToday: "Aujourd'hui (24h)",
+        tf7Days: '7 derniers jours',
+        tf30Days: '30 derniers jours',
+        tfAll: 'Tout',
+        dailyHistoryTableTitle: 'Détail des profits récents',
+        thDate: 'Date',
+        thDailyYield: 'Taux',
+        thAmount: 'Montant du profit',
+        thStatus: 'Statut',
+        statusCredited: 'Crédité',
+        statusPending: 'En attente',
+        noLotsFound: 'Aucun lot actif trouvé',
+        noRecordsFound: 'Aucun enregistrement de profit trouvé',
+        compoundModuleTitle: 'Intérêt Composé (Réinvestissement)',
+        compoundModuleDesc: 'Réinvestissez vos profits dans le capital pour augmenter vos gains.',
+        currentAvailableProfit: 'Profit disponible :',
+        amountToCompound: 'Montant à composer (USDT) :',
+        profitHoldDuration: 'Durée de rétention :',
+        commissionFeeRate: 'Taux de frais :',
+        commissionAmount: 'Frais déduits :',
+        netCapitalAdded: 'Montant net ajouté au capital :',
+        btnCompoundNow: 'Composer maintenant',
+        matrixTitle: 'Règles de calcul des frais :',
+        lotSectionTitle: 'Tableau de blocage des lots (90 jours)',
+        lotSectionSub: 'Chaque dépôt ou composition est un lot indépendant soumis à 90 jours de blocage.',
+        thLotId: 'ID du Lot',
+        thRegDate: "Date d'enregistrement",
+        thLotAmount: 'Montant (USDT)',
+        thLotSource: 'Origine',
+        thDaysLeft: 'Jours restants',
+        thLockStatus: 'Statut',
+        sourceDirect: 'Dépôt direct',
+        sourceCompound: 'Intérêt composé',
+        daysLeftTxt: '{days} jours restants',
+        completedTxt: 'Échu (0 jour)',
+        badgeLocked: '🔒 Bloqué',
+        badgeUnlocked: '🔓 Libéré',
+        navHome: 'Accueil',
+        navInvest: 'Investir',
+        navTeam: 'Équipe',
+        navWallet: 'Portefeuille',
+        navProfile: 'Profil',
+        comingSoon: 'Bientôt disponible.',
+        copiedNotice: 'Copié !',
+        compoundSuccess: 'Composition réussie ! Nouveau lot de 90 jours créé.',
+        errBelow10Days: 'Composition impossible ! Rétention minimale de 10 jours requise.',
+        errExceedBalance: 'Le montant dépasse votre solde de profit.',
+        daysUnit: 'Jours',
+        tiers: [
+            { label: 'Moins de 10 jours :', val: 'Interdit (Erreur)', isErr: true },
+            { label: 'Entre 10 et 15 jours :', val: '5% Frais' },
+            { label: 'Entre 15 et 25 jours :', val: '3% Frais' },
+            { label: 'Entre 25 et 35 jours :', val: '1% Frais' },
+            { label: 'Entre 35 et 50 jours :', val: '0% (Gratuit)', isGreen: true },
+            { label: 'Plus de 50 jours :', val: '0% + 3% Bonus', isGreen: true }
+        ]
+    },
+    ru: {
+        dir: 'ltr',
+        langName: 'Русский',
+        adminPanel: 'Панель админа',
+        accumulatedProfit: 'Общая накопленная прибыль',
+        todayProfit: 'Прибыль сегодня',
+        pendingRelease: 'В обработке / Ежедневный расчет',
+        profitReleased: 'Прибыль начислена',
+        noInvestmentNotice: 'Нет инвестиций (Мин. $50)',
+        totalCapitalTitle: 'Общий капитал',
+        lockedCapLabel: 'Заблокировано:',
+        unlockedCapLabel: 'Доступно:',
+        chartSectionTitle: 'График ежедневных начислений',
+        chartSectionSub: 'Доходность строго от 0.8% до 1.3%',
+        tfToday: 'Сегодня (24ч)',
+        tf7Days: '7 дней',
+        tf30Days: '30 дней',
+        tfAll: 'Все',
+        dailyHistoryTableTitle: 'История начислений прибыли',
+        thDate: 'Дата',
+        thDailyYield: 'Ставка',
+        thAmount: 'Сумма прибыли',
+        thStatus: 'Статус',
+        statusCredited: 'Начислено',
+        statusPending: 'В ожидании',
+        noLotsFound: 'Активных лотов не найдено',
+        noRecordsFound: 'История начислений пуста',
+        compoundModuleTitle: 'Реинвестирование прибыли',
+        compoundModuleDesc: 'Добавляйте прибыль к основному капиталу для увеличения дохода.',
+        currentAvailableProfit: 'Доступная прибыль:',
+        amountToCompound: 'Сумма для реинвеста (USDT):',
+        profitHoldDuration: 'Срок удержания прибыли:',
+        commissionFeeRate: 'Комиссия платформы:',
+        commissionAmount: 'Сумма комиссии:',
+        netCapitalAdded: 'Чистая сумма к капиталу:',
+        btnCompoundNow: 'Реинвестировать сейчас',
+        matrixTitle: 'Шкала комиссий реинвеста:',
+        lotSectionTitle: 'Таблица пакетов (Блокировка 90 дней)',
+        lotSectionSub: 'Каждый депозит или реинвест учитывается как отдельный лот с циклом 90 дней.',
+        thLotId: 'ID Лота',
+        thRegDate: 'Дата создания',
+        thLotAmount: 'Сумма (USDT)',
+        thLotSource: 'Источник',
+        thDaysLeft: 'Осталось дней',
+        thLockStatus: 'Статус',
+        sourceDirect: 'Прямой депозит',
+        sourceCompound: 'Реинвест',
+        daysLeftTxt: 'Осталось {days} дн.',
+        completedTxt: 'Завершен (0 дн.)',
+        badgeLocked: '🔒 Заблокирован',
+        badgeUnlocked: '🔓 Разблокирован',
+        navHome: 'Главная',
+        navInvest: 'Инвестиции',
+        navTeam: 'Команда',
+        navWallet: 'Кошелек',
+        navProfile: 'Профиль',
+        comingSoon: 'Раздел скоро будет доступен.',
+        copiedNotice: 'Скопировано!',
+        compoundSuccess: 'Успешно реинвестировано с новым 90-дневным лотом.',
+        errBelow10Days: 'Реинвест недоступен! Требуется минимум 10 дней удержания.',
+        errExceedBalance: 'Сумма превышает доступный баланс.',
+        daysUnit: 'Дней',
+        tiers: [
+            { label: 'Менее 10 дней:', val: 'Запрещено (Ошибка)', isErr: true },
+            { label: 'От 10 до 15 дней:', val: '5% Комиссия' },
+            { label: 'От 15 до 24 дней:', val: '3% Комиссия' },
+            { label: 'От 25 до 34 дней:', val: '1% Комиссия' },
+            { label: 'От 35 до 49 дней:', val: '0% (Бесплатно)', isGreen: true },
+            { label: 'Более 50 дней:', val: '0% + 3% Бонус', isGreen: true }
+        ]
+    },
+    ar: {
+        dir: 'rtl',
+        langName: 'العربية',
+        adminPanel: 'لوحة الإدارة',
+        accumulatedProfit: 'إجمالي الأرباح التراكمية',
+        todayProfit: 'أرباح اليوم',
+        pendingRelease: 'قيد المعالجة / تسوية الأرباح اليومية',
+        profitReleased: 'تم إيداع الأرباح وتحريرها',
+        noInvestmentNotice: 'لا يوجد استثمار نشط (الحد الأدنى 50$)',
+        totalCapitalTitle: 'إجمالي رأس المال',
+        lockedCapLabel: 'مقفل:',
+        unlockedCapLabel: 'محرر:',
+        chartSectionTitle: 'مخطط توزيع العوائد اليومية',
+        chartSectionSub: 'معدل العائد اليومي الصارم بین 0.8% و 1.3%',
+        tfToday: 'اليوم (24 ساعة)',
+        tf7Days: 'آخر 7 أيام',
+        tf30Days: 'آخر 30 يوماً',
+        tfAll: 'الكل',
+        dailyHistoryTableTitle: 'سجل الأرباح اليومية الأخيرة',
+        thDate: 'التاريخ',
+        thDailyYield: 'نسبة العائد',
+        thAmount: 'مبلغ الربح',
+        thStatus: 'الحالة',
+        statusCredited: 'تم الإيداع',
+        statusPending: 'معلق',
+        noLotsFound: 'لا توجد دفعات استثمار نشطة',
+        noRecordsFound: 'لا توجد سجلات أرباح',
+        compoundModuleTitle: 'نظام الفائدة المركبة (إعادة الاستثمار)',
+        compoundModuleDesc: 'أعد استثمار أرباحك في رأس المال لزيادة دخلك اليومي.',
+        currentAvailableProfit: 'رصيد الأرباح المتاح:',
+        amountToCompound: 'المبلغ المراد إضافته (USDT):',
+        profitHoldDuration: 'مدة الاحتفاظ بالأرباح:',
+        commissionFeeRate: 'نسبة عمولة المنصة:',
+        commissionAmount: 'مبلغ العمولة المستقطع:',
+        netCapitalAdded: 'المبلغ الصافي المضاف لرأس المال:',
+        btnCompoundNow: 'إضافة إلى رأس المال الآن',
+        matrixTitle: 'قواعد احتساب عمولة الفائدة المركبة:',
+        lotSectionTitle: 'جدول قفل الدفعات لمدة 90 يوماً',
+        lotSectionSub: 'يُسجل كل إيداع أو أرباح مركبة كدفعة مستقلة تخضع لدورة قفل 90 يوماً.',
+        thLotId: 'رقم الدفعة (Lot ID)',
+        thRegDate: 'تاريخ التسجيل',
+        thLotAmount: 'المبلغ (USDT)',
+        thLotSource: 'مصدر الإيداع',
+        thDaysLeft: 'الأيام المتبقية',
+        thLockStatus: 'حالة القفل',
+        sourceDirect: 'إيداع مباشر',
+        sourceCompound: 'فائدة مركبة',
+        daysLeftTxt: 'باقي {days} يوم',
+        completedTxt: 'مكتمل (0 يوم)',
+        badgeLocked: '🔒 مقفل',
+        badgeUnlocked: '🔓 محرر',
+        navHome: 'الرئيسية',
+        navInvest: 'الاستثمار',
+        navTeam: 'الفريق',
+        navWallet: 'المحفظة',
+        navProfile: 'الملف',
+        comingSoon: 'سيتوفر هذا القسم قريباً.',
+        copiedNotice: 'تم النسخ بنجاح!',
+        compoundSuccess: 'تمت إضافة الأرباح بنجاح مع تفعيل دفعة قفل جديدة لمدة 90 يوماً.',
+        errBelow10Days: 'لا يمكن إضافة الأرباح الآن! يجب الاحتفاظ بها لمدة 10 أيام على الأقل.',
+        errExceedBalance: 'المبلغ المدخل يتجاوز رصيد الأرباح المتاح.',
+        daysUnit: 'يوم',
+        tiers: [
+            { label: 'أقل من 10 أيام:', val: 'غير مسموح (خطأ)', isErr: true },
+            { label: 'بين 10 و 15 يوماً:', val: '5% عمولة' },
+            { label: 'بين 15 و 25 يوماً:', val: '3% عمولة' },
+            { label: 'بين 25 و 35 يوماً:', val: '1% عمولة' },
+            { label: 'بين 35 و 50 يوماً:', val: '0% (مجاناً)', isGreen: true },
+            { label: 'أكثر من 50 يوماً:', val: '0% + 3% مكافأة', isGreen: true }
+        ]
+    },
+    fa: {
+        dir: 'rtl',
+        langName: 'فارسی',
+        adminPanel: 'پنل مدیریت',
+        accumulatedProfit: 'مجموع سود انباشته‌شده',
+        todayProfit: 'سود امروز',
+        pendingRelease: 'در حال پردازش / تسویه خودکار روزانه',
+        profitReleased: 'سود واریز و آزاد شد',
+        noInvestmentNotice: 'فاقد سرمایه‌گذاری فعال (حداقل ۵۰ دلار)',
+        totalCapitalTitle: 'اصل سرمایه کل',
+        lockedCapLabel: 'قفل‌شده:',
+        unlockedCapLabel: 'آزادشده:',
+        chartSectionTitle: 'نمودار بازدهی و واریزهای سود روزانه',
+        chartSectionSub: 'تاریخچه سودهای واریزشده بر اساس نوسان ۰.۸٪ تا ۱.۳٪',
+        tfToday: 'امروز (۲۴ ساعته)',
+        tf7Days: '۷ روز گذشته',
+        tf30Days: '۳۰ روز گذشته',
+        tfAll: 'همه',
+        dailyHistoryTableTitle: 'ریز سوابق سودهای روزانه اخیر',
+        thDate: 'تاریخ',
+        thDailyYield: 'نرخ بازدهی',
+        thAmount: 'مبلغ سود واریزی',
+        thStatus: 'وضعیت',
+        statusCredited: 'واریز شد',
+        statusPending: 'در انتظار',
+        noLotsFound: 'هیچ لات فعالی وجود ندارد',
+        noRecordsFound: 'هیچ سابقه سودی یافت نشد',
+        compoundModuleTitle: 'سیستم سود مرکب (تبدیل سود به سرمایه)',
+        compoundModuleDesc: 'با افزودن سودهای دریافتی به اصل سرمایه، حجم پکیج سرمایه‌گذاری خود را افزایش دهید.',
+        currentAvailableProfit: 'موجودی سود فعلی:',
+        amountToCompound: 'مبلغ مورد نظر جهت ترکیب (USDT):',
+        profitHoldDuration: 'مدت زمان نگهداری این سود:',
+        commissionFeeRate: 'کارمزد کسر قانونی:',
+        commissionAmount: 'مبلغ کارمزد:',
+        netCapitalAdded: 'مبلغ خالص افزوده شده به اصل سرمایه:',
+        btnCompoundNow: 'ترکیب و افزودن به اصل سرمایه',
+        matrixTitle: 'قوانین محاسبه کارمزد سود مرکب:',
+        lotSectionTitle: 'جدول وضعیت قفل سرمایه‌ها (Lot-Based 90-Day Lock)',
+        lotSectionSub: 'هر واریز مستقیم یا سود مرکب به عنوان یک لات مستقل با دوره قفل ۹۰ روزه ثبت می‌گردد.',
+        thLotId: 'شناسه لات',
+        thRegDate: 'تاریخ ثبت',
+        thLotAmount: 'مبلغ (USDT)',
+        thLotSource: 'منبع واریز',
+        thDaysLeft: 'روزهای باقی‌مانده',
+        thLockStatus: 'وضعیت قفل',
+        sourceDirect: 'واریز مستقیم',
+        sourceCompound: 'سود مرکب',
+        daysLeftTxt: '{days} روز مانده',
+        completedTxt: 'پایان دوره (۰ روز)',
+        badgeLocked: '🔒 قفل‌شده',
+        badgeUnlocked: '🔓 آزادشده',
+        navHome: 'داشبورد',
+        navInvest: 'سرمایه‌گذاری',
+        navTeam: 'تیم و شبکه',
+        navWallet: 'کیف‌پول',
+        navProfile: 'پروفایل',
+        comingSoon: 'این بخش به زودی فعال خواهد شد.',
+        copiedNotice: 'در حافظه کپی شد!',
+        compoundSuccess: 'سود با موفقیت مرکب شد و با دوره قفل ۹۰‌روزه جدید به اصل سرمایه پیوست.',
+        errBelow10Days: 'شما در حال حاضر مجاز به ترکیب سود نیستید! حداقل ۱۰ روز نگهداری الزامی است.',
+        errExceedBalance: 'مبلغ وارد شده از موجودی سود شما بیشتر است.',
+        daysUnit: 'روز',
+        tiers: [
+            { label: 'کمتر از ۱۰ روز:', val: 'غیرمجاز (خطا)', isErr: true },
+            { label: 'بین ۱۰ تا ۱۵ روز:', val: '۵٪ کارمزد' },
+            { label: 'بین ۱۵ تا ۲۵ روز:', val: '۳٪ کارمزد' },
+            { label: 'بین ۲۵ تا ۳۵ روز:', val: '۱٪ کارمزد' },
+            { label: 'بین ۳۵ تا ۵۰ روز:', val: '۰٪ (رایگان)', isGreen: true },
+            { label: 'بیش از ۵۰ روز:', val: '۰٪ + ۳٪ بانس پاداش', isGreen: true }
+        ]
+    }
+};
+
+const STORAGE_LANG_KEY = 'platform_lang';
+let currentLanguage = localStorage.getItem(STORAGE_LANG_KEY) || 'fa';
+
+let investState = {
+    role: 'user',
+    hasInvestment: false,
+    accumulatedProfit: 0.00,
+    availableProfit: 0.00,
+    totalCapital: 0.00,
+    lockedCapital: 0.00,
+    unlockedCapital: 0.00,
+    todayProfit: 0.00,
+    dailyRate: 0.00,
+    isReleased: false,
+    daysHeld: 0,
+    lots: [],
+    profitHistory: []
+};
+
+// دریافت عناصر کنترل صفحه با اعتبارسنجی کامل
+const langDropdown = document.getElementById('langDropdown');
+const langTriggerBtn = document.getElementById('langTriggerBtn');
+const currentLangLabel = document.getElementById('currentLangLabel');
+const langMenu = document.getElementById('langMenu');
+const adminPanelBtn = document.getElementById('adminPanelBtn');
+const toastNotification = document.getElementById('toastNotification');
+
+const compoundAmountInput = document.getElementById('compoundAmountInput');
+const compoundMaxBtn = document.getElementById('compoundMaxBtn');
+const txtFeeRate = document.getElementById('txtFeeRate');
+const txtFeeAmount = document.getElementById('txtFeeAmount');
+const txtNetCompound = document.getElementById('txtNetCompound');
+const btnExecuteCompound = document.getElementById('btnExecuteCompound');
+
+const canvas = document.getElementById('profitHistoryCanvas');
+const ctx = canvas ? canvas.getContext('2d') : null;
+const yAxisCanvas = document.getElementById('yAxisCanvas');
+const yCtx = yAxisCanvas ? yAxisCanvas.getContext('2d') : null;
+const tooltip = document.getElementById('chartTooltip');
+
+let currentRange = '30';
+let chartPoints = [];
+
+function showToast(message, isError = false) {
+    if (!toastNotification) return;
+    toastNotification.textContent = message;
+    toastNotification.className = isError ? 'toast-alert error show' : 'toast-alert show';
+    setTimeout(() => { if (toastNotification) toastNotification.className = 'toast-alert'; }, 3800);
+}
+
+/**
+ * دریافت اطلاعات سرمایه‌گذاری متصل به بک‌اند
+ */
+async function fetchInvestData() {
+    let sessionUser = {};
+    try {
+        sessionUser = JSON.parse(sessionStorage.getItem('current_user') || localStorage.getItem('current_user') || '{}');
+    } catch (e) {
+        sessionUser = {};
+    }
+    const currentUserId = sessionUser.userId || sessionUser.id || localStorage.getItem('user_id') || sessionStorage.getItem('user_id');
+
+    if (!currentUserId) {
+        window.location.href = 'index.html';
+        return;
+    }
+
+    const apiUrl = (typeof window !== 'undefined' && window.APP_CONFIG && typeof window.APP_CONFIG.getApiUrl === 'function')
+        ? window.APP_CONFIG.getApiUrl('/api/invest/data')
+        : '/api/invest/data';
+
+    try {
+        const res = await fetch(apiUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ userId: currentUserId })
+        });
+        const result = await res.json();
+
+        if (res.ok && (result.success || result.status === 'success')) {
+            investState = result.data;
+
+            if (investState.role === 'admin' && adminPanelBtn) {
+                adminPanelBtn.classList.remove('hidden');
+            } else if (adminPanelBtn) {
+                adminPanelBtn.classList.add('hidden');
+            }
+
+            updateSummaryCards();
+            renderDailyProfitsTable();
+            renderLotsTable();
+            renderCompoundRulesMatrix();
+            updateCompoundCalculations();
+        } else {
+            showToast(result.message || 'خطا در دریافت اطلاعات سرمایه‌گذاری', true);
+        }
+    } catch (e) {
+        showToast('خطا در دریافت اطلاعات سرمایه‌گذاری', true);
+    }
+}
+
+function updateSummaryCards() {
+    const dict = dashboardI18n[currentLanguage];
+
+    const statAccProfit = document.getElementById('statAccumulatedProfit');
+    const statTotalCap = document.getElementById('statTotalCapital');
+    const statLockedCap = document.getElementById('statLockedCapital');
+    const statUnlockedCap = document.getElementById('statUnlockedCapital');
+    const txtCurProfit = document.getElementById('txtCurrentProfit');
+
+    if (statAccProfit) statAccProfit.textContent = investState.accumulatedProfit.toLocaleString('en-US', { minimumFractionDigits: 2 });
+    if (statTotalCap) statTotalCap.textContent = investState.totalCapital.toLocaleString('en-US', { minimumFractionDigits: 2 });
+    if (statLockedCap) statLockedCap.textContent = `$${investState.lockedCapital.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+    if (statUnlockedCap) statUnlockedCap.textContent = `$${investState.unlockedCapital.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+    if (txtCurProfit) txtCurProfit.textContent = investState.availableProfit.toLocaleString('en-US', { minimumFractionDigits: 2 });
+
+    const rateBadge = document.getElementById('statDailyRate');
+    const todayProfitEl = document.getElementById('statTodayProfit');
+    const dot = document.getElementById('releaseStatusDot');
+    const txt = document.getElementById('releaseStatusText');
+
+    if (!investState.hasInvestment) {
+        if (rateBadge) rateBadge.textContent = '0.00%';
+        if (todayProfitEl) todayProfitEl.textContent = '0.00';
+        if (dot) dot.style.display = 'none';
+        if (txt) txt.textContent = dict.noInvestmentNotice;
+    } else {
+        if (dot) dot.style.display = 'inline-block';
+        if (investState.isReleased) {
+            if (rateBadge) rateBadge.textContent = `+${investState.dailyRate.toFixed(2)}%`;
+            if (todayProfitEl) todayProfitEl.textContent = investState.todayProfit.toLocaleString('en-US', { minimumFractionDigits: 2 });
+            dot.className = 'status-pulse-dot released';
+            txt.textContent = dict.profitReleased;
+        } else {
+            if (rateBadge) rateBadge.textContent = '---';
+            if (todayProfitEl) todayProfitEl.textContent = '---';
+            dot.className = 'status-pulse-dot';
+            txt.textContent = dict.pendingRelease;
+        }
+    }
+}
+
+function renderDailyProfitsTable() {
+    const tbody = document.getElementById('dailyProfitsTableBody');
+    const dict = dashboardI18n[currentLanguage];
+    if (!tbody) return;
+    tbody.innerHTML = '';
+
+    if (!investState.profitHistory || investState.profitHistory.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#848E9C; padding:20px;">${dict.noRecordsFound}</td></tr>`;
+        return;
+    }
+
+    investState.profitHistory.forEach(rec => {
+        const tr = document.createElement('tr');
+        const statusClass = rec.credited ? 'credited' : 'pending';
+        const statusLabel = rec.credited ? dict.statusCredited : dict.statusPending;
+        const rateTxt = rec.credited ? `+${rec.rate.toFixed(2)}%` : '---';
+        const amountTxt = rec.credited ? `+$${rec.amount.toFixed(2)}` : '---';
+
+        tr.innerHTML = `
+            <td>${rec.date}</td>
+            <td class="text-green">${rateTxt}</td>
+            <td><strong>${amountTxt}</strong></td>
+            <td><span class="status-badge ${statusClass}">${statusLabel}</span></td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+function renderLotsTable() {
+    const tbody = document.getElementById('lotsTableBody');
+    const dict = dashboardI18n[currentLanguage];
+    if (!tbody) return;
+    tbody.innerHTML = '';
+
+    if (!investState.lots || investState.lots.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:#848E9C; padding:20px;">${dict.noLotsFound}</td></tr>`;
+        return;
+    }
+
+    investState.lots.forEach(lot => {
+        const remainingDays = lot.days_left;
+        const percent = Math.min(100, Math.round((lot.days_passed / 90) * 100));
+        const isUnlocked = lot.status === 'unlocked' || remainingDays === 0;
+
+        const sourceTxt = lot.source === 'deposit' ? dict.sourceDirect : dict.sourceCompound;
+        const daysTxt = isUnlocked ? dict.completedTxt : dict.daysLeftTxt.replace('{days}', remainingDays);
+        const statusPill = isUnlocked 
+            ? `<span class="lot-status-pill unlocked">${dict.badgeUnlocked}</span>` 
+            : `<span class="lot-status-pill locked">${dict.badgeLocked}</span>`;
+        const fillClass = isUnlocked ? 'progress-fill-line completed' : 'progress-fill-line';
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td><strong>#LOT-${lot.id}</strong></td>
+            <td>${lot.reg_date}</td>
+            <td>$${parseFloat(lot.amount).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
+            <td>${sourceTxt}</td>
+            <td>
+                <div class="days-progress-wrapper">
+                    <div class="days-progress-bar"><div class="${fillClass}" style="width: ${percent}%;"></div></div>
+                    <span class="days-count-txt">${daysTxt}</span>
+                </div>
+            </td>
+            <td>${statusPill}</td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+function renderCompoundRulesMatrix() {
+    const matrixList = document.getElementById('compoundMatrixList');
+    if (!matrixList) return;
+    const dict = dashboardI18n[currentLanguage];
+
+    matrixList.innerHTML = '';
+    dict.tiers.forEach(tier => {
+        const li = document.createElement('li');
+        let valBadge = `<strong>${tier.val}</strong>`;
+        if (tier.isErr) valBadge = `<span class="badge-red">${tier.val}</span>`;
+        else if (tier.isGreen) valBadge = `<strong class="text-green">${tier.val}</strong>`;
+
+        li.innerHTML = `<span>${tier.label}</span> ${valBadge}`;
+        matrixList.appendChild(li);
+    });
+
+    const txtHoldDays = document.getElementById('txtHoldDays');
+    if (txtHoldDays) {
+        txtHoldDays.textContent = `${investState.daysHeld} ${dict.daysUnit}`;
+    }
+}
+
+async function loadChartData() {
+    const chartApiUrl = (typeof window !== 'undefined' && window.APP_CONFIG && typeof window.APP_CONFIG.getApiUrl === 'function')
+        ? window.APP_CONFIG.getApiUrl('/api/invest/chart')
+        : '/api/invest/chart';
+
+    try {
+        const res = await fetch(chartApiUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ range: currentRange })
+        });
+        const result = await res.json();
+        if (res.ok && result.success) {
+            chartPoints = result.points;
+            drawProfitChart();
+        }
+    } catch (e) {}
+}
+
+/**
+ * رسم دیوار ثابت و چسبان فیصدی در سمت چپ
+ */
+function drawStickyYAxis(paddingTop, chartHeight, minVal, maxVal) {
+    if (!yAxisCanvas || !yCtx) return;
+
+    yAxisCanvas.width = 58 * window.devicePixelRatio;
+    yAxisCanvas.height = 290 * window.devicePixelRatio;
+    yCtx.scale(window.devicePixelRatio, window.devicePixelRatio);
+
+    yCtx.clearRect(0, 0, 58, 290);
+    yCtx.fillStyle = '#848E9C';
+    yCtx.font = '11px Inter, sans-serif';
+    yCtx.textAlign = 'right';
+
+    const yLevels = [0.0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.3];
+    yLevels.forEach(v => {
+        const y = paddingTop + chartHeight - ((v - minVal) / (maxVal - minVal)) * chartHeight;
+        yCtx.fillText(`${v.toFixed(1)}%`, 48, y + 4);
+        
+        yCtx.strokeStyle = '#2E323A';
+        yCtx.lineWidth = 1;
+        yCtx.beginPath();
+        yCtx.moveTo(50, y);
+        yCtx.lineTo(58, y);
+        yCtx.stroke();
+    });
+}
+
+/**
+ * رسم نمودار نئونی
+ */
+function drawProfitChart() {
+    if (!canvas || !ctx || !chartPoints || chartPoints.length === 0) return;
+    const wrapper = document.getElementById('canvasScrollWrapper');
+
+    let computedWidth = 980;
+    if (currentRange === 'today') computedWidth = 980;
+    else if (currentRange === '7') computedWidth = 980;
+    else if (currentRange === '30') computedWidth = 1250;
+    else if (currentRange === 'all') computedWidth = 3200;
+
+    if (wrapper) wrapper.style.width = `${computedWidth}px`;
+
+    canvas.width = computedWidth * window.devicePixelRatio;
+    canvas.height = 290 * window.devicePixelRatio;
+    ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+
+    const width = computedWidth;
+    const height = 290;
+    ctx.clearRect(0, 0, width, height);
+
+    const padding = { top: 35, right: 45, bottom: 45, left: 25 };
+    const chartW = width - padding.left - padding.right;
+    const chartH = height - padding.top - padding.bottom;
+
+    const minVal = 0.00;
+    const maxVal = 1.35;
+
+    drawStickyYAxis(padding.top, chartH, minVal, maxVal);
+
+    ctx.strokeStyle = '#1E2329';
+    ctx.lineWidth = 1;
+    const yLevels = [0.0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.3];
+    yLevels.forEach(v => {
+        const y = padding.top + chartH - ((v - minVal) / (maxVal - minVal)) * chartH;
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(width, y);
+        ctx.stroke();
+    });
+
+    const yMinLegal = padding.top + chartH - ((0.80 - minVal) / (maxVal - minVal)) * chartH;
+    ctx.strokeStyle = 'rgba(240, 185, 11, 0.25)';
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath();
+    ctx.moveTo(0, yMinLegal);
+    ctx.lineTo(width, yMinLegal);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    ctx.beginPath();
+    ctx.textAlign = 'center';
+    ctx.fillStyle = '#848E9C';
+    ctx.font = '11px Inter, sans-serif';
+
+    chartPoints.forEach((pt, idx) => {
+        const x = padding.left + (idx / Math.max(1, chartPoints.length - 1)) * chartW;
+        const clampedRate = Math.max(0.80, Math.min(1.30, pt.rate));
+        const y = padding.top + chartH - ((clampedRate - minVal) / (maxVal - minVal)) * chartH;
+        pt.x = x;
+        pt.y = y;
+
+        if (idx === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+
+        const labelInterval = (currentRange === 'all') ? 14 : (currentRange === '30' ? 3 : (currentRange === 'today' ? 2 : 1));
+        if (idx % labelInterval === 0 || idx === chartPoints.length - 1) {
+            ctx.fillText(pt.date, x, height - 12);
+        }
+    });
+
+    ctx.save();
+    ctx.strokeStyle = '#0ECB81';
+    ctx.lineWidth = 2.6;
+    ctx.shadowColor = 'rgba(14, 203, 129, 0.7)';
+    ctx.shadowBlur = 9;
+    ctx.stroke();
+    ctx.restore();
+
+    ctx.lineTo(padding.left + chartW, padding.top + chartH);
+    ctx.lineTo(padding.left, padding.top + chartH);
+    const grad = ctx.createLinearGradient(0, padding.top, 0, padding.top + chartH);
+    grad.addColorStop(0, 'rgba(14, 203, 129, 0.25)');
+    grad.addColorStop(1, 'rgba(14, 203, 129, 0.0)');
+    ctx.fillStyle = grad;
+    ctx.fill();
+
+    chartPoints.forEach(pt => {
+        ctx.beginPath();
+        ctx.arc(pt.x, pt.y, 3.2, 0, Math.PI * 2);
+        ctx.fillStyle = '#0ECB81';
+        ctx.fill();
+        ctx.lineWidth = 1.2;
+        ctx.strokeStyle = '#0B0E11';
+        ctx.stroke();
+    });
+
+    const scrollBox = document.querySelector('.chart-scroll-container');
+    if (scrollBox && (currentRange === '30' || currentRange === 'all')) {
+        setTimeout(() => {
+            scrollBox.scrollLeft = scrollBox.scrollWidth;
+        }, 80);
+    }
+}
+
+if (canvas) {
+    canvas.addEventListener('mousemove', (e) => {
+        if (!tooltip) return;
+        const rect = canvas.getBoundingClientRect();
+        const mouseX = e.clientX - rect.left;
+
+        let closest = null;
+        let minDist = 9999;
+        chartPoints.forEach(pt => {
+            const dist = Math.abs(pt.x - mouseX);
+            if (dist < minDist) {
+                minDist = dist;
+                closest = pt;
+            }
+        });
+
+        if (closest && minDist < 35) {
+            tooltip.textContent = `${closest.date}: +${closest.rate.toFixed(2)}%`;
+            tooltip.style.left = `${closest.x}px`;
+            tooltip.style.top = `${closest.y}px`;
+            tooltip.classList.remove('hidden');
+        } else {
+            tooltip.classList.add('hidden');
+        }
+    });
+
+    canvas.addEventListener('mouseleave', () => {
+        if (tooltip) tooltip.classList.add('hidden');
+    });
+}
+
+document.querySelectorAll('.tf-btn').forEach(btn => {
+    btn.addEventListener('click', function () {
+        document.querySelectorAll('.tf-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        currentRange = this.getAttribute('data-range');
+        loadChartData();
+    });
+});
+
+function updateCompoundCalculations() {
+    if (!compoundAmountInput) return;
+    const amount = parseFloat(compoundAmountInput.value) || 0;
+    const days = investState.daysHeld;
+    let feePercent = 0;
+    let bonusPercent = 0;
+    let isAllowed = true;
+
+    if (days < 10) {
+        isAllowed = false;
+        feePercent = 0;
+    } else if (days >= 10 && days < 15) {
+        feePercent = 5;
+    } else if (days >= 15 && days < 25) {
+        feePercent = 3;
+    } else if (days >= 25 && days < 35) {
+        feePercent = 1;
+    } else if (days >= 35 && days < 50) {
+        feePercent = 0;
+    } else if (days >= 50) {
+        feePercent = 0;
+        bonusPercent = 3;
+    }
+
+    const feeAmount = (amount * feePercent) / 100;
+    const bonusAmount = (amount * bonusPercent) / 100;
+    const netAdded = Math.max(0, amount - feeAmount + bonusAmount);
+
+    if (txtFeeRate) txtFeeRate.textContent = `${feePercent}%`;
+    if (txtFeeAmount) txtFeeAmount.textContent = `$${feeAmount.toFixed(2)}`;
+    if (txtNetCompound) txtNetCompound.textContent = `$${netAdded.toFixed(2)}`;
+
+    const isValid = isAllowed && amount > 0 && amount <= investState.availableProfit;
+    if (btnExecuteCompound) btnExecuteCompound.disabled = !isValid;
+}
+
+if (compoundMaxBtn && compoundAmountInput) {
+    compoundMaxBtn.addEventListener('click', () => {
+        compoundAmountInput.value = investState.availableProfit;
+        updateCompoundCalculations();
+    });
+}
+
+if (compoundAmountInput) {
+    compoundAmountInput.addEventListener('input', updateCompoundCalculations);
+}
+
+if (btnExecuteCompound) {
+    btnExecuteCompound.addEventListener('click', async () => {
+        const amount = parseFloat(compoundAmountInput.value);
+        const dict = dashboardI18n[currentLanguage];
+        let sessionUser = {};
+        try {
+            sessionUser = JSON.parse(sessionStorage.getItem('current_user') || localStorage.getItem('current_user') || '{}');
+        } catch (e) {
+            sessionUser = {};
+        }
+        const currentUserId = sessionUser.userId || sessionUser.id || localStorage.getItem('user_id');
+
+        if (investState.daysHeld < 10) {
+            showToast(dict.errBelow10Days, true);
+            return;
+        }
+
+        if (amount > investState.availableProfit) {
+            showToast(dict.errExceedBalance, true);
+            return;
+        }
+
+        const compoundApiUrl = (typeof window !== 'undefined' && window.APP_CONFIG && typeof window.APP_CONFIG.getApiUrl === 'function')
+            ? window.APP_CONFIG.getApiUrl('/api/invest/compound')
+            : '/api/invest/compound';
+
+        try {
+            const res = await fetch(compoundApiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({
+                    userId: currentUserId,
+                    amount: amount
+                })
+            });
+
+            const result = await res.json();
+            if (res.ok && (result.success || result.status === 'success')) {
+                compoundAmountInput.value = '';
+                showToast(result.message || dict.compoundSuccess, false);
+                fetchInvestData();
+            } else {
+                showToast(result.message, true);
+            }
+        } catch (e) {
+            showToast('خطا در ثبت سود مرکب', true);
+        }
+    });
+}
+
+function setLanguage(lang) {
+    currentLanguage = lang;
+    localStorage.setItem(STORAGE_LANG_KEY, lang);
+    const dict = dashboardI18n[lang];
+
+    document.documentElement.lang = lang;
+    document.documentElement.dir = dict.dir;
+    if (currentLangLabel) currentLangLabel.textContent = dict.langName;
+
+    if (langMenu) {
+        langMenu.querySelectorAll('.lang-item').forEach(i => {
+            i.classList.toggle('active', i.getAttribute('data-value') === lang);
+        });
+    }
+
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (dict[key]) el.textContent = dict[key];
+    });
+
+    if (langDropdown) langDropdown.classList.remove('open');
+    renderCompoundRulesMatrix();
+    updateSummaryCards();
+    renderDailyProfitsTable();
+    renderLotsTable();
+    drawProfitChart();
+}
+
+if (langTriggerBtn && langDropdown) {
+    langTriggerBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        langDropdown.classList.toggle('open');
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!langDropdown.contains(e.target)) langDropdown.classList.remove('open');
+    });
+}
+
+if (langMenu) {
+    langMenu.querySelectorAll('.lang-item').forEach(item => {
+        item.addEventListener('click', function () {
+            setLanguage(this.getAttribute('data-value'));
+        });
+    });
+}
+
+function universalRedirect(targetUrl) {
+    if (!targetUrl) return;
+    const current = window.location.pathname.split('/').pop() || 'invest.html';
+    if (current.toLowerCase() !== targetUrl.toLowerCase()) {
+        window.location.href = targetUrl;
+    }
+}
+
+function bindBulletproofNav() {
+    const navButtons = document.querySelectorAll('.bottom-nav .nav-item, nav .nav-item, footer .nav-item, .nav-item, nav a, nav button');
+
+    navButtons.forEach((btn, index) => {
+        btn.removeAttribute('onclick');
+        btn.onclick = null;
+
+        btn.addEventListener('click', function (e) {
+            e.stopImmediatePropagation();
+            e.preventDefault();
+
+            const text = (this.textContent || '').trim().toLowerCase();
+            const combined = `${text} ${index}`;
+
+            if (combined.includes('home') || combined.includes('داشبورد') || index === 0) {
+                universalRedirect('home.html');
+                return;
+            }
+            if (combined.includes('invest') || combined.includes('سرمایه') || index === 1) {
+                return;
+            }
+            if (combined.includes('team') || combined.includes('تیم') || index === 2) {
+                universalRedirect('team.html');
+                return;
+            }
+            if (combined.includes('wallet') || combined.includes('کیف') || index === 3) {
+                universalRedirect('wallet.html');
+                return;
+            }
+            if (combined.includes('profile') || combined.includes('پروفایل') || index === 4) {
+                universalRedirect('profile.html');
+                return;
+            }
+        }, true);
+    });
+}
+
+function initInvestPage() {
+    bindBulletproofNav();
+    setLanguage(currentLanguage);
+    fetchInvestData();
+    loadChartData();
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initInvestPage);
+} else {
+    initInvestPage();
+}
