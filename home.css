@@ -590,132 +590,127 @@ body {
 .toast-alert.error { border-color: var(--text-red); }
 .hidden { display: none !important; }
 
-/* ================= راهکار سوم: فشرده‌سازی هوشمند ۴ ستونه برای موبایل ================= */
+/* ================= راهکار اول: شبکه متقارن ۲×۲ برای موبایل ================= */
 @media screen and (max-width: 768px) {
     body {
-        padding-bottom: calc(var(--bottom-nav-height) + 15px);
+        padding-bottom: calc(var(--bottom-nav-height) + 20px);
     }
 
     .app-header {
-        padding: 10px 12px;
+        padding: 10px 16px;
     }
 
     .header-logo-img {
-        height: 32px;
+        height: 34px;
     }
 
     .admin-badge-btn {
-        padding: 5px 10px;
+        padding: 6px 12px;
         font-size: 11px;
     }
 
     .lang-trigger {
-        padding: 5px 8px;
+        padding: 6px 10px;
         font-size: 12px;
     }
 
     .main-content-area {
-        padding: 12px 8px;
+        padding: 16px 12px;
     }
 
-    /* ۴ کارت آمار در یک ردیف افقی فشرده و تمیز */
+    /* چیدمان ۲×۲ کارت‌های آمار در موبایل */
     .summary-cards-grid {
-        grid-template-columns: repeat(4, 1fr);
-        gap: 6px;
-        margin-bottom: 14px;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+        margin-bottom: 20px;
     }
 
     .summary-card {
-        padding: 10px 4px;
-        border-radius: 10px;
-        min-width: 0;
-        text-align: center;
+        padding: 16px 14px;
+        border-radius: 14px;
+        min-height: 90px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
     }
 
     .card-caption {
-        font-size: 9.5px;
-        margin-bottom: 6px;
+        font-size: 12px;
+        margin-bottom: 8px;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
     }
 
     .card-head-flex {
-        flex-direction: column;
-        gap: 4px;
-        margin-bottom: 6px;
+        margin-bottom: 8px;
     }
 
     .yield-badge {
-        font-size: 9px;
-        padding: 1px 4px;
-        display: inline-block;
+        font-size: 11px;
+        padding: 2px 6px;
     }
 
     .card-amount {
-        font-size: 14px;
+        font-size: 21px;
         font-weight: 700;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
     }
 
-    /* ۴ دکمه عملیات در یک ردیف افقی */
+    /* ۴ دکمه عملیات در یک ردیف منظم و استاندارد */
     .quick-actions-grid {
         grid-template-columns: repeat(4, 1fr);
-        gap: 6px;
-        margin-bottom: 16px;
+        gap: 8px;
+        margin-bottom: 20px;
     }
 
     .action-btn {
-        padding: 10px 2px;
-        border-radius: 10px;
-        min-width: 0;
+        padding: 12px 6px;
+        border-radius: 12px;
     }
 
     .action-icon {
-        width: 36px;
-        height: 36px;
-        border-radius: 9px;
-        margin-bottom: 6px;
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        margin-bottom: 8px;
     }
 
     .action-icon svg {
-        width: 18px;
-        height: 18px;
+        width: 20px;
+        height: 20px;
     }
 
     .action-label {
-        font-size: 10px;
+        font-size: 11px;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
     }
 
     .video-card-wrapper {
-        border-radius: 12px;
-        margin-bottom: 16px;
+        border-radius: 14px;
+        margin-bottom: 20px;
     }
 
     .platform-video {
-        border-radius: 12px;
+        border-radius: 14px;
     }
 
     .bottom-nav {
-        height: 58px;
+        height: 62px;
     }
 
     .nav-label {
-        font-size: 9.5px;
+        font-size: 10px;
     }
 
     .nav-item .nav-icon svg {
-        width: 18px;
-        height: 18px;
+        width: 20px;
+        height: 20px;
     }
 
     .full-modal-card {
-        padding: 16px;
-        border-radius: 14px;
+        padding: 18px;
+        border-radius: 16px;
     }
 }
