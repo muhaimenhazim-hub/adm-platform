@@ -953,6 +953,7 @@ body.binance-dark {
 .table-responsive-wrapper {
   width: 100%;
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .binance-custom-table {
@@ -1210,32 +1211,238 @@ body.binance-dark {
   }
 }
 
+/* ==========================================================================
+   استایل‌های واکنش‌گرا و متقارن اختصاصی برای موبایل (چیدمان ۲×۲ استاندارد)
+   ========================================================================== */
 @media (max-width: 768px) {
-  .referral-action-grid {
-    grid-template-columns: 1fr;
+  body.binance-dark {
+    padding-bottom: 80px;
   }
-  .network-stats-grid {
-    grid-template-columns: 1fr;
+
+  .top-nav {
+    height: 58px;
+    padding: 0 14px;
   }
-  .gen-stats-display-grid {
-    grid-template-columns: 1fr;
+
+  .header-logo-img {
+    height: 34px;
   }
-  .hub-header {
-    flex-direction: column-reverse;
+
+  .admin-badge-btn {
+    padding: 5px 10px;
+    font-size: 11px;
+  }
+
+  .modern-select-btn {
+    padding: 5px 10px;
+    font-size: 12px;
+  }
+
+  .team-container {
+    padding: 16px 12px;
     gap: 16px;
   }
+
+  /* کارت لینک و کد دعوت */
+  .referral-hub-card {
+    padding: 16px 14px;
+  }
+
+  .hub-header {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    gap: 10px;
+  }
+
+  .hub-title-box h2 {
+    font-size: 17px;
+  }
+
+  .hub-title-box p {
+    font-size: 12px;
+  }
+
+  .adm-neon-circle {
+    width: 48px;
+    height: 48px;
+    font-size: 12px;
+  }
+
+  .referral-action-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .modern-input-group input {
+    font-size: 13px;
+    padding: 8px 10px;
+  }
+
+  .btn-input-action {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+
+  /* ۱. چیدمان شبکه‌ای ۲×۲ برای ۴ کارت آمار کل شبکه */
+  .network-stats-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
+  }
+
+  .stat-metric-card {
+    padding: 14px 12px;
+    min-height: auto;
+    border-radius: 12px;
+  }
+
+  .stat-metric-title {
+    font-size: 11.5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .stat-icon-wrap {
+    width: 28px;
+    height: 28px;
+  }
+
+  .stat-icon-wrap svg {
+    width: 15px;
+    height: 15px;
+  }
+
+  .stat-card-top {
+    margin-bottom: 8px;
+  }
+
+  .stat-amount-wrap {
+    margin-bottom: 6px;
+  }
+
+  .stat-digits {
+    font-size: 20px;
+    font-weight: 700;
+  }
+
+  .stat-currency {
+    font-size: 11px;
+  }
+
+  .gen-pill {
+    padding: 2px 4px;
+    font-size: 9.5px;
+  }
+
+  .cap-status-pill {
+    padding: 3px 8px;
+    font-size: 10px;
+  }
+
+  /* بخش قوانین */
+  .rules-overview-card {
+    padding: 16px 14px;
+  }
+
+  .rules-grid-layout {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .rule-box-item {
+    padding: 14px 12px;
+  }
+
+  /* تب‌های نسل‌ها */
+  .binance-tabs-bar {
+    gap: 6px;
+  }
+
+  .b-tab-btn {
+    min-width: 58px;
+    padding: 8px 4px;
+  }
+
+  .b-tab-title {
+    font-size: 14px;
+  }
+
+  .b-tab-sub {
+    font-size: 10px;
+  }
+
+  /* ۲. چیدمان شبکه‌ای ۲×۲ برای ۴ کارت آمار هر نسل */
+  .gen-stats-display-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
+  }
+
+  .gen-mini-metric {
+    padding: 14px 12px;
+    min-height: auto;
+    border-radius: 12px;
+  }
+
+  .g-label {
+    font-size: 11px;
+    margin-bottom: 6px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .g-number {
+    font-size: 20px;
+    font-weight: 700;
+  }
+
+  .g-cur {
+    font-size: 11px;
+  }
+
+  /* بخش جدول تراکنش‌ها */
+  .ledger-table-card {
+    padding: 16px 12px;
+  }
+
+  .ledger-top-row {
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+
   .ledger-actions-group {
     width: 100%;
     flex-direction: column;
     align-items: stretch;
   }
+
   .modern-search-box {
     width: 100%;
   }
+
   .custom-filter-dropdown {
     width: 100%;
   }
+
   .modern-select-btn.filter-btn {
     width: 100%;
+  }
+
+  /* نوار پایین */
+  .bottom-nav {
+    height: 62px;
+  }
+
+  .nav-label {
+    font-size: 10px;
+  }
+
+  .nav-item .nav-icon svg {
+    width: 20px;
+    height: 20px;
   }
 }
