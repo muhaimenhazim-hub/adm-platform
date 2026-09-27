@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Platform - Wallet &amp; Withdrawals</title>
+    <link rel="stylesheet" href="wallet.css">
+    <!-- فونت‌های استاندارد بایننس -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <!-- سیستم اعلان بالای صفحه (Toast Notification) -->
+    <div id="toastNotification" class="toast-alert" aria-live="polite"></div>
+
+    <!-- هدر بالای صفحه (Top Nav) -->
+    <header class="app-header">
+        <div class="header-left">
+            <!-- لوگوی رسمی ADM با امواج نوری -->
+            <div class="header-logo-box">
+                <img src="logo.jpg" alt="ADM Logo" class="header-logo-img">
+            </div>
+        </div>
+
+        <div class="header-right">
+            <!-- دکمه پنل ادمین (فقط در صورتی که نقش کاربر admin باشد نمایش می‌یابد) -->
+            <button type="button" id="adminPanelBtn" class="admin-badge-btn hidden">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1Z"/>
+                </svg>
+                <span data-i18n="adminPanel">پنل مدیریت</span>
+            </button>
+
+            <!-- دراپ‌داون مدرن تغییر زبان -->
+            <div class="custom-dropdown" id="langDropdown">
+                <button type="button" class="lang-trigger" id="langTriggerBtn" aria-haspopup="true" aria-expanded="false">
+                    <svg class="globe-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="2" y1="12" x2="22" y2="12"></line>
+                        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                    </svg>
+                    <span id="currentLangLabel">فارسی</span>
+                    <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                </button>
+
+                <div class="lang-menu" id="langMenu">
+                    <div class="lang-item" data-value="en">English <span class="check-mark">✓</span></div>
+                    <div class="lang-item" data-value="fr">Français <span class="check-mark">✓</span></div>
+                    <div class="lang-item" data-value="ru">Русский <span class="check-mark">✓</span></div>
+                    <div class="lang-item" data-value="ar">العربية <span class="check-mark">✓</span></div>
+                    <div class="lang-item active" data-value="fa">فارسی <span class="check-mark">✓</span></div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- کانتینر اصلی صفحه کیف‌پول -->
+    <main class="wallet-main-wrapper">
+        <div class="wallet-container">
+
+            <!-- عنوان و راهنمای بالای صفحه -->
+            <div class="wallet-page-header">
+                <h1 class="wallet-title" data-i18n="walletOverviewTitle">کیف‌پول و مدیریت دارایی‌ها</h1>
+                <p class="wallet-subtitle" data-i18n="walletOverviewSub">مدیریت تراکنش‌های واریز، برداشت سود و آزادسازی اصل سرمایه</p>
+            </div>
+
+            <!-- ================= بخش ۱: کارت‌های تفکیک موجودی و دارایی‌ها ================= -->
+            <section class="balance-cards-grid" id="walletBalancesOverview">
+                
+                <!-- کارت ۱: کل سرمایه فعال با تفکیک قفل‌شده و آزادشده -->
+                <div class="balance-summary-card">
+                    <div class="card-top-row">
+                        <span class="card-label" data-i18n="totalActiveCapital">کل سرمایه فعال</span>
+                        <span class="crypto-tag">USDT</span>
+                    </div>
+                    <div class="card-main-amount">
+                        <span class="curr-sign">$</span>
+                        <span id="statActiveCapital">0.00</span>
+                    </div>
+                    <div class="capital-breakdown-row">
+                        <div class="sub-balance-item">
+                            <span class="sub-label" data-i18n="lockedPrincipal">اصل سرمایه قفل‌شده:</span>
+                            <span class="sub-val" id="statLockedPrincipal">$0.00</span>
+                        </div>
+                        <div class="sub-balance-divider"></div>
+                        <div class="sub-balance-item">
+                            <span class="sub-label" data-i18n="unlockedPrincipal">اصل سرمایه آزادشده:</span>
+                            <span class="sub-val text-yellow" id="statUnlockedPrincipal">$0.00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- کارت ۲: سود قابل برداشت با بررسی شرط ۱۰٪ -->
+                <div class="balance-summary-card">
+                    <div class="card-top-row">
+                        <span class="card-label" data-i18n="withdrawableProfit">سود قابل برداشت</span>
+                        <span class="status-pill ready" id="profitRuleBadge" data-i18n="tenPercentMetBadge">شرط ۱۰٪ محقق شده</span>
+                    </div>
+                    <div class="card-main-amount">
+                        <span class="curr-sign">$</span>
+                        <span id="statWithdrawableProfit" class="text-green">0.00</span>
+                    </div>
+                    <div class="rule-hint-row">
+                        <span class="rule-dot ready" id="overviewRuleDot"></span>
+                        <span class="rule-hint-text" data-i18n="ruleTenPercentText">شرط حداقل ۱۰٪ سود جهت برداشت انباشته</span>
+                    </div>
+                </div>
+
+            </section>
+
+            <!-- ================= بخش ۲: تب‌های اصلی عملیاتی (واریز / برداشت) ================= -->
+            <section class="wallet-operations-container" id="walletActionSection">
+                
+                <!-- هدر تب‌های عملیاتی: هیچ‌کدام پیش‌فرض active نیستند -->
+                <div class="operation-switcher-bar">
+                    <div class="action-tab-buttons">
+                        <button type="button" class="action-tab-btn" id="tabSwitchDeposit" data-i18n="actionDepositTab">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                                <line x1="12" y1="5" x2="12" y2="19"></line>
+                                <polyline points="19 12 12 19 5 12"></polyline>
+                            </svg>
+                            <span>شارژ حساب / واریز</span>
+                        </button>
+                        <button type="button" class="action-tab-btn" id="tabSwitchWithdraw" data-i18n="actionWithdrawTab">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                                <line x1="12" y1="19" x2="12" y2="5"></line>
+                                <polyline points="5 12 12 5 19 12"></polyline>
+                            </svg>
+                            <span>برداشت وجه</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- راهنمای اولیه در حالتی که هیچ تبی انتخاب نشده است -->
+                <div class="no-selection-placeholder" id="panelPlaceholder">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                        <rect x="2" y="5" width="20" height="14" rx="2"></rect>
+                        <line x1="2" y1="10" x2="22" y2="10"></line>
+                    </svg>
+                    <span data-i18n="selectActionPrompt">لطفاً برای انجام عملیات، یکی از گزینه‌های واریز یا برداشت را انتخاب نمایید.</span>
+                </div>
+
+                <!-- کادر عملیاتی: پنل واریز (Deposit Panel) - پیش‌فرض hidden -->
+                <div class="operation-card-body hidden" id="panelDeposit">
+                    <div class="panel-header-title">
+                        <h2 data-i18n="depositModalTitle">شارژ حساب / واریز جدید (USDT)</h2>
+                    </div>
+
+                    <!-- انتخاب استاندارد شبکه انتقال بر اساس بایننس -->
+                    <div class="form-section">
+                        <label class="modal-label" data-i18n="chooseNetwork">انتخاب شبکه انتقال (Deposit Network):</label>
+                        <div class="binance-network-grid">
+                            <div class="network-card active" data-network="TRC20">
+                                <div class="net-title-row">
+                                    <span class="net-name">TRX</span>
+                                    <span class="net-badge">Tron (TRC20)</span>
+                                </div>
+                                <div class="net-desc-row">
+                                    <span data-i18n="netTrxArrival">زمان رسیدن: ~۲ دقیقه</span>
+                                    <span data-i18n="netMinDeposit">حداقل واریز: 1 USDT</span>
+                                </div>
+                            </div>
+
+                            <div class="network-card" data-network="BEP20">
+                                <div class="net-title-row">
+                                    <span class="net-name">BNB</span>
+                                    <span class="net-badge">BNB Smart Chain (BEP20)</span>
+                                </div>
+                                <div class="net-desc-row">
+                                    <span data-i18n="netBnbArrival">زمان رسیدن: ~۱ دقیقه</span>
+                                    <span data-i18n="netMinDeposit">حداقل واریز: 1 USDT</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- آدرس اختصاصی واریز -->
+                    <div class="form-section">
+                        <label class="modal-label" data-i18n="walletAddressLabel">آدرس اختصاصی واریز:</label>
+                        <div class="pending-address-box">
+                            <div class="address-status-notice">
+                                <span class="dot-pulse"></span>
+                                <span id="depositAddressDisplay">T9yD14Nj9j7xAB4dbGeiX9h82kL90XmnZa</span>
+                            </div>
+                            <button type="button" class="copy-action-btn" id="copyDepositAddrBtn" data-i18n="copyBtn">کپی آدرس</button>
+                        </div>
+                    </div>
+
+                    <!-- بخش اسکن بارکد QR Code -->
+                    <div class="qr-display-container">
+                        <div class="qr-canvas-mockup">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
+                                <rect x="14" y="3" width="7" height="7" rx="1.5"></rect>
+                                <rect x="14" y="14" width="7" height="7" rx="1.5"></rect>
+                                <rect x="3" y="14" width="7" height="7" rx="1.5"></rect>
+                            </svg>
+                            <span data-i18n="qrPlaceholder">QR Code واریز</span>
+                        </div>
+                    </div>
+
+                    <!-- باکس اخطار قانون قفل ۹۰‌روزه لات‌ها -->
+                    <div class="lot-lock-warning-box">
+                        <div class="warning-badge-icon">!</div>
+                        <p data-i18n="depositWarningText">
+                            توجه: این واریز به عنوان یک لات (Lot) جدید ثبت شده و تایمر ۹۰‌روزه قفل اختصاصی آن از همین لحظه فعال می‌گردد. پس از ۹۰ روز اصل این مبلغ کاملاً آزاد و قابل برداشت خواهد بود.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- کادر عملیاتی: پنل برداشت (Withdrawal Panel) - پیش‌فرض hidden -->
+                <div class="operation-card-body hidden" id="panelWithdraw">
+                    <div class="panel-header-title">
+                        <h2 data-i18n="withdrawModalTitle">برداشت از حساب (Withdrawal)</h2>
+                    </div>
+
+                    <!-- کارت‌های نمایش سریع موجودی سود و اصل سرمایه آزادشده -->
+                    <div class="modal-balance-cards">
+                        <div class="balance-card-item">
+                            <span class="b-label" data-i18n="withdrawableProfit">سود قابل برداشت</span>
+                            <span class="b-val text-green">$<span id="withdrawModalProfit">0.00</span></span>
+                        </div>
+                        <div class="balance-card-item">
+                            <span class="b-label" data-i18n="unlockedPrincipal">اصل سرمایه آزادشده</span>
+                            <span class="b-val text-yellow">$<span id="withdrawModalUnlocked">0.00</span></span>
+                        </div>
+                    </div>
+
+                    <!-- تب‌بار انتخاب نوع برداشت -->
+                    <div class="withdraw-type-tabs">
+                        <button type="button" class="w-tab active" id="tabWithdrawProfit" data-i18n="withdrawProfitTab">برداشت سود</button>
+                        <button type="button" class="w-tab" id="tabWithdrawPrincipal" data-i18n="withdrawPrincipalTab">برداشت اصل سرمایه آزادشده</button>
+                    </div>
+
+                    <!-- فیلد ورودی مبلغ با دکمه MAX -->
+                    <div class="form-section">
+                        <label class="modal-label" data-i18n="withdrawAmountLabel">مبلغ برداشت (USDT):</label>
+                        <div class="input-with-action">
+                            <input type="number" id="withdrawAmountInput" placeholder="0.00" min="0" step="any">
+                            <button type="button" class="max-btn" id="setMaxAmountBtn">MAX</button>
+                        </div>
+                    </div>
+
+                    <!-- فیلد ورودی آدرس مقصد -->
+                    <div class="form-section">
+                        <label class="modal-label" data-i18n="destAddressLabel">آدرس کیف‌پول مقصد (USDT - TRC20/BEP20):</label>
+                        <div class="modern-text-input">
+                            <input type="text" id="withdrawAddressInput" placeholder="T... یا 0x...">
+                        </div>
+                    </div>
+
+                    <!-- ماشین‌حساب محاسبه کارمزد و دریافتی خالص -->
+                    <div class="fee-calculator-box">
+                        <div class="fee-row">
+                            <span data-i18n="estimatedFee">کارمزد پلتفرم و شبکه:</span>
+                            <span id="modalFeeValue">$0.00</span>
+                        </div>
+                        <div class="fee-row fee-tier-row">
+                            <span data-i18n="feeTierLabel">نرخ کارمزد اعمال‌شده:</span>
+                            <span id="feeTierValue" class="text-yellow">0%</span>
+                        </div>
+                        <div class="fee-row total-receive">
+                            <span data-i18n="netReceive">مبلغ خالص دریافتی شما:</span>
+                            <span id="modalNetReceive" class="text-green">$0.00</span>
+                        </div>
+                    </div>
+
+                    <!-- باکس راهنمای قوانین و کارمزد پلکانی برداشت -->
+                    <div id="withdrawRuleNoticeBox" class="rule-notice-box">
+                        <div class="notice-line">
+                            <span class="status-indicator" id="tenPercentRuleDot"></span>
+                            <span id="tenPercentRuleText" data-i18n="ruleTenPercentText">شرط حداقل ۱۰٪ سود جهت برداشت انباشته</span>
+                        </div>
+                        <p class="processing-time-notice" id="feePolicyNoticeText" data-i18n="feeTierExplanation">
+                            کارمزد برداشت سود دقیقاً مشابه ترکیب سود است: زیر ۱۰ روز مجاز نیست؛ ۱۰-۱۵ روز ۵٪؛ ۱۵-۲۵ روز ۳٪؛ ۲۵-۳۵ روز ۱٪؛ بیش از ۳۵ روز رایگان (۰٪). کارمزد برداشت اصل سرمایه آزادشده بعد از ۹۰ روز به صورت ثابت ۵٪ می‌باشد.
+                        </p>
+                    </div>
+
+                    <!-- دکمه تایید نهایی برداشت -->
+                    <button type="button" class="submit-btn" id="confirmWithdrawBtn" disabled data-i18n="confirmWithdrawBtn">تایید و درخواست برداشت</button>
+                </div>
+
+            </section>
+
+            <!-- ================= بخش ۳: جدول جامع تاریخچه تراکنش‌های کیف‌پول ================= -->
+            <section class="tx-history-section">
+                
+                <div class="tx-header-wrap">
+                    <div class="tx-header-title">
+                        <h3 data-i18n="txHistoryTitle">تاریخچه تراکنش‌های کیف‌پول</h3>
+                        <span class="tx-subtitle" data-i18n="txHistorySub">فهرست کامل واریزها، برداشت سود و آزادسازی‌های انجام شده</span>
+                    </div>
+
+                    <!-- نوار فیلترها و جستجو همراه با منوهای کشویی مدرن بایننس -->
+                    <div class="tx-filter-bar">
+                        
+                        <!-- منوی کشویی مدرن فیلتر نوع تراکنش -->
+                        <div class="custom-dropdown filter-dropdown" id="filterTypeDropdown">
+                            <button type="button" class="filter-trigger" id="filterTypeTriggerBtn" aria-haspopup="true" aria-expanded="false">
+                                <span id="selectedTypeLabel" data-i18n="filterAllTypes">همه انواع تراکنش</span>
+                                <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="6 9 12 15 18 9"></polyline>
+                                </svg>
+                            </button>
+                            <div class="dropdown-menu-list" id="filterTypeMenu">
+                                <div class="dropdown-menu-item active" data-value="all"><span data-i18n="filterAllTypes">همه انواع تراکنش</span> <span class="check-mark">✓</span></div>
+                                <div class="dropdown-menu-item" data-value="deposit"><span data-i18n="filterDeposit">واریز (Deposit)</span> <span class="check-mark">✓</span></div>
+                                <div class="dropdown-menu-item" data-value="withdraw_profit"><span data-i18n="filterWithdrawProfit">برداشت سود</span> <span class="check-mark">✓</span></div>
+                                <div class="dropdown-menu-item" data-value="withdraw_principal"><span data-i18n="filterWithdrawPrincipal">برداشت اصل سرمایه</span> <span class="check-mark">✓</span></div>
+                            </div>
+                        </div>
+
+                        <!-- منوی کشویی مدرن فیلتر وضعیت تراکنش -->
+                        <div class="custom-dropdown filter-dropdown" id="filterStatusDropdown">
+                            <button type="button" class="filter-trigger" id="filterStatusTriggerBtn" aria-haspopup="true" aria-expanded="false">
+                                <span id="selectedStatusLabel" data-i18n="filterAllStatuses">همه وضعیت‌ها</span>
+                                <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="6 9 12 15 18 9"></polyline>
+                                </svg>
+                            </button>
+                            <div class="dropdown-menu-list" id="filterStatusMenu">
+                                <div class="dropdown-menu-item active" data-value="all"><span data-i18n="filterAllStatuses">همه وضعیت‌ها</span> <span class="check-mark">✓</span></div>
+                                <div class="dropdown-menu-item" data-value="completed"><span data-i18n="filterCompleted">تکمیل شده</span> <span class="check-mark">✓</span></div>
+                                <div class="dropdown-menu-item" data-value="pending"><span data-i18n="filterPending">در حال بررسی</span> <span class="check-mark">✓</span></div>
+                                <div class="dropdown-menu-item" data-value="rejected"><span data-i18n="filterRejected">رد شده</span> <span class="check-mark">✓</span></div>
+                            </div>
+                        </div>
+
+                        <!-- جستجوی شناسه تراکنش -->
+                        <div class="search-input-box">
+                            <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                            </svg>
+                            <input type="text" id="txSearchInput" placeholder="جستجوی شناسه تراکنش (TXID)..." data-i18n-ph="searchTxPlaceholder">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- جدول ریسپانسیو سوابق -->
+                <div class="tx-table-container">
+                    <table class="binance-tx-table" id="txHistoryTable">
+                        <thead>
+                            <tr>
+                                <th data-i18n="thTxId">شناسه تراکنش</th>
+                                <th data-i18n="thType">نوع عملیات</th>
+                                <th data-i18n="thAmount">مبلغ (USDT)</th>
+                                <th data-i18n="thNetwork">شبکه</th>
+                                <th data-i18n="thStatus">وضعیت</th>
+                                <th data-i18n="thDate">تاریخ و ساعت</th>
+                            </tr>
+                        </thead>
+                        <tbody id="txHistoryTbody">
+                            <!-- ردیف‌های داینامیک توسط جاوااسکریپت پر می‌شوند -->
+                        </tbody>
+                    </table>
+
+                    <div id="noTxMessage" class="empty-state-notice hidden" data-i18n="noTxFound">
+                        هیچ تراکنشی مطابق با فیلترهای انتخابی یافت نشد.
+                    </div>
+                </div>
+
+                <!-- صفحه‌بندی هوشمند جدول -->
+                <div class="tx-pagination-bar" id="txPaginationWrap">
+                    <button type="button" class="page-nav-btn" id="prevPageBtn" disabled data-i18n="prevPage">قبلی</button>
+                    <span class="pagination-info" id="paginationInfo">صفحه ۱ از ۱</span>
+                    <button type="button" class="page-nav-btn" id="nextPageBtn" disabled data-i18n="nextPage">بعدی</button>
+                </div>
+
+            </section>
+
+        </div>
+    </main>
+
+    <!-- ================= نوار ناوبری ۵ گزینه‌ای پایین صفحه (Sticky Bottom Nav) ================= -->
+    <nav class="bottom-nav">
+        <a href="home.html" class="nav-item" data-target="home">
+            <div class="nav-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                    <polyline points="9 22 9 12 15 12 15 22"/>
+                </svg>
+            </div>
+            <span class="nav-label" data-i18n="navHome">داشبورد</span>
+        </a>
+
+        <a href="invest.html" class="nav-item" data-target="invest">
+            <div class="nav-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="20" x2="18" y2="10"></line>
+                    <line x1="12" y1="20" x2="12" y2="4"></line>
+                    <line x1="6" y1="20" x2="6" y2="14"></line>
+                </svg>
+            </div>
+            <span class="nav-label" data-i18n="navInvest">سرمایه‌گذاری</span>
+        </a>
+
+        <a href="team.html" class="nav-item" data-target="team">
+            <div class="nav-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                </svg>
+            </div>
+            <span class="nav-label" data-i18n="navTeam">تیم و شبکه</span>
+        </a>
+
+        <!-- حالت فعال در این صفحه (Wallet) -->
+        <a href="wallet.html" class="nav-item active" data-target="wallet">
+            <div class="nav-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"></path>
+                    <path d="M3 5v14a2 2 0 0 0 2 2h16v-5"></path>
+                    <path d="M18 12a2 2 0 0 0 0 4h4v-4Z"></path>
+                </svg>
+            </div>
+            <span class="nav-label" data-i18n="navWallet">کیف‌پول</span>
+        </a>
+
+        <a href="profile.html" class="nav-item" data-target="profile">
+            <div class="nav-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="8" r="5"></circle>
+                    <path d="M20 21a8 8 0 0 0-16 0"></path>
+                </svg>
+            </div>
+            <span class="nav-label" data-i18n="navProfile">پروفایل</span>
+        </a>
+    </nav>
+
+    <!-- جاوااسکریپت اختصاصی کیف‌پول -->
+    <script src="wallet.js"></script>
+</body>
+</html>

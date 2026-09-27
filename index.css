@@ -1,0 +1,447 @@
+/* پالت استاندارد و عمیق بایننس (Binance Dark Scheme) */
+:root {
+    --bg-body: #0B0E11;
+    --bg-card: #181A20;
+    --bg-input: #1E2329;
+    --bg-input-hover: #2B313A;
+    --border-color: #2E323A;
+    --border-focus: #FCD535;
+    --primary-yellow: #FCD535;
+    --primary-hover: #F0B90B;
+    --text-white: #EAECEF;
+    --text-gray: #848E9C;
+    --text-placeholder: #5E6673;
+    --error-red: #F6465D;
+    --success-green: #0ECB81;
+    --font-main: 'Inter', 'Vazirmatn', -apple-system, sans-serif;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: var(--font-main);
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    background-color: var(--bg-body);
+    color: var(--text-white);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.auth-wrapper {
+    width: 100%;
+    max-width: 460px;
+    padding: 24px 16px;
+}
+
+.auth-card {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    padding: 32px 28px;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
+    position: relative;
+}
+
+/* ================= استایل شیک و مدرن سلکتور زبان ================= */
+.card-top-bar {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 12px;
+}
+
+[dir="rtl"] .card-top-bar {
+    justify-content: flex-start;
+}
+
+.custom-dropdown {
+    position: relative;
+    user-select: none;
+}
+
+.lang-trigger {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: var(--bg-input);
+    border: 1px solid var(--border-color);
+    color: var(--text-white);
+    padding: 7px 12px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.lang-trigger:hover {
+    background-color: var(--bg-input-hover);
+    border-color: #474D57;
+}
+
+.globe-icon {
+    width: 16px;
+    height: 16px;
+    stroke: var(--text-gray);
+}
+
+.arrow-icon {
+    width: 14px;
+    height: 14px;
+    stroke: var(--text-gray);
+    transition: transform 0.2s ease;
+}
+
+.custom-dropdown.open .arrow-icon {
+    transform: rotate(180deg);
+}
+
+.lang-menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    background-color: #1E2329;
+    border: 1px solid #363C45;
+    border-radius: 12px;
+    min-width: 140px;
+    padding: 6px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.7);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px);
+    transition: all 0.2s ease;
+    z-index: 100;
+}
+
+[dir="rtl"] .lang-menu {
+    right: auto;
+    left: 0;
+}
+
+.custom-dropdown.open .lang-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.lang-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    border-radius: 8px;
+    color: var(--text-gray);
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.lang-item:hover {
+    background-color: #2B313A;
+    color: var(--text-white);
+}
+
+.lang-item.active {
+    color: var(--primary-yellow);
+    font-weight: 600;
+    background-color: rgba(252, 213, 53, 0.08);
+}
+
+.check-mark {
+    display: none;
+    font-size: 12px;
+}
+
+.lang-item.active .check-mark {
+    display: inline-block;
+}
+
+/* ================= بنر هدر کامل و جذاب لوگوی ADM ================= */
+.auth-brand-logo {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 24px;
+}
+
+.brand-logo-img {
+    width: 100%;
+    height: 135px;
+    object-fit: contain;
+    background-color: #ffffff;
+    border-radius: 14px;
+    padding: 10px 20px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+    display: block;
+}
+
+/* ================= متون و عناوین ================= */
+.card-title {
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--text-white);
+    margin-bottom: 6px;
+    letter-spacing: -0.4px;
+}
+
+.card-subtitle {
+    font-size: 13px;
+    color: var(--text-gray);
+    margin-bottom: 24px;
+    line-height: 1.5;
+}
+
+/* ================= کادرهای ورودی مدرن ================= */
+.input-group {
+    margin-bottom: 18px;
+    display: flex;
+    flex-direction: column;
+}
+
+.input-group label {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-gray);
+    margin-bottom: 7px;
+}
+
+.modern-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    background-color: var(--bg-input);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    transition: all 0.2s ease;
+}
+
+.modern-input-wrapper:hover {
+    border-color: #474D57;
+}
+
+.modern-input-wrapper:focus-within {
+    border-color: var(--border-focus);
+    background-color: var(--bg-card);
+    box-shadow: 0 0 0 1px var(--border-focus);
+}
+
+.modern-input-wrapper input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    outline: none;
+    padding: 13px 16px;
+    color: var(--text-white);
+    font-size: 14px;
+    font-weight: 400;
+}
+
+.modern-input-wrapper input::placeholder {
+    color: var(--text-placeholder);
+}
+
+.eye-btn {
+    background: transparent;
+    border: none;
+    outline: none;
+    padding: 0 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+
+.eye-icon {
+    width: 18px;
+    height: 18px;
+    stroke: var(--text-gray);
+    transition: stroke 0.2s;
+}
+
+.eye-btn:hover .eye-icon {
+    stroke: var(--text-white);
+}
+
+.error-msg {
+    color: var(--error-red);
+    font-size: 11px;
+    margin-top: 5px;
+    min-height: 16px;
+}
+
+/* ================= شرایط و قوانین ================= */
+.terms-group {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin: 18px 0 22px 0;
+}
+
+.terms-group input[type="checkbox"] {
+    accent-color: var(--primary-yellow);
+    width: 16px;
+    height: 16px;
+    margin-top: 2px;
+    cursor: pointer;
+}
+
+.terms-group label {
+    font-size: 12px;
+    color: var(--text-gray);
+    cursor: pointer;
+    line-height: 1.4;
+    user-select: none;
+}
+
+/* ================= دکمه اصلی (Binance Style) ================= */
+.submit-btn {
+    width: 100%;
+    background-color: var(--primary-yellow);
+    color: #000;
+    font-size: 15px;
+    font-weight: 600;
+    border: none;
+    outline: none;
+    border-radius: 10px;
+    padding: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.submit-btn:hover:not(:disabled) {
+    background-color: var(--primary-hover);
+    transform: translateY(-1px);
+}
+
+.submit-btn:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+.submit-btn:disabled {
+    background-color: #2F333B;
+    color: #5E6673;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+/* لینک زیر فرم برای جابجایی */
+.switch-auth {
+    margin-top: 24px;
+    text-align: center;
+    font-size: 13px;
+    color: var(--text-gray);
+}
+
+.switch-auth a {
+    color: var(--primary-yellow);
+    text-decoration: none;
+    font-weight: 600;
+    margin-inline-start: 4px;
+    transition: color 0.15s;
+}
+
+.switch-auth a:hover {
+    text-decoration: underline;
+    color: var(--primary-hover);
+}
+
+/* ================= صفحه خانه (Home) ================= */
+.home-box {
+    text-align: center;
+    padding: 10px 0;
+}
+
+.home-badge {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 16px;
+    background-color: rgba(14, 203, 129, 0.12);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.home-badge svg {
+    width: 32px;
+    height: 32px;
+    stroke: var(--success-green);
+}
+
+.home-card-mockup {
+    background-color: var(--bg-input);
+    border: 1px dashed var(--border-color);
+    padding: 24px;
+    border-radius: 12px;
+    margin: 24px 0;
+}
+
+.home-info-text {
+    font-size: 13px;
+    color: var(--text-gray);
+    line-height: 1.6;
+}
+
+.logout-btn {
+    background-color: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-white);
+    padding: 10px 28px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.logout-btn:hover {
+    border-color: var(--error-red);
+    color: var(--error-red);
+}
+
+/* ================= اعلان هوایی بالا (Toast) ================= */
+.toast-alert {
+    position: fixed;
+    top: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-100px);
+    background-color: #1E2329;
+    border: 1px solid #363C45;
+    border-left: 4px solid var(--success-green);
+    color: var(--text-white);
+    padding: 14px 26px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+    opacity: 0;
+    transition: all 0.35s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+    z-index: 9999;
+}
+
+[dir="rtl"] .toast-alert {
+    border-left: 1px solid #363C45;
+    border-right: 4px solid var(--success-green);
+}
+
+.toast-alert.show {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+}
+
+.toast-alert.error {
+    border-left-color: var(--error-red);
+}
+
+[dir="rtl"] .toast-alert.error {
+    border-right-color: var(--error-red);
+}
+
+.hidden {
+    display: none !important;
+}

@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Platform - Profile &amp; Security</title>
+    <link rel="stylesheet" href="profile.css">
+    <!-- فونت‌های استاندارد بین‌المللی بایننس -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- استایل‌های اختصاصی چت‌روم تیکت‌ها و پیام‌های دوطرفه -->
+    <style>
+        /* مدال گفت‌وگوی تیکت */
+        .chat-modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.82);
+            backdrop-filter: blur(6px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            padding: 16px;
+        }
+        .chat-modal-overlay.hidden {
+            display: none !important;
+        }
+        .chat-modal-card {
+            background: #181A20;
+            border: 1px solid #2B313A;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 620px;
+            height: 85vh;
+            max-height: 720px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 16px 40px rgba(0,0,0,0.65);
+            overflow: hidden;
+            animation: modalFadeIn 0.25s ease-out;
+        }
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: translateY(14px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .chat-modal-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #2B313A;
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            background: #1E2329;
+        }
+        .chat-header-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .chat-header-tags {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .ticket-code-tag {
+            font-family: monospace;
+            font-weight: 700;
+            color: #F0B90B;
+            background: rgba(240, 185, 11, 0.12);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+        .chat-status-pill {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+        .chat-status-pill.answered { background: rgba(14, 203, 129, 0.15); color: #0ECB81; }
+        .chat-status-pill.pending  { background: rgba(240, 185, 11, 0.15); color: #F0B90B; }
+        .chat-status-pill.closed   { background: rgba(132, 142, 156, 0.2); color: #848E9C; }
+
+        .chat-modal-subject {
+            font-size: 15px;
+            font-weight: 700;
+            color: #EAECEF;
+            margin: 4px 0 2px 0;
+        }
+        .chat-modal-dept {
+            font-size: 12px;
+            color: #848E9C;
+        }
+        .chat-modal-close {
+            background: none;
+            border: none;
+            color: #848E9C;
+            font-size: 26px;
+            line-height: 1;
+            cursor: pointer;
+            padding: 0 4px;
+            transition: color 0.2s;
+        }
+        .chat-modal-close:hover {
+            color: #F6465D;
+        }
+        .chat-modal-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            background: #0B0E11;
+        }
+        .chat-auto-purge-notice {
+            background: rgba(240, 185, 11, 0.08);
+            border: 1px dashed rgba(240, 185, 11, 0.35);
+            border-radius: 8px;
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11.5px;
+            color: #F0B90B;
+            margin-bottom: 6px;
+        }
+        .chat-auto-purge-notice svg {
+            width: 16px;
+            height: 16px;
+            flex-shrink: 0;
+        }
+        .chat-bubble {
+            max-width: 82%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 13px;
+            line-height: 1.55;
+            position: relative;
+            word-wrap: break-word;
+        }
+        .chat-bubble.user-msg {
+            align-self: flex-start;
+            background: #181A20;
+            border: 1px solid #2B313A;
+            color: #EAECEF;
+            border-bottom-right-radius: 2px;
+        }
+        body[dir="rtl"] .chat-bubble.user-msg {
+            border-bottom-right-radius: 12px;
+            border-bottom-left-radius: 2px;
+        }
+        .chat-bubble.admin-msg {
+            align-self: flex-end;
+            background: #13241b;
+            border: 1px solid rgba(14, 203, 129, 0.45);
+            color: #d1f4e4;
+            border-bottom-left-radius: 2px;
+        }
+        body[dir="rtl"] .chat-bubble.admin-msg {
+            border-bottom-left-radius: 12px;
+            border-bottom-right-radius: 2px;
+        }
+        .bubble-meta-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 10.5px;
+            margin-top: 6px;
+            opacity: 0.75;
+            gap: 16px;
+        }
+        .chat-sender-badge {
+            font-weight: 700;
+        }
+        .chat-bubble.admin-msg .chat-sender-badge {
+            color: #0ECB81;
+        }
+        .chat-modal-footer {
+            padding: 14px 18px;
+            background: #181A20;
+            border-top: 1px solid #2B313A;
+        }
+        .chat-input-wrapper {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+        }
+        .chat-input-wrapper textarea {
+            flex: 1;
+            background: #2B313A;
+            border: 1px solid #363D47;
+            border-radius: 8px;
+            color: #EAECEF;
+            padding: 10px 12px;
+            font-size: 13px;
+            font-family: inherit;
+            resize: none;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .chat-input-wrapper textarea:focus {
+            border-color: #F0B90B;
+        }
+        .btn-send-reply {
+            background: #F0B90B;
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 18px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            height: 44px;
+            transition: background 0.2s, transform 0.1s;
+        }
+        .btn-send-reply:hover {
+            background: #FCD535;
+        }
+        .btn-send-reply:active {
+            transform: scale(0.97);
+        }
+        .btn-send-reply svg {
+            width: 15px;
+            height: 15px;
+        }
+        .btn-open-chat {
+            background: rgba(240, 185, 11, 0.12);
+            color: #F0B90B;
+            border: 1px solid rgba(240, 185, 11, 0.35);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 11.5px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-open-chat:hover {
+            background: #F0B90B;
+            color: #000;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- سیستم اعلان بالای صفحه (Toast Notification) -->
+    <div id="toastNotification" class="toast-alert" aria-live="polite"></div>
+
+    <!-- هدر بالای صفحه (Top Nav) -->
+    <header class="app-header">
+        <div class="header-left">
+            <!-- لوگوی رسمی ADM با امواج نوری -->
+            <a href="home.html" style="text-decoration: none;">
+                <div class="header-logo-box">
+                    <img src="logo.jpg" alt="ADM Logo" class="header-logo-img" onerror="this.src='logo.png'">
+                </div>
+            </a>
+        </div>
+
+        <div class="header-right">
+            <!-- دکمه پنل ادمین (فقط در صورت admin بودن نمایش می‌یابد) -->
+            <button type="button" id="adminPanelBtn" class="admin-badge-btn hidden">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1Z"/>
+                </svg>
+                <span data-i18n="adminPanel">پنل مدیریت</span>
+            </button>
+
+            <!-- دراپ‌داون مدرن تغییر زبان -->
+            <div class="custom-dropdown" id="langDropdown">
+                <button type="button" class="lang-trigger" id="langTriggerBtn" aria-haspopup="true" aria-expanded="false">
+                    <svg class="globe-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="2" y1="12" x2="22" y2="12"></line>
+                        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                    </svg>
+                    <span id="currentLangLabel">فارسی</span>
+                    <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                </button>
+
+                <div class="lang-menu" id="langMenu">
+                    <div class="lang-item" data-value="en">English <span class="check-mark">✓</span></div>
+                    <div class="lang-item" data-value="fr">Français <span class="check-mark">✓</span></div>
+                    <div class="lang-item" data-value="ru">Русский <span class="check-mark">✓</span></div>
+                    <div class="lang-item" data-value="ar">العربية <span class="check-mark">✓</span></div>
+                    <div class="lang-item active" data-value="fa">فارسی <span class="check-mark">✓</span></div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- کانتینر اصلی صفحه -->
+    <main class="profile-main-wrapper">
+        <div class="profile-container">
+
+            <!-- عنوان صفحه -->
+            <div class="profile-page-header">
+                <h1 class="profile-title" data-i18n="profileTitle">پروفایل و تنظیمات امنیتی</h1>
+                <p class="profile-subtitle" data-i18n="profileSub">مدیریت حساب کاربری، امنیت ورود، احراز هویت و پشتیبانی تیکت‌ها</p>
+            </div>
+
+            <!-- ================= بخش ۱: کارت هویت و خلاصه حساب کاربر (۳ ستون دقیق) ================= -->
+            <section class="user-identity-card">
+                <div class="identity-flex-wrap">
+                    
+                    <!-- آواتار با قابلیت تغییر عکس -->
+                    <div class="avatar-container">
+                        <div class="avatar-circle" id="avatarDisplay">
+                            <span id="avatarInitials">US</span>
+                            <img id="avatarImage" class="avatar-img hidden" alt="Avatar">
+                        </div>
+                        <label for="avatarUploadInput" class="avatar-upload-badge" title="تغییر عکس آواتار">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                                <circle cx="12" cy="13" r="4"></circle>
+                            </svg>
+                        </label>
+                        <input type="file" id="avatarUploadInput" accept="image/*" class="hidden">
+                    </div>
+
+                    <!-- جزئیات مشخصات کاربر -->
+                    <div class="user-details-area">
+                        <div class="user-top-row">
+                            <h2 class="user-username" id="displayUsername">---</h2>
+                            <span class="kyc-badge unverified" id="displayKycBadge">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                                <span data-i18n="kycUnverifiedBadge">احراز هویت نشده</span>
+                            </span>
+                        </div>
+
+                        <!-- ۳ ستون اصلی هماهنگ: ۱. ایمیل/شماره  ۲. کد معرف اختصاصی  ۳. تاریخ عضویت -->
+                        <div class="user-meta-grid">
+                            
+                            <!-- ستون ۱: ایمیل یا شماره تماس -->
+                            <div class="meta-item">
+                                <span class="meta-label" data-i18n="emailLabel">ایمیل / شماره:</span>
+                                <span class="meta-value" id="displayEmail">---</span>
+                            </div>
+
+                            <!-- ستون ۲: کد معرف و دعوت اختصاصی -->
+                            <div class="meta-item">
+                                <span class="meta-label" data-i18n="referralCodeLabel">کد معرف اختصاصی:</span>
+                                <div class="uid-copy-flex">
+                                    <span class="meta-value text-yellow" id="displayReferralCode">---</span>
+                                    <button type="button" class="copy-mini-btn" id="copyRefCodeBtn" title="کپی کد معرف">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- ستون ۳: تاریخ واقعی پیوستن و عضویت در سیستم -->
+                            <div class="meta-item">
+                                <span class="meta-label" data-i18n="memberSinceLabel">عضویت از:</span>
+                                <span class="meta-value" id="displayCreatedAt">---</span>
+                            </div>
+
+                        </div>
+
+                        <!-- بنر الزام احراز هویت جهت دریافت سود روزانه -->
+                        <div class="kyc-yield-rule-banner">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                            </svg>
+                            <span data-i18n="kycYieldRuleText">قانون سیستم: حساب‌هایی که احراز هویت نشده باشند سود روزانه دریافت نمی‌کنند.</span>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- ================= بخش ۲: تب‌های ناوبری تنظیمات ================= -->
+            <div class="profile-tabs-nav">
+                <button type="button" class="p-tab-btn" data-tab="security">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                    <span data-i18n="tabSecurity">مرکز امنیت و ورود</span>
+                </button>
+                <button type="button" class="p-tab-btn" data-tab="kyc">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                    <span data-i18n="tabKyc">مدیریت احراز هویت (KYC)</span>
+                </button>
+                <button type="button" class="p-tab-btn" data-tab="support">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                    <span data-i18n="tabSupport">پشتیبانی و تیکت‌ها</span>
+                </button>
+            </div>
+
+            <!-- ================= تب ۱: مرکز امنیت و ورود ================= -->
+            <section id="tab-security" class="profile-tab-content">
+                
+                <!-- تغییر رمز عبور -->
+                <div class="settings-card">
+                    <div class="card-head-title">
+                        <div class="head-icon-box">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2l-2 2m-1-1l-3 3m0 0l-2-2m2 2l-3 3m-2-2l-3 3m0 0l-2-2m2 2L2 18v4h4l10-10"></path></svg>
+                        </div>
+                        <div>
+                            <h3 data-i18n="changePasswordTitle">تغییر رمز عبور حساب کاربری</h3>
+                        </div>
+                    </div>
+
+                    <form id="changePasswordForm" class="security-form-vertical">
+                        <div class="form-group">
+                            <label data-i18n="currentPasswordLabel">رمز عبور فعلی:</label>
+                            <div class="pass-input-wrap">
+                                <input type="password" id="currentPassInput" placeholder="••••••••" required>
+                                <button type="button" class="toggle-pass-btn" onclick="togglePassVisibility('currentPassInput', this)">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label data-i18n="newPasswordLabel">رمز عبور جدید (حداقل ۸ کاراکتر):</label>
+                            <div class="pass-input-wrap">
+                                <input type="password" id="newPassInput" placeholder="••••••••" required>
+                                <button type="button" class="toggle-pass-btn" onclick="togglePassVisibility('newPassInput', this)">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                </button>
+                            </div>
+                            
+                            <!-- نشانگر قدرت رمز عبور -->
+                            <div class="strength-meter-wrap">
+                                <div class="meter-bar-track">
+                                    <div class="meter-bar-fill" id="passStrengthBar"></div>
+                                </div>
+                                <div class="strength-text-row">
+                                    <span data-i18n="passwordStrengthLabel">قدرت رمز عبور:</span>
+                                    <strong id="passStrengthLabel" class="text-danger" data-i18n="strengthWeak">ضعیف</strong>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label data-i18n="confirmPasswordLabel">تکرار رمز عبور جدید:</label>
+                            <div class="pass-input-wrap">
+                                <input type="password" id="confirmPassInput" placeholder="••••••••" required>
+                                <button type="button" class="toggle-pass-btn" onclick="togglePassVisibility('confirmPassInput', this)">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="form-actions-row">
+                            <button type="submit" class="btn-primary-binance" data-i18n="savePasswordBtn">به‌روزرسانی رمز عبور</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- تایید دو مرحله‌ای -->
+                <div class="settings-card">
+                    <div class="card-head-title">
+                        <div class="head-icon-box">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                        </div>
+                        <div>
+                            <h3 data-i18n="twoFaTitle">تایید دو مرحله‌ای (Google Authenticator 2FA)</h3>
+                            <p class="section-desc" data-i18n="twoFaSub">محافظت دوچندان از درخواست‌های برداشت و ورود به پلتفرم</p>
+                        </div>
+                    </div>
+
+                    <div class="twofa-content-grid">
+                        <div class="qr-canvas-mockup">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
+                                <rect x="14" y="3" width="7" height="7" rx="1.5"></rect>
+                                <rect x="14" y="14" width="7" height="7" rx="1.5"></rect>
+                                <rect x="3" y="14" width="7" height="7" rx="1.5"></rect>
+                            </svg>
+                            <span data-i18n="scanQrGoogle">اسکن بارکد در اپلیکیشن</span>
+                        </div>
+
+                        <div class="twofa-details-area">
+                            <label data-i18n="twoFaSecretLabel">کلید مخفی اختصاصی (Secret Key):</label>
+                            <div class="secret-key-box">
+                                <span class="secret-text" id="secretKeyDisplay">BNCP-9812-QZWK-4402</span>
+                                <button type="button" class="copy-action-btn" id="copySecretBtn" data-i18n="copyBtn">کپی</button>
+                            </div>
+
+                            <div class="form-group" style="margin-top: 14px;">
+                                <label data-i18n="verifyCodeLabel">کد ۶ رقمی اپلیکیشن جهت فعال‌سازی:</label>
+                                <div class="verify-code-row">
+                                    <input type="text" id="twoFaCodeInput" maxlength="6" placeholder="000000" class="input-code">
+                                    <button type="button" class="btn-primary-binance" id="btnEnableTwoFa" data-i18n="enableTwoFaBtn">فعال‌سازی 2FA</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- نشست‌های فعال -->
+                <div class="settings-card">
+                    <div class="card-head-between">
+                        <div class="card-head-title" style="margin-bottom:0;">
+                            <div class="head-icon-box">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+                            </div>
+                            <div>
+                                <h3 data-i18n="sessionsTitle">نشست‌های فعال و دستگاه‌های متصل</h3>
+                                <p class="section-desc" data-i18n="sessionsSub">دستگاه‌هایی که در حال حاضر به این حساب دسترسی دارند</p>
+                            </div>
+                        </div>
+
+                        <button type="button" class="btn-danger-outline" id="terminateSessionsBtn" data-i18n="terminateAllSessionsBtn">خروج از سایر دستگاه‌ها</button>
+                    </div>
+
+                    <div class="sessions-list" id="sessionsListWrap">
+                        <div class="session-item">
+                            <div class="session-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+                            </div>
+                            <div class="session-info">
+                                <div class="session-title-row">
+                                    <strong>Windows 11 - Chrome 124</strong>
+                                    <span class="badge-current-device" data-i18n="currentSessionTag">همین دستگاه (آنلاین)</span>
+                                </div>
+                                <span class="session-meta" id="session1Meta" data-i18n="session1Meta">IP: 185.192.44.12 • فرانکفورت، آلمان • هم‌اکنون</span>
+                            </div>
+                        </div>
+
+                        <div class="session-item">
+                            <div class="session-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
+                            </div>
+                            <div class="session-info">
+                                <div class="session-title-row">
+                                    <strong>iPhone 15 Pro - Safari</strong>
+                                </div>
+                                <span class="session-meta" id="session2Meta" data-i18n="session2Meta">IP: 91.240.118.5 • دبی، امارات • ۲ ساعت پیش</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </section>
+
+            <!-- ================= تب ۲: مدیریت احراز هویت (KYC) ================= -->
+            <section id="tab-kyc" class="profile-tab-content">
+                <div class="settings-card">
+                    <div class="card-head-title">
+                        <div class="head-icon-box">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><polyline points="17 11 19 13 23 9"></polyline></svg>
+                        </div>
+                        <div>
+                            <h3 data-i18n="kycTitle">ارسال و اعتبارسنجی مدارک شناسایی (KYC Level 2)</h3>
+                            <p class="section-desc" data-i18n="kycSub">جهت افزایش سقف برداشت روزانه و تضمین امنیت حساب</p>
+                        </div>
+                    </div>
+
+                    <form id="kycSubmitForm" class="kyc-form-wrap">
+                        <div class="form-row-grid">
+                            
+                            <!-- انتخاب مدرک -->
+                            <div class="form-group">
+                                <label data-i18n="docTypeLabel">نوع مدرک شناسایی:</label>
+                                <div class="custom-dropdown form-custom-dropdown" id="docTypeDropdown">
+                                    <button type="button" class="dropdown-trigger-btn" id="docTypeTriggerBtn" aria-haspopup="true" aria-expanded="false">
+                                        <span id="selectedDocTypeLabel" data-i18n="passport">گذرنامه بین‌المللی (Passport)</span>
+                                        <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <polyline points="6 9 12 15 18 9"></polyline>
+                                        </svg>
+                                    </button>
+                                    <div class="dropdown-menu-list" id="docTypeMenu">
+                                        <div class="dropdown-menu-item active" data-value="passport">
+                                            <span data-i18n="passport">گذرنامه بین‌المللی (Passport)</span>
+                                            <span class="check-mark">✓</span>
+                                        </div>
+                                        <div class="dropdown-menu-item" data-value="national_id">
+                                            <span data-i18n="nationalId">کارت ملی هوشمند</span>
+                                            <span class="check-mark">✓</span>
+                                        </div>
+                                        <div class="dropdown-menu-item" data-value="driving_license">
+                                            <span data-i18n="drivingLicense">گواهینامه رانندگی</span>
+                                            <span class="check-mark">✓</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label data-i18n="docNumberLabel">شماره مدرک شناسایی:</label>
+                                <input type="text" id="kycDocNumberInput" class="binance-form-input" placeholder="A12345678" required>
+                            </div>
+                        </div>
+
+                        <!-- تصاویر مدرک -->
+                        <div class="upload-dropzones-grid">
+                            <div class="upload-card">
+                                <span class="upload-title" data-i18n="uploadDocFront">تصویر روی مدرک شناسایی</span>
+                                <div class="dropzone-box" onclick="document.getElementById('fileDocFront').click()">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+                                    <span id="labelDocFront" data-i18n="clickToUpload">برای انتخاب تصویر کلیک کنید</span>
+                                    <img id="previewDocFront" class="preview-img hidden" alt="Front Preview">
+                                </div>
+                                <input type="file" id="fileDocFront" accept="image/*" class="hidden">
+                            </div>
+
+                            <div class="upload-card">
+                                <span class="upload-title" data-i18n="uploadDocBack">تصویر پشت مدرک شناسایی</span>
+                                <div class="dropzone-box" onclick="document.getElementById('fileDocBack').click()">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><path d="M7 15h10M7 11h6M7 7h10"></path></svg>
+                                    <span id="labelDocBack" data-i18n="clickToUpload">برای انتخاب تصویر کلیک کنید</span>
+                                    <img id="previewDocBack" class="preview-img hidden" alt="Back Preview">
+                                </div>
+                                <input type="file" id="fileDocBack" accept="image/*" class="hidden">
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn-primary-binance" id="btnSubmitKyc" data-i18n="submitKycBtn">ثبت و ارسال مدارک جهت بررسی</button>
+                    </form>
+                </div>
+            </section>
+
+            <!-- ================= تب ۳: مرکز پشتیبانی و تیکت‌ها ================= -->
+            <section id="tab-support" class="profile-tab-content">
+                <div class="settings-card">
+                    <div class="card-head-title">
+                        <div class="head-icon-box">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                        </div>
+                        <div>
+                            <h3 data-i18n="supportTitle">ارسال تیکت جدید به واحد پشتیبانی</h3>
+                            <p class="section-desc" data-i18n="supportSub">پاسخ‌گویی تیم پشتیبانی ۲۴/۷ و در کمتر از ۲ ساعت کاری</p>
+                        </div>
+                    </div>
+
+                    <form id="newTicketForm" class="ticket-form-wrap">
+                        <div class="form-row-grid">
+                            <div class="form-group">
+                                <label data-i18n="ticketSubjectLabel">موضوع تیکت:</label>
+                                <input type="text" id="ticketSubjectInput" class="binance-form-input" placeholder="عنوان مشکل یا سوال..." data-i18n-ph="ticketSubjectPlaceholder" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label data-i18n="ticketCategoryLabel">دپارتمان مربوطه:</label>
+                                <div class="custom-dropdown form-custom-dropdown" id="ticketCatDropdown">
+                                    <button type="button" class="dropdown-trigger-btn" id="ticketCatTriggerBtn" aria-haspopup="true" aria-expanded="false">
+                                        <span id="selectedTicketCatLabel" data-i18n="catFinancial">مسائل مالی، واریز و برداشت</span>
+                                        <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <polyline points="6 9 12 15 18 9"></polyline>
+                                        </svg>
+                                    </button>
+                                    <div class="dropdown-menu-list" id="ticketCatMenu">
+                                        <div class="dropdown-menu-item active" data-value="financial">
+                                            <span data-i18n="catFinancial">مسائل مالی، واریز و برداشت</span>
+                                            <span class="check-mark">✓</span>
+                                        </div>
+                                        <div class="dropdown-menu-item" data-value="security">
+                                            <span data-i18n="catSecurity">امنیت حساب و 2FA</span>
+                                            <span class="check-mark">✓</span>
+                                        </div>
+                                        <div class="dropdown-menu-item" data-value="kyc">
+                                            <span data-i18n="catKyc">احراز هویت (KYC)</span>
+                                            <span class="check-mark">✓</span>
+                                        </div>
+                                        <div class="dropdown-menu-item" data-value="general">
+                                            <span data-i18n="catGeneral">سوالات عمومی و شبکه رفرال</span>
+                                            <span class="check-mark">✓</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label data-i18n="ticketMsgLabel">شرح پیام شما:</label>
+                            <textarea id="ticketMessageInput" class="binance-textarea" rows="4" placeholder="توضیحات کامل درخواست خود را بنویسید..." data-i18n-ph="ticketMsgPlaceholder" required></textarea>
+                        </div>
+
+                        <button type="submit" class="btn-primary-binance" data-i18n="sendTicketBtn">ارسال تیکت</button>
+                    </form>
+
+                    <!-- سوابق تیکت‌ها با ستون گفت‌وگو -->
+                    <div class="ticket-history-wrap">
+                        <h4 class="history-sub-title" data-i18n="recentTicketsTitle">تیکت‌های اخیر شما</h4>
+                        <div class="tickets-table-container">
+                            <table class="tickets-table">
+                                <thead>
+                                    <tr>
+                                        <th data-i18n="thTicketId">شناسه تیکت</th>
+                                        <th data-i18n="thSubject">موضوع</th>
+                                        <th data-i18n="thDepartment">دپارتمان</th>
+                                        <th data-i18n="thStatus">وضعیت</th>
+                                        <th data-i18n="thDate">تاریخ</th>
+                                        <th data-i18n="thChatAction">گفت‌وگو</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="ticketsTbody">
+                                    <!-- ردیف‌های تیکت‌ها بارگذاری می‌شوند -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ================= دکمه قرمز خروج ================= -->
+            <div class="logout-action-area">
+                <button type="button" class="btn-logout" id="directLogoutBtn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                        <polyline points="16 17 21 12 16 7"></polyline>
+                        <line x1="21" y1="12" x2="9" y2="12"></line>
+                    </svg>
+                    <span data-i18n="logoutBtn">خروج از حساب کاربری (Log Out)</span>
+                </button>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- ================= مودال گفت‌وگو و مشاهده پاسخ تیکت (Ticket Conversation Modal) ================= -->
+    <div id="ticketChatModal" class="chat-modal-overlay hidden">
+        <div class="chat-modal-card">
+            <div class="chat-modal-header">
+                <div class="chat-header-info">
+                    <div class="chat-header-tags">
+                        <span class="ticket-code-tag" id="chatModalTicketCode">#TK-0000</span>
+                        <span class="chat-status-pill pending" id="chatModalTicketStatus">---</span>
+                    </div>
+                    <h3 class="chat-modal-subject" id="chatModalTicketSubject">---</h3>
+                    <span class="chat-modal-dept" id="chatModalTicketDept">---</span>
+                </div>
+                <button type="button" class="chat-modal-close" id="closeChatModalBtn" title="بستن">&times;</button>
+            </div>
+
+            <div class="chat-modal-body">
+                <!-- بنر هوشمند پاک‌سازی پیام‌های بالای ۵ روز -->
+                <div class="chat-auto-purge-notice">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                    <span data-i18n="autoPurgeNotice">پیام‌های قدیمی‌تر از ۵ روز به صورت خودکار جهت بهینه‌سازی و امنیت پاک‌سازی می‌شوند.</span>
+                </div>
+                
+                <!-- کانتینر پیام‌های دوطرفه کاربر و ادمین -->
+                <div class="chat-messages-container" id="chatMessagesContainer" style="display:flex; flex-direction:column; gap:12px;">
+                    <!-- حباب‌های گفت‌وگو لود می‌شوند -->
+                </div>
+            </div>
+
+            <!-- فرم ارسال پاسخ جدید به همین تیکت -->
+            <form id="chatReplyForm" class="chat-modal-footer">
+                <input type="hidden" id="activeChatTicketId">
+                <div class="chat-input-wrapper">
+                    <textarea id="chatReplyMessageInput" rows="2" placeholder="پاسخ خود را بنویسید..." data-i18n-ph="replyPlaceholder" required></textarea>
+                    <button type="submit" class="btn-send-reply" id="btnSendChatReply">
+                        <span data-i18n="sendReplyBtn">ارسال</span>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="22" y1="2" x2="11" y2="13"></line>
+                            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                        </svg>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ================= نوار ناوبری ۵ گزینه‌ای پایین صفحه (Sticky Bottom Nav) ================= -->
+    <nav class="bottom-nav">
+        <a href="home.html" class="nav-item" data-target="home">
+            <div class="nav-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                    <polyline points="9 22 9 12 15 12 15 22"/>
+                </svg>
+            </div>
+            <span class="nav-label" data-i18n="navHome">داشبورد</span>
+        </a>
+
+        <a href="invest.html" class="nav-item" data-target="invest">
+            <div class="nav-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="20" x2="18" y2="10"></line>
+                    <line x1="12" y1="20" x2="12" y2="4"></line>
+                    <line x1="6" y1="20" x2="6" y2="14"></line>
+                </svg>
+            </div>
+            <span class="nav-label" data-i18n="navInvest">سرمایه‌گذاری</span>
+        </a>
+
+        <a href="team.html" class="nav-item" data-target="team">
+            <div class="nav-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                </svg>
+            </div>
+            <span class="nav-label" data-i18n="navTeam">تیم و شبکه</span>
+        </a>
+
+        <a href="wallet.html" class="nav-item" data-target="wallet">
+            <div class="nav-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"></path>
+                    <path d="M3 5v14a2 2 0 0 0 2 2h16v-5"></path>
+                    <path d="M18 12a2 2 0 0 0 0 4h4v-4Z"></path>
+                </svg>
+            </div>
+            <span class="nav-label" data-i18n="navWallet">کیف‌پول</span>
+        </a>
+
+        <!-- حالت فعال در این صفحه (Profile) -->
+        <a href="profile.html" class="nav-item active" data-target="profile">
+            <div class="nav-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="8" r="5"></circle>
+                    <path d="M20 21a8 8 0 0 0-16 0"></path>
+                </svg>
+            </div>
+            <span class="nav-label" data-i18n="navProfile">پروفایل</span>
+        </a>
+    </nav>
+
+    <script src="profile.js"></script>
+</body>
+</html>

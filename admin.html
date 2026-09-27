@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ADM Binance Pro - Master Administration Panel</title>
+    <link rel="stylesheet" href="admin.css">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=Vazirmatn:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+<body class="adm-theme-dark">
+    <!-- Main Application Shell -->
+    <div class="admin-layout">
+        <!-- Sidebar Navigation -->
+        <aside class="admin-sidebar" id="adminSidebar">
+            <div class="sidebar-header">
+                <div class="adm-brand-logo">
+                    <div class="logo-symbol">
+                        <span class="symbol-ring"></span>
+                        <span class="symbol-core">ADM</span>
+                    </div>
+                    <div class="brand-text">
+                        <span class="brand-title">BINANCE<span class="brand-badge">PRO</span></span>
+                        <span class="brand-sub">CORE ENGINE v3.2</span>
+                    </div>
+                </div>
+                <button class="mobile-close-btn" id="mobileSidebarClose" aria-label="Close Sidebar">&times;</button>
+            </div>
+
+            <nav class="sidebar-menu">
+                <div class="menu-label" data-i18n="menu_main">MAIN NAVIGATION</div>
+                <a href="#overview" class="menu-item active" data-tab="overview">
+                    <svg class="menu-icon" viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
+                    <span data-i18n="tab_overview">Dashboard Overview</span>
+                </a>
+                <a href="#users" class="menu-item" data-tab="users">
+                    <svg class="menu-icon" viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+                    <span data-i18n="tab_users">User Management</span>
+                </a>
+                <a href="#finance" class="menu-item" data-tab="finance">
+                    <svg class="menu-icon" viewBox="0 0 24 24"><path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
+                    <span data-i18n="tab_finance">Finance & Approvals</span>
+                    <span class="badge-counter pending-finance-count" id="badgePendingFinance">0</span>
+                </a>
+                <a href="#kyc" class="menu-item" data-tab="kyc">
+                    <svg class="menu-icon" viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg>
+                    <span data-i18n="tab_kyc">KYC Verifications</span>
+                    <span class="badge-counter pending-kyc-count" id="badgePendingKYC">0</span>
+                </a>
+
+                <div class="menu-label" data-i18n="menu_system">SYSTEM AUTOMATION</div>
+                <a href="#yield" class="menu-item" data-tab="yield">
+                    <svg class="menu-icon" viewBox="0 0 24 24"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/></svg>
+                    <span data-i18n="tab_yield">Daily Yield Engine</span>
+                </a>
+                <a href="#support" class="menu-item" data-tab="support">
+                    <svg class="menu-icon" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-7 12h-2v-2h2v2zm0-4h-2V6h2v4z"/></svg>
+                    <span data-i18n="tab_support">Support Desk</span>
+                    <span class="badge-counter pending-tickets-count" id="badgePendingTickets">0</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="server-status-card">
+                    <div class="status-indicator-dot online"></div>
+                    <div class="status-meta">
+                        <span class="status-label" data-i18n="engine_active">Engine Active</span>
+                        <span class="status-clock" id="serverClock">--:--:-- UTC+4:30</span>
+                    </div>
+                </div>
+                <button class="logout-btn" id="adminLogoutBtn">
+                    <svg viewBox="0 0 24 24"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></svg>
+                    <span data-i18n="logout">Back to Dashboard</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Workspace -->
+        <main class="admin-main">
+            <!-- Top Header -->
+            <header class="admin-header">
+                <div class="header-left">
+                    <button class="menu-toggle-btn" id="mobileSidebarToggle" aria-label="Toggle Navigation">
+                        <svg viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
+                    </button>
+                    <div class="current-section-title">
+                        <h1 id="pageSectionTitle" data-i18n="tab_overview">Dashboard Overview</h1>
+                        <span class="section-subtitle" data-i18n="header_subtitle">Real-time system health & balance metrics</span>
+                    </div>
+                </div>
+
+                <div class="header-right">
+                    <!-- Language Picker -->
+                    <div class="dropdown-wrapper">
+                        <button class="header-action-btn lang-dropdown-btn" id="langBtn">
+                            <span class="flag-icon" id="currentFlag">🇺🇸</span>
+                            <span class="lang-text" id="currentLangLabel">English</span>
+                            <svg class="chevron-icon" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>
+                        </button>
+                        <div class="dropdown-menu lang-menu" id="langMenu">
+                            <div class="dropdown-item" data-lang="en"><span>🇺🇸</span> English (LTR)</div>
+                            <div class="dropdown-item" data-lang="fa"><span>🇦🇫</span> دری / فارسی (RTL)</div>
+                        </div>
+                    </div>
+
+                    <!-- Admin Profile Badge -->
+                    <div class="admin-profile-pill">
+                        <div class="profile-avatar">
+                            <span id="adminAvatarLetter">A</span>
+                        </div>
+                        <div class="profile-details">
+                            <span class="profile-name" id="adminUserName">Administrator</span>
+                            <span class="profile-role">ROOT MASTER</span>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dynamic Content Viewport -->
+            <div class="admin-content-viewport">
+
+                <!-- 1. DASHBOARD OVERVIEW TAB -->
+                <section class="tab-pane active" id="pane-overview">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <span class="stat-label" data-i18n="stat_total_capital">Total Circulating Capital</span>
+                                <div class="stat-icon-box gold">
+                                    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 14h-2v-2h2v2zm0-4h-2V7h2v5z"/></svg>
+                                </div>
+                            </div>
+                            <div class="stat-value" id="statTotalCapital">$0.0000</div>
+                            <div class="stat-footer positive">
+                                <span data-i18n="stat_active_locked">Locked & Working in Lots</span>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <span class="stat-label" data-i18n="stat_total_profit">Total Profit Distributed</span>
+                                <div class="stat-icon-box green">
+                                    <svg viewBox="0 0 24 24"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/></svg>
+                                </div>
+                            </div>
+                            <div class="stat-value" id="statTotalProfit">$0.0000</div>
+                            <div class="stat-footer neutral">
+                                <span data-i18n="stat_accumulated">Lifetime yield payouts</span>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <span class="stat-label" data-i18n="stat_registered_users">Registered Investors</span>
+                                <div class="stat-icon-box cyan">
+                                    <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3z"/></svg>
+                                </div>
+                            </div>
+                            <div class="stat-value" id="statTotalUsers">0</div>
+                            <div class="stat-footer highlight">
+                                <span id="statActiveUsers">0 Verified with Active Plan</span>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <span class="stat-label" data-i18n="stat_pending_actions">Pending Requests</span>
+                                <div class="stat-icon-box red">
+                                    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+                                </div>
+                            </div>
+                            <div class="stat-value" id="statPendingActionsTotal">0</div>
+                            <div class="stat-footer-tags">
+                                <span class="tag red" id="statPendingWithdrawCount">0 Withdrawals</span>
+                                <span class="tag yellow" id="statPendingKycCount">0 KYC</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Engine Operations -->
+                    <div class="dashboard-engine-bar">
+                        <div class="engine-bar-info">
+                            <div class="engine-pulse-bulb"></div>
+                            <div>
+                                <h3 data-i18n="yield_engine_head">Automated Nightly Yield Engine (21:00 UTC+4:30)</h3>
+                                <p data-i18n="yield_engine_desc">Daily yield targets between 0.8% and 1.3%. System executes automatic batch profit allocation for verified users having >= $50 active capital.</p>
+                            </div>
+                        </div>
+                        <div class="engine-bar-actions">
+                            <button class="adm-btn btn-primary" id="btnQuickDistribute" data-i18n="btn_instant_distribute">
+                                <svg viewBox="0 0 24 24"><path d="M13 2.05v3.03c3.39.49 6 3.39 6 6.92 0 .9-.18 1.75-.48 2.54l2.6 1.53c.56-1.24.88-2.62.88-4.07 0-5.18-3.95-9.45-9-9.95zM12 19c-3.87 0-7-3.13-7-7 0-3.53 2.61-6.43 6-6.92V2.05c-5.06.5-9 4.76-9 9.95 0 5.52 4.47 10 9.99 10 3.31 0 6.24-1.61 8.01-4.09l-2.45-1.45C16.2 18.06 14.24 19 12 19z"/></svg>
+                                <span>Distribute Today's Yield</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Live Transactions Table -->
+                    <div class="adm-card">
+                        <div class="card-header">
+                            <h2 data-i18n="recent_transactions">Live Transaction Stream</h2>
+                            <button class="adm-btn btn-secondary btn-sm" id="btnRefreshLiveStream" data-i18n="refresh">Refresh</button>
+                        </div>
+                        <div class="card-body no-padding table-responsive">
+                            <table class="adm-table" id="tableOverviewLive">
+                                <thead>
+                                    <tr>
+                                        <th data-i18n="col_txid">TX ID</th>
+                                        <th data-i18n="col_user">User / UID</th>
+                                        <th data-i18n="col_type">Type</th>
+                                        <th data-i18n="col_amount">Amount</th>
+                                        <th data-i18n="col_network">Network</th>
+                                        <th data-i18n="col_status">Status</th>
+                                        <th data-i18n="col_date">Date & Time</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="liveStreamTableBody">
+                                    <tr><td colspan="7" class="text-center py-4 text-muted" data-i18n="loading_data">Loading system records...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 2. USER MANAGEMENT TAB -->
+                <section class="tab-pane" id="pane-users">
+                    <div class="adm-card">
+                        <div class="card-header flex-wrap-mobile">
+                            <div class="search-box-wrapper">
+                                <svg class="search-icon" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+                                <input type="text" id="userSearchInput" class="adm-input" placeholder="Search by UID, Email, Username, Phone, Referral Code...">
+                            </div>
+                            <div class="card-actions">
+                                <select id="filterUserRole" class="adm-select">
+                                    <option value="" data-i18n="filter_all_roles">All Roles</option>
+                                    <option value="user">User</option>
+                                    <option value="admin">Admin</option>
+                                </select>
+                                <select id="filterUserKyc" class="adm-select">
+                                    <option value="" data-i18n="filter_all_kyc">All KYC Statuses</option>
+                                    <option value="verified">Verified</option>
+                                    <option value="pending">Pending</option>
+                                    <option value="unverified">Unverified</option>
+                                    <option value="rejected">Rejected</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="card-body no-padding table-responsive">
+                            <table class="adm-table" id="tableUsers">
+                                <thead>
+                                    <tr>
+                                        <th>UID</th>
+                                        <th data-i18n="col_user">Identity</th>
+                                        <th data-i18n="col_active_capital">Active Capital</th>
+                                        <th data-i18n="col_profit_balance">Withdrawable Profit</th>
+                                        <th data-i18n="col_kyc">KYC</th>
+                                        <th data-i18n="col_status">Status</th>
+                                        <th data-i18n="col_created">Registered</th>
+                                        <th data-i18n="col_actions">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="usersTableBody">
+                                    <tr><td colspan="8" class="text-center py-4 text-muted" data-i18n="loading_data">Loading user directory...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 3. FINANCE & APPROVALS TAB -->
+                <section class="tab-pane" id="pane-finance">
+                    <!-- Tab Sub-filters -->
+                    <div class="pane-sub-nav">
+                        <button class="sub-nav-btn active" data-sub="withdrawals" data-i18n="sub_pending_withdrawals">Pending Withdrawals (<span id="countWithdrawSub">0</span>)</button>
+                        <button class="sub-nav-btn" data-sub="deposits" data-i18n="sub_pending_deposits">Pending Deposits (<span id="countDepositSub">0</span>)</button>
+                        <button class="sub-nav-btn" data-sub="completed" data-i18n="sub_finance_history">Financial Log History</button>
+                    </div>
+
+                    <!-- Pending Withdrawals Sub-view -->
+                    <div class="sub-view-pane active" id="subview-withdrawals">
+                        <div class="adm-card">
+                            <div class="card-header">
+                                <div>
+                                    <h2 data-i18n="withdrawals_title">Pending Withdrawal Requests</h2>
+                                    <p class="section-subtitle" data-i18n="withdrawals_subtitle">Verify destination wallet address, selected blockchain network, and last action cooldown tier before approving payout.</p>
+                                </div>
+                                <button class="adm-btn btn-secondary btn-sm" id="btnRefreshWithdrawals" data-i18n="refresh">Refresh</button>
+                            </div>
+
+                            <div class="card-body no-padding table-responsive">
+                                <table class="adm-table highlight-rows" id="tablePendingWithdrawals">
+                                    <thead>
+                                        <tr>
+                                            <th>TX ID</th>
+                                            <th data-i18n="col_user">User UID / Email</th>
+                                            <th data-i18n="col_type">Fund Source</th>
+                                            <th data-i18n="col_network">Network</th>
+                                            <th data-i18n="col_dest_address">Destination Wallet Address</th>
+                                            <th data-i18n="col_requested_amount">Amount</th>
+                                            <th data-i18n="col_cooldown_tier">Cooldown & Fee Tier</th>
+                                            <th data-i18n="col_net_payout">Net to Send</th>
+                                            <th data-i18n="col_actions">Decision</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="pendingWithdrawalsBody">
+                                        <tr><td colspan="9" class="text-center py-4 text-muted" data-i18n="loading_data">Loading pending withdrawals...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Pending Deposits Sub-view -->
+                    <div class="sub-view-pane" id="subview-deposits">
+                        <div class="adm-card">
+                            <div class="card-header">
+                                <div>
+                                    <h2 data-i18n="deposits_title">Manual / On-Chain Deposit Verification</h2>
+                                    <p class="section-subtitle" data-i18n="deposits_subtitle">Confirm incoming USDT hash on blockchain explorer before locking as a 90-day investment lot.</p>
+                                </div>
+                                <button class="adm-btn btn-secondary btn-sm" id="btnRefreshDeposits" data-i18n="refresh">Refresh</button>
+                            </div>
+
+                            <div class="card-body no-padding table-responsive">
+                                <table class="adm-table" id="tablePendingDeposits">
+                                    <thead>
+                                        <tr>
+                                            <th>TX ID</th>
+                                            <th data-i18n="col_user">User UID</th>
+                                            <th data-i18n="col_amount">Deposit Amount</th>
+                                            <th data-i18n="col_network">Network</th>
+                                            <th data-i18n="col_txhash">Transaction Hash (TXID)</th>
+                                            <th data-i18n="col_date">Submitted Date</th>
+                                            <th data-i18n="col_actions">Decision</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="pendingDepositsBody">
+                                        <tr><td colspan="7" class="text-center py-4 text-muted" data-i18n="loading_data">Loading pending deposits...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Completed History Sub-view -->
+                    <div class="sub-view-pane" id="subview-completed">
+                        <div class="adm-card">
+                            <div class="card-header">
+                                <h2 data-i18n="sub_finance_history">Financial Log History</h2>
+                                <button class="adm-btn btn-secondary btn-sm" id="btnRefreshFinHistory" data-i18n="refresh">Refresh</button>
+                            </div>
+                            <div class="card-body no-padding table-responsive">
+                                <table class="adm-table" id="tableFinanceHistory">
+                                    <thead>
+                                        <tr>
+                                            <th>TX ID</th>
+                                            <th data-i18n="col_user">User UID</th>
+                                            <th data-i18n="col_type">Type</th>
+                                            <th data-i18n="col_amount">Gross</th>
+                                            <th data-i18n="col_fee">Fee</th>
+                                            <th data-i18n="col_net_payout">Net</th>
+                                            <th data-i18n="col_network">Network</th>
+                                            <th data-i18n="col_status">Status</th>
+                                            <th data-i18n="col_note">Admin Note</th>
+                                            <th data-i18n="col_date">Updated</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="financeHistoryBody">
+                                        <tr><td colspan="10" class="text-center py-4 text-muted" data-i18n="loading_data">Loading history records...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 4. KYC VERIFICATIONS TAB -->
+                <section class="tab-pane" id="pane-kyc">
+                    <div class="adm-card">
+                        <div class="card-header">
+                            <div>
+                                <h2 data-i18n="kyc_desk_title">Identity Verification Desk</h2>
+                                <p class="section-subtitle" data-i18n="kyc_desk_subtitle">KYC approval unlocks daily yield allocation and referral commission participation.</p>
+                            </div>
+                            <button class="adm-btn btn-secondary btn-sm" id="btnRefreshKYC" data-i18n="refresh">Refresh</button>
+                        </div>
+
+                        <div class="card-body no-padding table-responsive">
+                            <table class="adm-table" id="tableKYC">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th data-i18n="col_user">User Details</th>
+                                        <th data-i18n="col_doc_type">Document Type</th>
+                                        <th data-i18n="col_doc_number">Document Number</th>
+                                        <th data-i18n="col_front_view">Front Image</th>
+                                        <th data-i18n="col_back_view">Back Image</th>
+                                        <th data-i18n="col_date">Submitted At</th>
+                                        <th data-i18n="col_actions">Decision</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="kycTableBody">
+                                    <tr><td colspan="8" class="text-center py-4 text-muted" data-i18n="loading_data">Loading pending verifications...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 5. DAILY YIELD ENGINE TAB -->
+                <section class="tab-pane" id="pane-yield">
+                    <div class="yield-control-wrapper">
+                        <!-- Rate Setup Card -->
+                        <div class="adm-card yield-setup-card">
+                            <div class="card-header">
+                                <h2 data-i18n="yield_config_title">Today's Profit Configuration</h2>
+                            </div>
+                            <div class="card-body">
+                                <form id="formSetDailyRate">
+                                    <div class="form-group">
+                                        <label for="yieldInputRate" data-i18n="label_daily_rate">Daily Profit Percentage (%)</label>
+                                        <div class="rate-input-container">
+                                            <input type="number" step="0.0001" min="0.8000" max="1.3000" id="yieldInputRate" class="adm-input font-bold" placeholder="e.g. 1.0500" required>
+                                            <span class="rate-percent-symbol">%</span>
+                                        </div>
+                                        <small class="form-hint" data-i18n="yield_range_hint">Standard boundary: 0.8000% to 1.3000% (approx ~31% monthly compounded).</small>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="yieldTargetDate" data-i18n="label_target_date">Application Date</label>
+                                        <input type="date" id="yieldTargetDate" class="adm-input" required>
+                                    </div>
+
+                                    <div class="yield-rules-callout">
+                                        <h4 data-i18n="engine_rules_title">Eligibility & Cap Validation:</h4>
+                                        <ul>
+                                            <li data-i18n="rule_kyc_50">Only users with <strong>Verified KYC</strong> and <strong>Active Capital &ge; $50.00</strong> receive profit.</li>
+                                            <li data-i18n="rule_mlm_cap">Referral commissions (L1: 10%, L2: 5%, L3: 3%, L4: 2%, L5: 1%) are strictly capped by the Leader's active capital: <code>min(downline_profit, leader_active_cap)</code>.</li>
+                                        </ul>
+                                    </div>
+
+                                    <div class="form-actions-inline">
+                                        <button type="submit" class="adm-btn btn-secondary" id="btnSaveYieldRate" data-i18n="btn_save_rate">Save Rate Preset</button>
+                                        <button type="button" class="adm-btn btn-primary" id="btnExecuteDistribution" data-i18n="btn_distribute_now">
+                                            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 14h-2v-2h2v2zm0-4h-2V7h2v5z"/></svg>
+                                            Distribute Now
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Current Engine Monitor -->
+                        <div class="adm-card yield-status-card">
+                            <div class="card-header">
+                                <h2 data-i18n="yield_monitor_title">Engine Real-Time Monitor</h2>
+                                <span class="badge-status badge-success" id="engineStatusBadge">STANDBY / READY</span>
+                            </div>
+                            <div class="card-body">
+                                <div class="monitor-metric">
+                                    <span class="metric-title" data-i18n="metric_today_rate">Today's Active Rate:</span>
+                                    <span class="metric-big-val text-gold" id="monitorTodayRate">0.0000%</span>
+                                </div>
+                                <div class="monitor-metric">
+                                    <span class="metric-title" data-i18n="metric_today_distributed">Distributed Today:</span>
+                                    <span class="metric-state" id="monitorTodayStatus">NO</span>
+                                </div>
+                                <div class="monitor-metric">
+                                    <span class="metric-title" data-i18n="metric_next_run">Scheduled Execution:</span>
+                                    <span class="metric-text" id="monitorNextRun">Today at 21:00 UTC+4:30</span>
+                                </div>
+                                <div class="monitor-metric">
+                                    <span class="metric-title" data-i18n="metric_eligible_users">Estimated Beneficiaries:</span>
+                                    <span class="metric-text" id="monitorEligibleUsers">-- Users</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Yield Rate History -->
+                    <div class="adm-card">
+                        <div class="card-header">
+                            <h2 data-i18n="yield_history_title">Daily Rate Execution Log</h2>
+                        </div>
+                        <div class="card-body no-padding table-responsive">
+                            <table class="adm-table" id="tableYieldHistory">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th data-i18n="col_date">Date</th>
+                                        <th data-i18n="col_rate">Yield Rate (%)</th>
+                                        <th data-i18n="col_distributed">Distributed?</th>
+                                        <th data-i18n="col_execution_time">Execution Timestamp</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="yieldHistoryBody">
+                                    <tr><td colspan="5" class="text-center py-4 text-muted" data-i18n="loading_data">Loading yield execution log...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 6. SUPPORT DESK TAB -->
+                <section class="tab-pane" id="pane-support">
+                    <div class="support-desk-layout">
+                        <!-- Tickets List -->
+                        <div class="adm-card ticket-list-pane">
+                            <div class="card-header">
+                                <h2 data-i18n="support_tickets_title">Support Tickets</h2>
+                                <select id="filterTicketStatus" class="adm-select">
+                                    <option value="" data-i18n="filter_all">All Tickets</option>
+                                    <option value="pending" selected data-i18n="filter_pending">Pending / Open</option>
+                                    <option value="answered" data-i18n="filter_answered">Answered</option>
+                                    <option value="closed" data-i18n="filter_closed">Closed</option>
+                                </select>
+                            </div>
+                            <div class="ticket-items-container" id="ticketsContainer">
+                                <div class="text-center py-4 text-muted" data-i18n="loading_tickets">Loading support inquiries...</div>
+                            </div>
+                        </div>
+
+                        <!-- Conversation Workspace -->
+                        <div class="adm-card ticket-workspace-pane" id="ticketWorkspace">
+                            <div class="workspace-empty-state" id="ticketEmptyState">
+                                <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-7 12h-2v-2h2v2zm0-4h-2V6h2v4z"/></svg>
+                                <h3 data-i18n="ticket_select_prompt">Select a support ticket to start conversation</h3>
+                                <p data-i18n="ticket_select_sub">Direct replies from this panel are pushed straight to the user's dashboard profile.</p>
+                            </div>
+
+                            <div class="workspace-active-state hidden" id="ticketActiveState">
+                                <div class="workspace-header">
+                                    <div>
+                                        <div class="ticket-meta-tags">
+                                            <span class="badge-status badge-warning" id="activeTicketNumber">TICK-XXXX</span>
+                                            <span class="ticket-cat-badge" id="activeTicketCategory">General</span>
+                                        </div>
+                                        <h3 class="active-ticket-subject" id="activeTicketSubject">User Inquiry Subject</h3>
+                                        <span class="active-ticket-user" id="activeTicketUserMeta">User: John Doe (UID: 12345678)</span>
+                                    </div>
+                                    <button class="adm-btn btn-danger btn-sm" id="btnCloseTicket" data-i18n="btn_close_ticket">Close Ticket</button>
+                                </div>
+
+                                <div class="workspace-chat-box" id="ticketChatBox">
+                                    <!-- Dynamic chat messages go here -->
+                                </div>
+
+                                <form class="workspace-reply-form" id="formTicketReply">
+                                    <textarea id="replyMessageText" class="adm-textarea" placeholder="Write official administrative response..." rows="3" required></textarea>
+                                    <div class="reply-form-footer">
+                                        <span class="reply-sender-note" data-i18n="reply_as_admin">Sending as: ADM Official Support</span>
+                                        <button type="submit" class="adm-btn btn-primary" id="btnSendReply">
+                                            <span data-i18n="btn_send_reply">Send Reply</span>
+                                            <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- ================================= MODALS ================================= -->
+
+    <!-- Modal 1: User Balance Manual Adjustment (شامل هر ۵ بخش داشبورد و بدون اشاره‌گر مزاحم) -->
+    <div class="adm-modal-backdrop" id="modalBalanceAdjust">
+        <div class="adm-modal">
+            <div class="modal-header">
+                <h3 data-i18n="modal_adjust_balance">Manual Balance Adjustment</h3>
+                <button class="modal-close-btn" data-close="modalBalanceAdjust">&times;</button>
+            </div>
+            <form id="formBalanceAdjust">
+                <div class="modal-body">
+                    <input type="hidden" id="adjustUserId">
+                    <div class="user-brief-box">
+                        <span id="adjustUserDisplay">User: -- | UID: --</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label data-i18n="label_action_type">Adjustment Mode</label>
+                        <select id="adjustActionType" class="adm-select" required>
+                            <option value="credit" data-i18n="opt_credit">Credit (+) Add Funds</option>
+                            <option value="debit" data-i18n="opt_debit">Debit (-) Deduct Funds</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label data-i18n="label_balance_target">Target Balance Bucket</label>
+                        <select id="adjustTargetBucket" class="adm-select" required>
+                            <option value="active_capital" data-i18n="bucket_capital">Total Active Capital (کل سرمایه فعال)</option>
+                            <option value="locked_principal" data-i18n="bucket_locked">Locked Principal (اصل سرمایه قفل‌شده)</option>
+                            <option value="unlocked_principal" data-i18n="bucket_unlocked">Unlocked Principal (اصل سرمایه آزادشده)</option>
+                            <option value="withdrawable_profit" data-i18n="bucket_profit">Withdrawable Profit (سود قابل برداشت)</option>
+                            <option value="total_lifetime_profit" data-i18n="bucket_lifetime">Total Lifetime Profit (مجموع کل سودهای دریافتی)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label data-i18n="label_adjust_amount">Amount (USD)</label>
+                        <!-- ورودی بدون اسپینر و آماده تایپ دستی آزاد اعشاری -->
+                        <input type="text" inputmode="decimal" id="adjustAmount" class="adm-input font-bold" placeholder="0.0000" required autocomplete="off">
+                    </div>
+
+                    <div class="form-group">
+                        <label data-i18n="label_admin_reason">Reason / Audit Memo</label>
+                        <input type="text" id="adjustReason" class="adm-input" placeholder="e.g. Deposit compensation, correction, manual bonus..." required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="adm-btn btn-secondary" data-close="modalBalanceAdjust" data-i18n="cancel">Cancel</button>
+                    <button type="submit" class="adm-btn btn-primary" id="btnSubmitAdjust" data-i18n="btn_confirm_adjust">Apply Adjustment</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal 2: Withdrawal Rejection Memo -->
+    <div class="adm-modal-backdrop" id="modalRejectWithdrawal">
+        <div class="adm-modal">
+            <div class="modal-header">
+                <h3 data-i18n="modal_reject_withdrawal">Reject Withdrawal & Refund Balance</h3>
+                <button class="modal-close-btn" data-close="modalRejectWithdrawal">&times;</button>
+            </div>
+            <form id="formRejectWithdrawal">
+                <div class="modal-body">
+                    <input type="hidden" id="rejectTxId">
+                    <p class="modal-warning-text" data-i18n="reject_warning_text">Rejecting this payout will immediately refund the full requested amount back to the user's withdrawable balance.</p>
+
+                    <div class="form-group">
+                        <label data-i18n="label_rejection_reason">Rejection Reason (Visible to user)</label>
+                        <textarea id="rejectReasonNote" class="adm-textarea" rows="3" placeholder="e.g. Invalid TRC20 address, minimum fee criteria violation..." required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="adm-btn btn-secondary" data-close="modalRejectWithdrawal" data-i18n="cancel">Cancel</button>
+                    <button type="submit" class="adm-btn btn-danger" id="btnConfirmReject" data-i18n="btn_confirm_reject">Confirm Rejection</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal 3: KYC Inspection & Zoom Lightbox -->
+    <div class="adm-modal-backdrop modal-xl" id="modalKycInspection">
+        <div class="adm-modal">
+            <div class="modal-header">
+                <h3 data-i18n="modal_inspect_kyc">Inspect Identity Documents</h3>
+                <button class="modal-close-btn" data-close="modalKycInspection">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="inspectKycId">
+                <div class="kyc-details-bar">
+                    <div><span class="meta-label">User:</span> <strong id="inspectUserName">--</strong></div>
+                    <div><span class="meta-label">UID:</span> <strong id="inspectUserUid">--</strong></div>
+                    <div><span class="meta-label">Type:</span> <span class="badge-status badge-info" id="inspectDocType">--</span></div>
+                    <div><span class="meta-label">Number:</span> <strong id="inspectDocNumber">--</strong></div>
+                </div>
+
+                <div class="kyc-images-grid">
+                    <div class="kyc-image-card">
+                        <span class="image-label" data-i18n="col_front_view">Front View</span>
+                        <div class="image-preview-frame" id="frameFront">
+                            <img id="inspectImgFront" src="" alt="Document Front">
+                        </div>
+                    </div>
+                    <div class="kyc-image-card" id="cardBackView">
+                        <span class="image-label" data-i18n="col_back_view">Back View</span>
+                        <div class="image-preview-frame" id="frameBack">
+                            <img id="inspectImgBack" src="" alt="Document Back">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group mt-3">
+                    <label data-i18n="label_kyc_note">Verification Note (Included in rejection notification):</label>
+                    <input type="text" id="inspectKycNote" class="adm-input" placeholder="e.g. Image blurry, corners cropped, valid document...">
+                </div>
+            </div>
+            <div class="modal-footer justify-between">
+                <button type="button" class="adm-btn btn-danger" id="btnRejectKycModal" data-i18n="btn_reject">Reject Document</button>
+                <div class="footer-right-actions">
+                    <button type="button" class="adm-btn btn-secondary" data-close="modalKycInspection" data-i18n="cancel">Close</button>
+                    <button type="button" class="adm-btn btn-success" id="btnApproveKycModal" data-i18n="btn_approve">Approve & Verify User</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toast Element -->
+    <div class="adm-toast-container" id="toastContainer"></div>
+
+    <!-- Scripts -->
+    <script src="admin.js"></script>
+</body>
+</html>

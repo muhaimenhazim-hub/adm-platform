@@ -1,0 +1,1327 @@
+/* ==========================================================================
+   پالت رنگی تم تاریک رسمی بایننس (Binance Dark Official Palette)
+   ========================================================================== */
+:root {
+    --bg-main: #0B0E11;
+    --card-surface: #181A20;
+    --card-surface-hover: #1E2329;
+    --card-alt: #14171B;
+    --input-bg: #121418;
+    
+    --brand-yellow: #F0B90B;
+    --brand-yellow-hover: #FCD535;
+    
+    --text-primary: #EAECEF;
+    --text-secondary: #848E9C;
+    --text-muted: #5E6673;
+    
+    --border-color: #282C35;
+    --border-light: #333842;
+    
+    --profit-green: #0ECB81;
+    --danger-red: #E02020;
+    --danger-red-hover: #C81818;
+    --info-blue: #3E82F7;
+    
+    --shadow-card: 0 8px 24px rgba(0, 0, 0, 0.45);
+    --transition-fast: 0.22s ease;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+    width: 100%;
+    min-height: 100vh;
+    background-color: var(--bg-main);
+    color: var(--text-primary);
+    font-family: 'Inter', 'Vazirmatn', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    overflow-x: hidden;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+button {
+    font-family: inherit;
+    cursor: pointer;
+    border: none;
+    background: none;
+    outline: none;
+}
+
+input, select, textarea {
+    font-family: inherit;
+    outline: none;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.text-yellow { color: var(--brand-yellow) !important; }
+.text-danger { color: var(--danger-red) !important; }
+.text-green { color: var(--profit-green) !important; }
+
+/* ==========================================================================
+   اعلان بالای صفحه (Toast Notification)
+   ========================================================================== */
+.toast-alert {
+    position: fixed;
+    top: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-100px);
+    background-color: rgba(24, 26, 32, 0.96);
+    border: 1px solid var(--brand-yellow);
+    color: var(--text-primary);
+    padding: 12px 24px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 500;
+    z-index: 99999;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+    opacity: 0;
+    pointer-events: none;
+    transition: transform 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28), opacity 0.3s ease;
+    backdrop-filter: blur(8px);
+}
+
+.toast-alert.show {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+}
+
+.toast-alert.error {
+    border-color: var(--danger-red);
+    color: #FFA3AB;
+}
+
+/* ==========================================================================
+   هدر بالای صفحه (Top Nav)
+   ========================================================================== */
+.app-header {
+    height: 64px;
+    background: rgba(11, 14, 17, 0.94);
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    backdrop-filter: blur(10px);
+}
+
+/* ================= کامپوننت رسمی لوگو و افکت‌های امواج نوری ADM ================= */
+.header-logo-box {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.header-logo-box::before,
+.header-logo-box::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    height: 100%;
+    border-radius: 10px;
+    transform: translate(-50%, -50%) scale(1);
+    pointer-events: none;
+    z-index: 0;
+}
+
+.header-logo-box::before {
+    animation: logoRaysWave 3s ease-out infinite;
+}
+
+.header-logo-box::after {
+    animation: logoRaysWave 3s ease-out infinite 0.8s;
+}
+
+@keyframes logoRaysWave {
+    0% {
+        transform: translate(-50%, -50%) scale(0.96);
+        box-shadow: 0 0 0 0 rgba(240, 185, 11, 0.65), 0 0 0 0 rgba(14, 203, 129, 0.5);
+        opacity: 0.9;
+    }
+    50% {
+        transform: translate(-50%, -50%) scale(1.42);
+        box-shadow: 0 0 20px 8px rgba(240, 185, 11, 0.35), 0 0 28px 12px rgba(14, 203, 129, 0.25);
+        opacity: 0.45;
+    }
+    66.6% {
+        transform: translate(-50%, -50%) scale(1.68);
+        box-shadow: 0 0 30px 14px rgba(240, 185, 11, 0), 0 0 40px 18px rgba(14, 203, 129, 0);
+        opacity: 0;
+    }
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
+
+.header-logo-img {
+    height: 38px;
+    width: auto;
+    object-fit: contain;
+    border-radius: 8px;
+    background-color: #ffffff;
+    padding: 3px 8px;
+    display: block;
+    position: relative;
+    z-index: 1;
+    animation: logoLuminousPulse 3s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+@keyframes logoLuminousPulse {
+    0%, 66.6% {
+        opacity: 1;
+        transform: scale(1);
+        filter: drop-shadow(0 0 8px rgba(240, 185, 11, 0.55)) drop-shadow(0 0 16px rgba(14, 203, 129, 0.35));
+    }
+    83.3% {
+        opacity: 0;
+        transform: scale(0.82);
+        filter: drop-shadow(0 0 26px rgba(240, 185, 11, 0.9)) blur(3px);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+        filter: drop-shadow(0 0 8px rgba(240, 185, 11, 0.55)) drop-shadow(0 0 16px rgba(14, 203, 129, 0.35));
+    }
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.admin-badge-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(240, 185, 11, 0.12);
+    border: 1px solid var(--brand-yellow);
+    color: var(--brand-yellow);
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    transition: var(--transition-fast);
+}
+
+.admin-badge-btn svg {
+    width: 16px;
+    height: 16px;
+}
+
+.admin-badge-btn:hover {
+    background: var(--brand-yellow);
+    color: #000;
+}
+
+/* دراپ‌داون زبان مدرن */
+.custom-dropdown {
+    position: relative;
+}
+
+.lang-trigger {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--card-surface);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    transition: var(--transition-fast);
+}
+
+.lang-trigger:hover {
+    border-color: var(--brand-yellow);
+}
+
+.globe-icon {
+    width: 16px;
+    height: 16px;
+    stroke: var(--text-secondary);
+}
+
+.arrow-icon {
+    width: 14px;
+    height: 14px;
+    stroke: var(--text-secondary);
+    transition: transform var(--transition-fast);
+}
+
+.custom-dropdown.open .arrow-icon {
+    transform: rotate(180deg);
+}
+
+.lang-menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    min-width: 140px;
+    background: #181A20;
+    border: 1px solid var(--border-light);
+    border-radius: 10px;
+    padding: 6px 0;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    display: none;
+    z-index: 1100;
+}
+
+[dir="rtl"] .lang-menu {
+    right: auto;
+    left: 0;
+}
+
+.custom-dropdown.open .lang-menu {
+    display: block;
+}
+
+.lang-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 16px;
+    color: var(--text-secondary);
+    font-size: 13px;
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+.lang-item:hover, .lang-item.active {
+    background: #20242B;
+    color: var(--brand-yellow);
+}
+
+.check-mark {
+    opacity: 0;
+    font-size: 12px;
+}
+
+.lang-item.active .check-mark,
+.dropdown-menu-item.active .check-mark {
+    opacity: 1;
+}
+
+/* ==========================================================================
+   کانتینر اصلی صفحه پروفایل
+   ========================================================================== */
+.profile-main-wrapper {
+    padding: 24px 20px 100px;
+    max-width: 1140px;
+    margin: 0 auto;
+}
+
+.profile-page-header {
+    margin-bottom: 24px;
+}
+
+.profile-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+}
+
+.profile-subtitle {
+    color: var(--text-secondary);
+    font-size: 13px;
+}
+
+/* ==========================================================================
+   بخش ۱: کارت هویت و مشخصات کاربر
+   ========================================================================== */
+.user-identity-card {
+    background: linear-gradient(135deg, #181A20 0%, #15181D 100%);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: var(--shadow-card);
+}
+
+.identity-flex-wrap {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+
+.avatar-container {
+    position: relative;
+    width: 84px;
+    height: 84px;
+    flex-shrink: 0;
+}
+
+.avatar-circle {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #F0B90B 0%, #D49B00 100%);
+    color: #000000;
+    font-size: 26px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 16px rgba(240, 185, 11, 0.35);
+    overflow: hidden;
+}
+
+.avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.avatar-upload-badge {
+    position: absolute;
+    bottom: -2px;
+    right: -2px;
+    width: 28px;
+    height: 28px;
+    background: #181A20;
+    border: 2px solid var(--brand-yellow);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+.avatar-upload-badge svg {
+    width: 14px;
+    height: 14px;
+    stroke: var(--brand-yellow);
+}
+
+.avatar-upload-badge:hover {
+    background: var(--brand-yellow);
+}
+
+.avatar-upload-badge:hover svg {
+    stroke: #000;
+}
+
+.user-details-area {
+    flex: 1;
+}
+
+.user-top-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+}
+
+.user-username {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.kyc-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.kyc-badge.verified {
+    background: rgba(14, 203, 129, 0.12);
+    border: 1px solid rgba(14, 203, 129, 0.3);
+    color: var(--profit-green);
+}
+
+.kyc-badge.verified svg {
+    width: 12px;
+    height: 12px;
+    stroke: var(--profit-green);
+}
+
+.kyc-badge.pending {
+    background: rgba(240, 185, 11, 0.12);
+    border: 1px solid rgba(240, 185, 11, 0.3);
+    color: var(--brand-yellow);
+}
+
+.kyc-badge.pending svg {
+    width: 12px;
+    height: 12px;
+    stroke: var(--brand-yellow);
+}
+
+.kyc-badge.unverified {
+    background: rgba(224, 32, 32, 0.12);
+    border: 1px solid rgba(224, 32, 32, 0.3);
+    color: var(--danger-red);
+}
+
+.kyc-badge.unverified svg {
+    width: 12px;
+    height: 12px;
+    stroke: var(--danger-red);
+}
+
+.user-meta-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+    margin-bottom: 12px;
+}
+
+.meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.meta-label {
+    font-size: 11px;
+    color: var(--text-secondary);
+}
+
+.meta-value {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.uid-copy-flex {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.copy-mini-btn {
+    display: inline-flex;
+    color: var(--text-secondary);
+    transition: var(--transition-fast);
+}
+
+.copy-mini-btn svg {
+    width: 14px;
+    height: 14px;
+}
+
+.copy-mini-btn:hover {
+    color: var(--brand-yellow);
+}
+
+/* بنر هشدار قانون عدم دریافت سود روزانه در صورت عدم احراز هویت */
+.kyc-yield-rule-banner {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(240, 185, 11, 0.08);
+    border: 1px solid rgba(240, 185, 11, 0.28);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 12px;
+    color: var(--brand-yellow);
+    font-weight: 500;
+}
+
+.kyc-yield-rule-banner svg {
+    width: 16px;
+    height: 16px;
+    stroke: var(--brand-yellow);
+    flex-shrink: 0;
+}
+
+/* ==========================================================================
+   بخش ۲: تب‌های ناوبری تنظیمات
+   ========================================================================== */
+.profile-tabs-nav {
+    display: flex;
+    gap: 8px;
+    background: var(--input-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 6px;
+    margin-bottom: 24px;
+}
+
+.p-tab-btn {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    transition: var(--transition-fast);
+}
+
+.p-tab-btn svg {
+    width: 16px;
+    height: 16px;
+}
+
+.p-tab-btn:hover {
+    color: var(--text-primary);
+}
+
+.p-tab-btn.active {
+    background: var(--card-surface);
+    color: var(--brand-yellow);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+}
+
+.profile-tab-content {
+    display: none;
+}
+
+.profile-tab-content.active {
+    display: block;
+}
+
+/* کارت‌های تنظیمات */
+.settings-card {
+    background: var(--card-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow-card);
+}
+
+.card-head-title {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 20px;
+}
+
+.card-head-between {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.head-icon-box {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: rgba(240, 185, 11, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.head-icon-box svg {
+    width: 20px;
+    height: 20px;
+    stroke: var(--brand-yellow);
+}
+
+.settings-card h3 {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.section-desc {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-top: 2px;
+}
+
+/* ================= فرم‌های عمودی پسورد ================= */
+.security-form-vertical {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    max-width: 460px;
+    width: 100%;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-group label {
+    font-size: 12px;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.pass-input-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.pass-input-wrap input,
+.binance-form-input {
+    width: 100%;
+    background: var(--input-bg);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    padding: 11px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    transition: var(--transition-fast);
+}
+
+.pass-input-wrap input:focus,
+.binance-form-input:focus,
+.binance-textarea:focus {
+    border-color: var(--brand-yellow);
+}
+
+.toggle-pass-btn {
+    position: absolute;
+    left: 10px;
+    color: var(--text-secondary);
+    display: inline-flex;
+}
+
+[dir="ltr"] .toggle-pass-btn {
+    left: auto;
+    right: 10px;
+}
+
+.toggle-pass-btn svg {
+    width: 16px;
+    height: 16px;
+}
+
+/* سنجش قدرت رمز عبور */
+.strength-meter-wrap {
+    margin-top: 6px;
+}
+
+.meter-bar-track {
+    width: 100%;
+    height: 4px;
+    background: var(--border-color);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 4px;
+}
+
+.meter-bar-fill {
+    width: 25%;
+    height: 100%;
+    background: var(--danger-red);
+    transition: width 0.3s ease, background 0.3s ease;
+}
+
+.strength-text-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+}
+
+.form-actions-row {
+    display: flex;
+    margin-top: 6px;
+}
+
+.btn-primary-binance {
+    background: var(--brand-yellow);
+    color: #000000;
+    padding: 11px 24px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    transition: var(--transition-fast);
+}
+
+.btn-primary-binance:hover {
+    background: var(--brand-yellow-hover);
+    box-shadow: 0 4px 15px rgba(240, 185, 11, 0.35);
+}
+
+/* ================= 2FA ================= */
+.twofa-content-grid {
+    display: flex;
+    gap: 24px;
+    align-items: center;
+}
+
+.qr-canvas-mockup {
+    width: 130px;
+    height: 130px;
+    background: #FFFFFF;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #000;
+    font-size: 10px;
+    font-weight: 600;
+    text-align: center;
+    gap: 6px;
+    padding: 10px;
+    flex-shrink: 0;
+}
+
+.qr-canvas-mockup svg {
+    width: 50px;
+    height: 50px;
+    stroke: #000000;
+}
+
+.twofa-details-area {
+    flex: 1;
+}
+
+.secret-key-box {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--input-bg);
+    border: 1px solid var(--border-color);
+    padding: 8px 14px;
+    border-radius: 8px;
+    margin-top: 6px;
+}
+
+.secret-text {
+    font-family: 'Inter', monospace;
+    font-size: 13px;
+    color: var(--brand-yellow);
+    font-weight: 600;
+}
+
+.copy-action-btn {
+    background: var(--card-surface);
+    border: 1px solid var(--border-light);
+    color: var(--text-primary);
+    padding: 5px 12px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 500;
+    transition: var(--transition-fast);
+}
+
+.copy-action-btn:hover {
+    border-color: var(--brand-yellow);
+    color: var(--brand-yellow);
+}
+
+.verify-code-row {
+    display: flex;
+    gap: 12px;
+}
+
+.input-code {
+    width: 140px;
+    background: var(--input-bg);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-family: 'Inter', monospace;
+    letter-spacing: 3px;
+    text-align: center;
+}
+
+/* ================= نشست‌های فعال ================= */
+.sessions-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.session-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: var(--input-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 12px 16px;
+}
+
+.session-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: var(--card-surface);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.session-icon svg {
+    width: 18px;
+    height: 18px;
+    stroke: var(--text-secondary);
+}
+
+.session-info {
+    flex: 1;
+}
+
+.session-title-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 2px;
+}
+
+.session-title-row strong {
+    font-size: 13px;
+    color: var(--text-primary);
+}
+
+.badge-current-device {
+    background: rgba(14, 203, 129, 0.12);
+    border: 1px solid rgba(14, 203, 129, 0.25);
+    color: var(--profit-green);
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 600;
+}
+
+.session-meta {
+    font-size: 11px;
+    color: var(--text-secondary);
+}
+
+.btn-danger-outline {
+    border: 1px solid rgba(224, 32, 32, 0.4);
+    color: var(--danger-red);
+    padding: 7px 14px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    transition: var(--transition-fast);
+}
+
+.btn-danger-outline:hover {
+    background: rgba(224, 32, 32, 0.12);
+    border-color: var(--danger-red);
+}
+
+/* ================= منوهای کشویی سفارشی داخل تب‌ها ================= */
+.form-custom-dropdown {
+    width: 100%;
+}
+
+.dropdown-trigger-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    background: var(--input-bg);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    padding: 11px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+.dropdown-trigger-btn:hover,
+.form-custom-dropdown.open .dropdown-trigger-btn {
+    border-color: var(--brand-yellow);
+}
+
+.dropdown-trigger-btn .arrow-icon {
+    stroke: var(--text-secondary);
+}
+
+.form-custom-dropdown.open .arrow-icon {
+    transform: rotate(180deg);
+}
+
+.dropdown-menu-list {
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    left: 0;
+    background: #181A20;
+    border: 1px solid var(--border-light);
+    border-radius: 10px;
+    padding: 6px 0;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.55);
+    display: none;
+    z-index: 1100;
+}
+
+[dir="rtl"] .dropdown-menu-list {
+    right: 0;
+    left: auto;
+}
+
+[dir="ltr"] .dropdown-menu-list {
+    left: 0;
+    right: auto;
+}
+
+.form-custom-dropdown.open .dropdown-menu-list {
+    display: block;
+}
+
+.dropdown-menu-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px;
+    color: var(--text-secondary);
+    font-size: 13px;
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+.dropdown-menu-item:hover,
+.dropdown-menu-item.active {
+    background: #20242B;
+    color: var(--brand-yellow);
+}
+
+/* ================= بخش احراز هویت (KYC) ================= */
+.kyc-form-wrap, .ticket-form-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.form-row-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.upload-dropzones-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.upload-card {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.upload-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.dropzone-box {
+    background: var(--input-bg);
+    border: 2px dashed var(--border-light);
+    border-radius: 12px;
+    height: 140px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: var(--transition-fast);
+}
+
+.dropzone-box:hover {
+    border-color: var(--brand-yellow);
+    background: rgba(240, 185, 11, 0.02);
+}
+
+.dropzone-box svg {
+    width: 32px;
+    height: 32px;
+    stroke: var(--text-secondary);
+}
+
+.dropzone-box span {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.preview-img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* ================= بخش پشتیبانی و تیکت‌ها ================= */
+.binance-textarea {
+    width: 100%;
+    background: var(--input-bg);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    padding: 12px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    resize: vertical;
+}
+
+.ticket-history-wrap {
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-color);
+}
+
+.history-sub-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 12px;
+}
+
+.tickets-table-container {
+    overflow-x: auto;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+
+.tickets-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 600px;
+    text-align: right;
+}
+
+[dir="ltr"] .tickets-table {
+    text-align: left;
+}
+
+.tickets-table th {
+    background: #15181D;
+    padding: 12px 14px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.tickets-table td {
+    padding: 12px 14px;
+    font-size: 12px;
+    border-bottom: 1px solid rgba(40, 44, 53, 0.4);
+}
+
+.status-badge {
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.status-badge.completed {
+    background: rgba(14, 203, 129, 0.12);
+    color: var(--profit-green);
+}
+
+.status-badge.pending {
+    background: rgba(240, 185, 11, 0.12);
+    color: var(--brand-yellow);
+}
+
+.status-badge.closed {
+    background: rgba(94, 102, 115, 0.2);
+    color: var(--text-muted);
+}
+
+/* ================= دکمه خروج قرمز خالص و استاندارد جهانی ================= */
+.logout-action-area {
+    display: flex;
+    justify-content: center;
+    margin-top: 24px;
+}
+
+.btn-logout {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background-color: var(--danger-red);
+    color: #FFFFFF;
+    padding: 11px 32px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(224, 32, 32, 0.25);
+    transition: var(--transition-fast);
+}
+
+.btn-logout svg {
+    width: 16px;
+    height: 16px;
+    stroke: #FFFFFF;
+}
+
+.btn-logout:hover {
+    background-color: var(--danger-red-hover);
+    box-shadow: 0 4px 14px rgba(224, 32, 32, 0.4);
+    transform: translateY(-1px);
+}
+
+.btn-logout:active {
+    transform: translateY(0);
+}
+
+/* ==========================================================================
+   نوار ناوبری ۵ گزینه‌ای پایین صفحه (Sticky Bottom Nav)
+   ========================================================================== */
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 64px;
+    background: rgba(18, 20, 24, 0.96);
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    z-index: 1000;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5);
+}
+
+.nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: var(--text-secondary);
+    transition: var(--transition-fast);
+    position: relative;
+}
+
+.nav-icon svg {
+    width: 20px;
+    height: 20px;
+    stroke: var(--text-secondary);
+    transition: var(--transition-fast);
+}
+
+.nav-label {
+    font-size: 11px;
+    font-weight: 500;
+    margin-top: 4px;
+    transition: var(--transition-fast);
+}
+
+.nav-item:hover, .nav-item.active {
+    color: var(--brand-yellow);
+}
+
+.nav-item:hover .nav-icon svg,
+.nav-item.active .nav-icon svg {
+    stroke: var(--brand-yellow);
+}
+
+.nav-item.active::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    width: 32px;
+    height: 3px;
+    background: var(--brand-yellow);
+    border-radius: 0 0 3px 3px;
+    box-shadow: 0 2px 8px rgba(240, 185, 11, 0.6);
+}
+
+/* ==========================================================================
+   طراحی واکنش‌گرا (Responsive)
+   ========================================================================== */
+@media (max-width: 900px) {
+    .user-meta-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .twofa-content-grid {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .qr-canvas-mockup {
+        margin: 0 auto;
+    }
+}
+
+@media (max-width: 600px) {
+    .profile-main-wrapper {
+        padding: 16px 12px 90px;
+    }
+
+    .identity-flex-wrap {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .user-top-row {
+        justify-content: center;
+    }
+
+    .uid-copy-flex {
+        justify-content: center;
+    }
+
+    .user-meta-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .profile-tabs-nav {
+        flex-direction: column;
+    }
+
+    .form-row-grid, .upload-dropzones-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .card-head-between {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .security-form-vertical {
+        max-width: 100%;
+    }
+}

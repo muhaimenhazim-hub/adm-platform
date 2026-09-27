@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ADM - Crypto Trading Platform</title>
+    <link rel="stylesheet" href="index.css">
+    <!-- فونت‌های استاندارد بین‌المللی -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <!-- نوار اعلان بالای صفحه -->
+    <div id="toastNotification" class="toast-alert" aria-live="polite"></div>
+
+    <div class="auth-wrapper">
+        <div class="auth-card">
+            
+            <!-- دکمه شیک و کاستوم تغییر زبان -->
+            <div class="card-top-bar">
+                <div class="custom-dropdown" id="langDropdown">
+                    <button type="button" class="lang-trigger" id="langTriggerBtn">
+                        <svg class="globe-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="2" y1="12" x2="22" y2="12"></line>
+                            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                        </svg>
+                        <span id="currentLangLabel">English</span>
+                        <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
+                    </button>
+
+                    <div class="lang-menu" id="langMenu">
+                        <div class="lang-item active" data-value="en">English <span class="check-mark">✓</span></div>
+                        <div class="lang-item" data-value="fr">Français <span class="check-mark">✓</span></div>
+                        <div class="lang-item" data-value="ru">Русский <span class="check-mark">✓</span></div>
+                        <div class="lang-item" data-value="ar">العربية <span class="check-mark">✓</span></div>
+                        <div class="lang-item" data-value="fa">فارسی <span class="check-mark">✓</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- لوگوی پلتفرم ADM -->
+            <div class="auth-brand-logo">
+                <img src="logo.jpg" alt="ADM Logo" class="brand-logo-img">
+            </div>
+
+            <!-- ================= فرم ورود (Log In) ================= -->
+            <div id="loginSection" class="form-container">
+                <h1 class="card-title" data-i18n="loginTitle">Log In</h1>
+                <p class="card-subtitle" data-i18n="loginSubtitle">Enter your email or phone number to continue.</p>
+
+                <form id="loginForm" novalidate autocomplete="off">
+                    <div class="input-group">
+                        <label data-i18n="identLabel">Email / Phone Number</label>
+                        <div class="modern-input-wrapper">
+                            <input type="text" id="loginIdentifier" data-i18n-ph="identPlaceholder" placeholder="Email or Phone Number">
+                        </div>
+                        <span class="error-msg" id="loginIdentError"></span>
+                    </div>
+
+                    <div class="input-group">
+                        <label data-i18n="passwordLabel">Password</label>
+                        <div class="modern-input-wrapper">
+                            <input type="password" id="loginPassword" data-i18n-ph="passPlaceholder" placeholder="Enter your password">
+                            <button type="button" class="eye-btn" data-target="loginPassword" aria-label="Toggle Password">
+                                <svg class="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                            </button>
+                        </div>
+                        <span class="error-msg" id="loginPassError"></span>
+                    </div>
+
+                    <button type="submit" class="submit-btn" data-i18n="loginBtn">Log In</button>
+                </form>
+
+                <div class="switch-auth">
+                    <span data-i18n="noAccountText">Don't have an account?</span>
+                    <a href="javascript:void(0)" id="goToRegister" data-i18n="registerNowLink">Register Now</a>
+                </div>
+            </div>
+
+            <!-- ================= فرم ثبت‌نام (Register) ================= -->
+            <div id="registerSection" class="form-container hidden">
+                <h1 class="card-title" data-i18n="regTitle">Create Account</h1>
+                <p class="card-subtitle" data-i18n="regSubtitle">Enter your details to register.</p>
+
+                <form id="registerForm" novalidate autocomplete="off">
+                    
+                    <!-- ورودی ایمیل یا شماره موبایل -->
+                    <div class="input-group">
+                        <label data-i18n="identLabel">Email / Phone Number</label>
+                        <div class="modern-input-wrapper">
+                            <input type="text" id="regIdentifier" data-i18n-ph="identPlaceholder" placeholder="Email or Phone Number">
+                        </div>
+                        <span class="error-msg" id="regIdentError"></span>
+                    </div>
+
+                    <!-- نام کامل -->
+                    <div class="input-group">
+                        <label data-i18n="fullNameLabel">Full Name</label>
+                        <div class="modern-input-wrapper">
+                            <input type="text" id="regFullName" data-i18n-ph="fullNamePlaceholder" placeholder="Your full name">
+                        </div>
+                        <span class="error-msg" id="regFullNameError"></span>
+                    </div>
+
+                    <!-- رمز عبور -->
+                    <div class="input-group">
+                        <label data-i18n="passwordLabel">Password</label>
+                        <div class="modern-input-wrapper">
+                            <input type="password" id="regPassword" data-i18n-ph="passPlaceholder" placeholder="Enter your password">
+                            <button type="button" class="eye-btn" data-target="regPassword" aria-label="Toggle Password">
+                                <svg class="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                            </button>
+                        </div>
+                        <span class="error-msg" id="regPassError"></span>
+                    </div>
+
+                    <!-- تکرار رمز عبور -->
+                    <div class="input-group">
+                        <label data-i18n="confirmPasswordLabel">Confirm Password</label>
+                        <div class="modern-input-wrapper">
+                            <input type="password" id="regConfirmPassword" data-i18n-ph="confirmPassPlaceholder" placeholder="Re-enter password">
+                            <button type="button" class="eye-btn" data-target="regConfirmPassword" aria-label="Toggle Password">
+                                <svg class="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                            </button>
+                        </div>
+                        <span class="error-msg" id="regConfirmPassError"></span>
+                    </div>
+
+                    <!-- کد دعوت (اجباری) -->
+                    <div class="input-group">
+                        <label data-i18n="inviteLabel">Invite Code *</label>
+                        <div class="modern-input-wrapper">
+                            <input type="text" id="regInviteCode" data-i18n-ph="invitePlaceholder" placeholder="Enter referral code">
+                        </div>
+                        <span class="error-msg" id="regInviteError"></span>
+                    </div>
+
+                    <!-- قوانین -->
+                    <div class="terms-group">
+                        <input type="checkbox" id="termsCheck">
+                        <label for="termsCheck" data-i18n="termsLabel">I agree to the platform Terms of Service & Privacy Policy.</label>
+                    </div>
+
+                    <button type="submit" class="submit-btn" id="regSubmitBtn" disabled data-i18n="registerBtn">Register</button>
+                </form>
+
+                <div class="switch-auth">
+                    <span data-i18n="alreadyRegisteredText">Already registered?</span>
+                    <a href="javascript:void(0)" id="goToLogin" data-i18n="loginNowLink">Log In</a>
+                </div>
+            </div>
+
+            <!-- ================= بخش کمکی صفحه اصلی ================= -->
+            <div id="homeSection" class="form-container hidden">
+                <div class="home-box">
+                    <div class="home-badge">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                    </div>
+                    <h1 class="card-title" data-i18n="homeTitle">Dashboard</h1>
+                    <p class="card-subtitle" id="userGreeting"></p>
+                    <div class="home-card-mockup">
+                        <div class="home-info-text" data-i18n="homeInfo">System ready. Waiting for remaining 5 platform pages.</div>
+                    </div>
+                    <button type="button" class="logout-btn" id="logoutBtn" data-i18n="logoutBtn">Log Out</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="index.js"></script>
+</body>
+</html>
