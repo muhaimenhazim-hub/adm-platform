@@ -2,7 +2,6 @@
 ================================================================================
 ADM Investment Platform - Main Flask Application & Central Gateway
 File: index.py
-Host: http://localhost:5000
 Database: adm_db (Configured via config.py)
 Includes:
   - Stable 30-Day Sessions
@@ -22,12 +21,12 @@ from flask_cors import CORS
 from werkzeug.security import generate_password_hash, check_password_hash
 
 # اتصال ایمن به فایل تنظیمات مرکزی
-from config import DB_CONFIG
+from config import DB_CONFIG, get_db
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
 app = Flask(__name__, static_folder=BASE_DIR, static_url_path='')
-app.secret_key = 'ADM_BINANCE_PRO_SECRET_KEY_#2026!@$'
+app.secret_key = os.getenv('SECRET_KEY', 'ADM_BINANCE_PRO_SECRET_KEY_#2026!@$')
 
 # تنظیمات دائمی سشن
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=30)
@@ -36,7 +35,12 @@ app.config['SESSION_COOKIE_HTTPONLY'] = False
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 app.config['SESSION_COOKIE_SECURE'] = False
 
-CORS(app, supports_credentials=True, origins=["http://localhost:5000", "http://127.0.0.1:5000"])
+# اصلاح کامل CORS برای پذیرش دامنه ورسل و لوکال‌ها
+CORS(app, supports_credentials=True, origins=[
+    "http://localhost:5000",
+    "http://127.0.0.1:5000",
+    "https://adm-platform-eta.vercel.app"
+], allow_headers=["Content-Type", "Authorization"], methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"])
 
 # ==================== ثبت بلواپرینت‌های صفحات کاربر ====================
 
@@ -84,14 +88,7 @@ try:
 except Exception as e:
     print(f"[Notice] admin_bp: {e}")
 
-# ==================== توابع اتصال به دیتابیس و کمکی ====================
-
-def get_db():
-    return pymysql.connect(
-        **DB_CONFIG,
-        cursorclass=pymysql.cursors.DictCursor,
-        autocommit=True
-    )
+# ==================== توابع کمکی تولید شناسه ====================
 
 def generate_unique_uid(cursor):
     while True:
@@ -117,7 +114,6 @@ def root():
 @app.route('/admin')
 @app.route('/admin/')
 def serve_admin_portal():
-    """روت اختصاصی برای باز کردن پنل مدیریت با وارد کردن /admin در آدرس بار"""
     return send_from_directory(BASE_DIR, 'admin.html')
 
 @app.route('/<path:filename>')
@@ -177,6 +173,13 @@ def register():
             """, (uid, username, email or f"{phone}@adm.local", phone, pass_hash, role, my_ref_code, referred_by))
 
             user_id = cursor.lastrowid
+            
+            cursor.execute("""
+                INSERT INTO user_balances (user_id, active_capital, locked_principal, unlocked_principal, withdrawable_profit, total_lifetime_profit)
+                VALUES (%s, 0.00, 0.00, 0.00, 0.00, 0.00)
+                ON DUPLICATE KEY UPDATE user_id = user_id
+            """, (user_id,))
+
             session.permanent = True
             session['user_id'] = user_id
             session['role'] = role
@@ -311,12 +314,5 @@ def user_status():
         if conn:
             conn.close()
 
-# ==================== راه‌اندازی سرور فلسک ====================
-
 if __name__ == '__main__':
-    print("==================================================")
-    print("ADM Binance Pro Server Running at: http://localhost:5000")
-    print("Master Admin Panel Accessible at: http://localhost:5000/admin")
-    print(f"Base Directory: {BASE_DIR}")
-    print("==================================================")
     app.run(host='0.0.0.0', port=5000, debug=True)

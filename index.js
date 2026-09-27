@@ -205,13 +205,10 @@ const regSubmitBtn = document.getElementById('regSubmitBtn');
 const toastNotification = document.getElementById('toastNotification');
 const userGreeting = document.getElementById('userGreeting');
 
-/**
- * مدیریت دراپ‌داون انتخاب زبان
- */
 if (langTriggerBtn) {
     langTriggerBtn.addEventListener('click', (e) => {
         e.stopPropagation();
-        langDropdown.classList.toggle('open');
+        if (langDropdown) langDropdown.classList.toggle('open');
     });
 }
 
@@ -227,27 +224,21 @@ if (langMenu) {
             const selectedLang = this.getAttribute('data-value');
             langMenu.querySelectorAll('.lang-item').forEach(i => i.classList.remove('active'));
             this.classList.add('active');
-            langDropdown.classList.remove('open');
+            if (langDropdown) langDropdown.classList.remove('open');
             updateLanguage(selectedLang);
         });
     });
 }
 
-/**
- * نمایش اعلان هوایی بالای صفحه
- */
 function showToast(message, isError = false) {
     if (!toastNotification) return;
     toastNotification.textContent = message;
     toastNotification.className = isError ? 'toast-alert error show' : 'toast-alert show';
     setTimeout(() => {
-        toastNotification.className = 'toast-alert';
+        if (toastNotification) toastNotification.className = 'toast-alert';
     }, 4000);
 }
 
-/**
- * به‌روزرسانی متن‌ها و جهت زبان
- */
 function updateLanguage(lang) {
     activeLang = lang;
     const dict = i18n[lang];
@@ -267,24 +258,18 @@ function updateLanguage(lang) {
     });
 }
 
-/**
- * سوئیچ دستی به فرم ثبت‌نام
- */
 if (goToRegister) {
     goToRegister.addEventListener('click', () => {
-        loginSection.classList.add('hidden');
-        registerSection.classList.remove('hidden');
+        if (loginSection) loginSection.classList.add('hidden');
+        if (registerSection) registerSection.classList.remove('hidden');
         clearAllErrors();
     });
 }
 
-/**
- * سوئیچ دستی به فرم ورود
- */
 if (goToLogin) {
     goToLogin.addEventListener('click', () => {
-        registerSection.classList.add('hidden');
-        loginSection.classList.remove('hidden');
+        if (registerSection) registerSection.classList.add('hidden');
+        if (loginSection) loginSection.classList.remove('hidden');
         clearAllErrors();
     });
 }
@@ -295,9 +280,6 @@ if (termsCheck) {
     });
 }
 
-/**
- * دکمه نمایش یا مخفی‌سازی پسورد
- */
 document.querySelectorAll('.eye-btn').forEach(btn => {
     btn.addEventListener('click', function () {
         const targetInput = document.getElementById(this.dataset.target);
@@ -313,9 +295,6 @@ document.querySelectorAll('.eye-btn').forEach(btn => {
     });
 });
 
-/**
- * اعتبارسنجی فرمت ایمیل یا تلفن
- */
 function isValidEmailOrPhone(val) {
     if (!val || val.trim().length === 0) return false;
     val = val.trim();
@@ -360,27 +339,35 @@ if (loginFormEl) {
 
         if (hasError) return;
 
+        const loginUrl = (typeof window !== 'undefined' && window.APP_CONFIG && typeof window.APP_CONFIG.getApiUrl === 'function')
+            ? window.APP_CONFIG.getApiUrl('/api/login')
+            : '/api/login';
+
         try {
-            const response = await fetch('/api/login', {
+            const response = await fetch(loginUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
                 body: JSON.stringify({ identifier: ident, password: pass })
             });
 
-            const result = await response.json();
+            let result = {};
+            try {
+                result = await response.json();
+            } catch (jsonErr) {
+                result = { message: i18n[activeLang].errServerConn };
+            }
 
-            // بررسی پاسخ با هر دو استاندارد (success یا status === 'success')
             if (response.ok && (result.success || result.status === 'success')) {
                 showToast(i18n[activeLang].successLogin, false);
 
                 const userData = result.user || result.data || {};
                 sessionStorage.setItem('current_user', JSON.stringify(userData));
+                localStorage.setItem('current_user', JSON.stringify(userData));
                 localStorage.setItem('user_role', userData.role || 'user');
-                localStorage.setItem('user_id', userData.id || '');
+                localStorage.setItem('user_id', userData.id || userData.userId || '');
                 localStorage.setItem('user_uid', userData.uid || '');
 
-                // انتقال قطعی به داشبورد
                 setTimeout(() => {
                     window.location.href = 'home.html';
                 }, 500);
@@ -446,9 +433,13 @@ if (regFormEl) {
 
         if (hasError) return;
 
+        const regUrl = (typeof window !== 'undefined' && window.APP_CONFIG && typeof window.APP_CONFIG.getApiUrl === 'function')
+            ? window.APP_CONFIG.getApiUrl('/api/register')
+            : '/api/register';
+
         try {
             const isEmail = ident.includes('@');
-            const response = await fetch('/api/register', {
+            const response = await fetch(regUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
@@ -461,16 +452,21 @@ if (regFormEl) {
                 })
             });
 
-            const result = await response.json();
+            let result = {};
+            try {
+                result = await response.json();
+            } catch (jsonErr) {
+                result = { message: i18n[activeLang].errServerConn };
+            }
 
-            // بررسی پاسخ با هر دو استاندارد
             if (response.ok && (result.success || result.status === 'success')) {
                 showToast(i18n[activeLang].successRegister, false);
 
                 const userData = result.user || result.data || {};
                 sessionStorage.setItem('current_user', JSON.stringify(userData));
+                localStorage.setItem('current_user', JSON.stringify(userData));
                 localStorage.setItem('user_role', userData.role || 'user');
-                localStorage.setItem('user_id', userData.id || '');
+                localStorage.setItem('user_id', userData.id || userData.userId || '');
                 localStorage.setItem('user_uid', userData.uid || '');
 
                 setTimeout(() => {
@@ -488,20 +484,15 @@ if (regFormEl) {
     });
 }
 
-/**
- * خروج از داشبورد
- */
 if (logoutBtn) {
     logoutBtn.addEventListener('click', () => {
         if (homeSection) homeSection.classList.add('hidden');
         if (loginSection) loginSection.classList.remove('hidden');
         sessionStorage.removeItem('current_user');
+        localStorage.removeItem('current_user');
     });
 }
 
-/**
- * تشخیص خودکار لینک معرف (?ref=... یا ?invite=...)
- */
 function handleReferralLinkDetection() {
     const urlParams = new URLSearchParams(window.location.search);
     const refCode = urlParams.get('ref') || urlParams.get('invite');
@@ -520,6 +511,5 @@ function handleReferralLinkDetection() {
     }
 }
 
-// اجرای تنظیمات اولیه و بررسی لینک
 handleReferralLinkDetection();
 updateLanguage('en');
