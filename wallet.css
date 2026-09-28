@@ -120,7 +120,7 @@ input, select {
     backdrop-filter: blur(10px);
 }
 
-/* ================= کامپوننت رسمی لوگو و افکت‌های امواج نوری ADM ================= */
+/* کامپوننت رسمی لوگو و افکت‌های امواج نوری ADM */
 .header-logo-box {
     position: relative;
     display: flex;
@@ -331,28 +331,12 @@ input, select {
     margin: 0 auto;
 }
 
-.wallet-page-header {
-    margin-bottom: 22px;
-}
-
-.wallet-title {
-    font-size: 22px;
-    font-weight: 700;
-    color: var(--text-primary);
-    margin-bottom: 4px;
-}
-
-.wallet-subtitle {
-    color: var(--text-secondary);
-    font-size: 13px;
-}
-
 /* ==========================================================================
    بخش ۱: کارت‌های تفکیک موجودی و دارایی‌ها
    ========================================================================== */
 .balance-cards-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 18px;
     margin-bottom: 24px;
 }
@@ -367,6 +351,7 @@ input, select {
     justify-content: space-between;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
     transition: transform var(--transition-fast), border-color var(--transition-fast);
+    min-width: 0;
 }
 
 .balance-summary-card:hover {
@@ -377,7 +362,8 @@ input, select {
 .card-top-row {
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
+    gap: 8px;
     margin-bottom: 12px;
 }
 
@@ -385,6 +371,10 @@ input, select {
     font-size: 13px;
     color: var(--text-secondary);
     font-weight: 500;
+    line-height: 1.4;
+    overflow-wrap: break-word;
+    word-break: break-word;
+    min-width: 0;
 }
 
 .crypto-tag {
@@ -394,6 +384,8 @@ input, select {
     padding: 2px 8px;
     border-radius: 6px;
     font-weight: 600;
+    white-space: nowrap;
+    flex-shrink: 0;
 }
 
 .status-pill {
@@ -401,6 +393,11 @@ input, select {
     padding: 3px 8px;
     border-radius: 20px;
     font-weight: 600;
+    white-space: normal;
+    text-align: center;
+    line-height: 1.3;
+    max-width: 60%;
+    overflow-wrap: break-word;
 }
 
 .status-pill.ready {
@@ -424,6 +421,7 @@ input, select {
     display: flex;
     align-items: baseline;
     gap: 4px;
+    flex-wrap: wrap;
 }
 
 .card-main-amount .curr-sign {
@@ -439,28 +437,34 @@ input, select {
     border: 1px solid var(--border-color);
     border-radius: 8px;
     padding: 10px 14px;
+    gap: 8px;
 }
 
 .sub-balance-item {
     display: flex;
     flex-direction: column;
     gap: 2px;
+    min-width: 0;
 }
 
 .sub-label {
     font-size: 11px;
     color: var(--text-secondary);
+    line-height: 1.3;
+    overflow-wrap: break-word;
 }
 
 .sub-val {
     font-size: 13px;
     font-weight: 600;
+    white-space: nowrap;
 }
 
 .sub-balance-divider {
     width: 1px;
     height: 26px;
     background: var(--border-color);
+    flex-shrink: 0;
 }
 
 .rule-hint-row {
@@ -473,6 +477,7 @@ input, select {
     border: 1px solid var(--border-color);
     border-radius: 8px;
     padding: 12px 14px;
+    min-width: 0;
 }
 
 .rule-dot {
@@ -486,6 +491,12 @@ input, select {
 .rule-dot.ready {
     background: var(--profit-green);
     box-shadow: 0 0 8px rgba(14, 203, 129, 0.5);
+}
+
+.rule-hint-text {
+    line-height: 1.4;
+    overflow-wrap: break-word;
+    word-break: break-word;
 }
 
 /* ==========================================================================
@@ -516,11 +527,13 @@ input, select {
     border-radius: 10px;
     border: 1px solid var(--border-color);
     gap: 4px;
+    max-width: 100%;
 }
 
 .action-tab-btn {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 8px;
     padding: 10px 24px;
     border-radius: 8px;
@@ -528,11 +541,14 @@ input, select {
     font-weight: 600;
     color: var(--text-secondary);
     transition: var(--transition-fast);
+    text-align: center;
+    line-height: 1.3;
 }
 
 .action-tab-btn svg {
     width: 16px;
     height: 16px;
+    flex-shrink: 0;
 }
 
 .action-tab-btn:hover {
@@ -594,7 +610,7 @@ input, select {
 
 .binance-network-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 12px;
 }
 
@@ -605,6 +621,7 @@ input, select {
     padding: 12px 14px;
     cursor: pointer;
     transition: var(--transition-fast);
+    min-width: 0;
 }
 
 .network-card:hover {
@@ -620,6 +637,7 @@ input, select {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 6px;
     margin-bottom: 6px;
 }
 
@@ -635,6 +653,7 @@ input, select {
     background: rgba(240, 185, 11, 0.1);
     padding: 2px 6px;
     border-radius: 4px;
+    white-space: nowrap;
 }
 
 .net-desc-row {
@@ -643,6 +662,7 @@ input, select {
     gap: 2px;
     font-size: 11px;
     color: var(--text-secondary);
+    line-height: 1.3;
 }
 
 .pending-address-box {
@@ -666,6 +686,7 @@ input, select {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    min-width: 0;
 }
 
 .dot-pulse {
@@ -693,6 +714,7 @@ input, select {
     font-weight: 500;
     white-space: nowrap;
     transition: var(--transition-fast);
+    flex-shrink: 0;
 }
 
 .copy-action-btn:hover {
@@ -759,10 +781,10 @@ input, select {
     line-height: 1.6;
 }
 
-/* ================= استایل‌های اختصاصی پنل برداشت ================= */
+/* استایل‌های اختصاصی پنل برداشت */
 .modal-balance-cards {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 12px;
     margin-bottom: 18px;
 }
@@ -775,16 +797,20 @@ input, select {
     display: flex;
     flex-direction: column;
     gap: 4px;
+    min-width: 0;
 }
 
 .b-label {
     font-size: 11px;
     color: var(--text-secondary);
+    line-height: 1.3;
+    overflow-wrap: break-word;
 }
 
 .b-val {
     font-size: 16px;
     font-weight: 700;
+    white-space: nowrap;
 }
 
 .withdraw-type-tabs {
@@ -806,6 +832,7 @@ input, select {
     color: var(--text-secondary);
     text-align: center;
     transition: var(--transition-fast);
+    line-height: 1.3;
 }
 
 .w-tab.active {
@@ -840,6 +867,7 @@ input, select {
     font-size: 16px;
     font-weight: 600;
     padding: 8px 0;
+    min-width: 0;
 }
 
 .max-btn {
@@ -850,6 +878,7 @@ input, select {
     padding: 6px 12px;
     border-radius: 6px;
     transition: var(--transition-fast);
+    flex-shrink: 0;
 }
 
 .max-btn:hover {
@@ -892,6 +921,7 @@ input, select {
     font-size: 12px;
     color: var(--text-secondary);
     margin-bottom: 6px;
+    gap: 8px;
 }
 
 .fee-row.fee-tier-row {
@@ -931,6 +961,7 @@ input, select {
     height: 8px;
     border-radius: 50%;
     background: var(--text-muted);
+    flex-shrink: 0;
 }
 
 .status-indicator.ready {
@@ -1342,6 +1373,7 @@ input, select {
     font-weight: 500;
     margin-top: 4px;
     transition: var(--transition-fast);
+    white-space: nowrap;
 }
 
 .nav-item:hover, .nav-item.active {
@@ -1365,48 +1397,233 @@ input, select {
 }
 
 /* ==========================================================================
-   واکنش‌گرایی (Responsive Design)
+   واکنش‌گرایی (Responsive Design) - چیدمان متقارن ۲×۲ بایننس (راهکار اول)
+   همراه با استانداردسازی کامل line-clamp و عدم سرریز متون چندزبانه
    ========================================================================== */
 @media (max-width: 900px) {
     .balance-cards-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
     }
 }
 
 @media (max-width: 768px) {
+    body {
+        padding-bottom: 80px;
+    }
+
     .app-header {
-        padding: 0 16px;
+        height: 58px;
+        padding: 0 14px;
+    }
+
+    .header-logo-img {
+        height: 34px;
+    }
+
+    .admin-badge-btn {
+        padding: 5px 10px;
+        font-size: 11px;
+    }
+
+    .lang-trigger {
+        padding: 5px 10px;
+        font-size: 12px;
     }
 
     .wallet-main-wrapper {
-        padding: 16px 12px 90px;
+        padding: 14px 10px 85px;
+    }
+
+    /* ۱. چیدمان شبکه‌ای ۲×۲ متقارن برای کارت‌های دارایی */
+    .balance-cards-grid {
+        display: grid !important;
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 10px !important;
+        width: 100%;
+        margin-bottom: 18px !important;
+    }
+
+    .balance-summary-card {
+        padding: 12px 10px !important;
+        border-radius: 12px !important;
+        min-width: 0 !important;
+        overflow: hidden !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: space-between !important;
+    }
+
+    .card-top-row {
+        margin-bottom: 8px;
+        gap: 4px;
+    }
+
+    .card-label {
+        font-size: 11px !important;
+        line-height: 1.3 !important;
+        overflow-wrap: break-word !important;
+        word-break: break-word !important;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .crypto-tag {
+        font-size: 9px !important;
+        padding: 2px 5px !important;
+    }
+
+    .status-pill {
+        font-size: 9px !important;
+        padding: 2px 6px !important;
+        max-width: 65% !important;
+        line-height: 1.2 !important;
+    }
+
+    .card-main-amount {
+        font-size: 17px !important;
+        font-weight: 700 !important;
+        margin-bottom: 8px !important;
+        gap: 2px !important;
+        word-break: break-word;
+    }
+
+    .card-main-amount .curr-sign {
+        font-size: 13px !important;
+    }
+
+    .capital-breakdown-row {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 6px !important;
+        padding: 8px !important;
+        border-radius: 6px !important;
+    }
+
+    .sub-balance-item {
+        width: 100%;
+        gap: 1px;
+    }
+
+    .sub-label {
+        font-size: 9.5px !important;
+        line-height: 1.25;
+        overflow-wrap: break-word;
+    }
+
+    .sub-val {
+        font-size: 11.5px !important;
+    }
+
+    .sub-balance-divider {
+        display: none !important;
+    }
+
+    .rule-hint-row {
+        padding: 8px !important;
+        font-size: 9.5px !important;
+        gap: 6px !important;
+        line-height: 1.3 !important;
+    }
+
+    .rule-dot {
+        width: 6px;
+        height: 6px;
+    }
+
+    /* ۲. تب‌ها و کادرهای عملیاتی */
+    .wallet-operations-container {
+        padding: 16px 12px !important;
+        border-radius: 14px !important;
+        margin-bottom: 20px !important;
+    }
+
+    .operation-switcher-bar {
+        margin-bottom: 16px !important;
+        padding-bottom: 12px !important;
     }
 
     .action-tab-buttons {
-        width: 100%;
+        width: 100% !important;
+        display: flex !important;
     }
 
     .action-tab-btn {
-        flex: 1;
-        justify-content: center;
-        padding: 9px 12px;
+        flex: 1 !important;
+        justify-content: center !important;
+        padding: 9px 4px !important;
+        font-size: 11px !important;
+        white-space: nowrap !important;
+    }
+
+    .action-tab-btn svg {
+        width: 14px;
+        height: 14px;
+    }
+
+    .panel-header-title h2 {
+        font-size: 15px !important;
     }
 
     .binance-network-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr !important;
+        gap: 8px !important;
     }
 
     .modal-balance-cards {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr !important;
+        gap: 8px !important;
+    }
+
+    .withdraw-type-tabs {
+        flex-direction: column !important;
+        gap: 6px !important;
+    }
+
+    .w-tab {
+        padding: 8px !important;
+        font-size: 11.5px !important;
+    }
+
+    /* ۳. جدول تراکنش‌ها */
+    .tx-history-section {
+        padding: 16px 12px !important;
+        border-radius: 14px !important;
+    }
+
+    .tx-header-wrap {
+        gap: 12px !important;
+    }
+
+    .tx-header-title h3 {
+        font-size: 16px !important;
     }
 
     .tx-filter-bar {
-        flex-direction: column;
-        align-items: stretch;
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 8px !important;
     }
 
     .filter-dropdown, .search-input-box {
-        width: 100%;
-        min-width: 100%;
+        width: 100% !important;
+        min-width: 100% !important;
+    }
+
+    /* ۴. نوار ناوبری پایین صفحه */
+    .bottom-nav {
+        height: 60px !important;
+    }
+
+    .nav-label {
+        font-size: 10px !important;
+    }
+
+    .nav-icon svg {
+        width: 19px !important;
+        height: 19px !important;
     }
 }

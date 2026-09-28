@@ -2,7 +2,7 @@
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Platform - Wallet &amp; Withdrawals</title>
     <link rel="stylesheet" href="wallet.css">
     <!-- فونت‌های استاندارد بایننس -->
@@ -19,9 +19,11 @@
     <header class="app-header">
         <div class="header-left">
             <!-- لوگوی رسمی ADM با امواج نوری -->
-            <div class="header-logo-box">
-                <img src="logo.jpg" alt="ADM Logo" class="header-logo-img">
-            </div>
+            <a href="home.html" style="text-decoration: none;">
+                <div class="header-logo-box">
+                    <img src="logo.jpg" alt="ADM Logo" class="header-logo-img">
+                </div>
+            </a>
         </div>
 
         <div class="header-right">
@@ -62,12 +64,6 @@
     <!-- کانتینر اصلی صفحه کیف‌پول -->
     <main class="wallet-main-wrapper">
         <div class="wallet-container">
-
-            <!-- عنوان و راهنمای بالای صفحه -->
-            <div class="wallet-page-header">
-                <h1 class="wallet-title" data-i18n="walletOverviewTitle">کیف‌پول و مدیریت دارایی‌ها</h1>
-                <p class="wallet-subtitle" data-i18n="walletOverviewSub">مدیریت تراکنش‌های واریز، برداشت سود و آزادسازی اصل سرمایه</p>
-            </div>
 
             <!-- ================= بخش ۱: کارت‌های تفکیک موجودی و دارایی‌ها ================= -->
             <section class="balance-cards-grid" id="walletBalancesOverview">
