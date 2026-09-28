@@ -1,10 +1,14 @@
 # -*- coding: utf-8 -*-
 """
-ماژول اختصاصی داشبورد اصلی (Home Dashboard Backend)
-مدیریت تراز مالی، شرط حداقل ۵۰ دلار سرمایه، کامپاند و درخواست‌های برداشت
+==============================================================================
+ADM Investment Platform - Home Dashboard Backend Blueprint
+File: home.py
+Prefix: /api/home
+Database: Configured centrally via config.py (Unified Connection Hub)
+==============================================================================
 """
 
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, session
 import pymysql
 from datetime import datetime, timezone, timedelta
 from config import get_db
@@ -21,7 +25,7 @@ def get_settlement_time():
 @home_bp.route('/stats', methods=['POST'])
 def get_dashboard_stats():
     data = request.get_json() or {}
-    user_id = data.get('userId')
+    user_id = data.get('userId') or session.get('user_id')
 
     if not user_id:
         return jsonify({'success': False, 'message': 'شناسه کاربر ارسال نشده است.'}), 400
@@ -30,7 +34,7 @@ def get_dashboard_stats():
     try:
         conn = get_db()
         with conn.cursor() as cursor:
-            # واکشی اطلاعات حساب و کیف‌پول به همراه تراز مالی
+            # واکشی اطلاعات حساب و کیف‌پول به همراه تراز مالی زنده از دیتابیس
             sql = """
                 SELECT u.id, u.uid, u.username, u.role, u.kyc_status, u.referral_code,
                        COALESCE(b.active_capital, 0.00) AS active_capital,
@@ -113,7 +117,7 @@ def get_dashboard_stats():
 @home_bp.route('/compound', methods=['POST'])
 def execute_compound():
     data = request.get_json() or {}
-    user_id = data.get('userId')
+    user_id = data.get('userId') or session.get('user_id')
     amount = data.get('amount')
 
     if not user_id:
@@ -157,7 +161,7 @@ def execute_compound():
 @home_bp.route('/withdraw', methods=['POST'])
 def request_withdrawal():
     data = request.get_json() or {}
-    user_id = data.get('userId')
+    user_id = data.get('userId') or session.get('user_id')
     withdraw_type = data.get('type')  # 'profit' یا 'principal'
     amount = float(data.get('amount') or 0)
     address = data.get('address', '').strip()

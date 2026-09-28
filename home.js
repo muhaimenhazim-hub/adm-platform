@@ -1,7 +1,12 @@
 /**
- * پلتفرم معاملاتی ADM - جاوااسکریپت داشبورد اصلی
- * متصل به بک‌اند پایتون و دیتابیس زنده با شرط سرمایه بالای ۵۰ دلار
+ * ==============================================================================
+ * ADM Investment Platform - Home Dashboard Frontend Controller
+ * File: home.js
+ * Dependent on: config.js (window.APP_CONFIG)
+ * Backend Controller: home.py (API: /api/home/*)
+ * ==============================================================================
  */
+
 const dashboardI18n = {
     en: {
         dir: 'ltr',
@@ -305,10 +310,20 @@ const dashboardI18n = {
     }
 };
 
+/**
+ * تابع ایمن دریافت آدرس از کانفیگ مرکزی
+ */
+function resolveApiUrl(endpoint) {
+    if (window.APP_CONFIG && typeof window.APP_CONFIG.getApiUrl === 'function') {
+        return window.APP_CONFIG.getApiUrl(endpoint);
+    }
+    return endpoint;
+}
+
 const STORAGE_LANG_KEY = 'platform_lang';
 let currentLanguage = localStorage.getItem(STORAGE_LANG_KEY) || 'fa';
 
-// داده‌های زنده دریافت شده از سرور
+// وضعیت داده‌های زنده دریافتی از دیتابیس
 let platformUser = {
     role: 'user',
     activeCapital: 0.00,
@@ -348,8 +363,14 @@ const tabWithdrawPrincipal = document.getElementById('tabWithdrawPrincipal');
 let currentWithdrawType = 'profit';
 let currentNetwork = 'TRC20';
 
+if (adminPanelBtn) {
+    adminPanelBtn.addEventListener('click', () => {
+        window.location.href = 'admin.html';
+    });
+}
+
 /**
- * دریافت اطلاعات زنده از سرور پایتون
+ * دریافت اطلاعات زنده از سرور پایتون و دیتابیس Aiven
  */
 async function fetchUserDashboardData() {
     let sessionUser = {};
@@ -365,9 +386,7 @@ async function fetchUserDashboardData() {
         return;
     }
 
-    const apiUrl = (typeof window !== 'undefined' && window.APP_CONFIG && typeof window.APP_CONFIG.getApiUrl === 'function')
-        ? window.APP_CONFIG.getApiUrl('/api/home/stats')
-        : '/api/home/stats';
+    const apiUrl = resolveApiUrl('/api/home/stats');
 
     try {
         const response = await fetch(apiUrl, {
@@ -391,7 +410,7 @@ async function fetchUserDashboardData() {
             platformUser.daysSinceLastCompound = d.daysElapsed !== undefined ? d.daysElapsed : (d.days_since_last_compound || 0);
             platformUser.referralCode = d.referralCode || d.referral_code || 'ADM2026';
 
-            // به‌روزرسانی کد و لینک دعوت
+            // بروزرسانی داینامیک کد و لینک دعوت با توجه به دامنه فعال
             const hostUrl = window.location.origin;
             const refCodeElem = document.getElementById('txtInviteCode');
             const refLinkElem = document.getElementById('txtInviteLink');
@@ -429,11 +448,9 @@ function updateDashboardStats() {
         if (rateBadge) rateBadge.textContent = '0.00%';
         if (todayProfitEl) todayProfitEl.textContent = '0.00';
     } else if (platformUser.isReleased) {
-        // پس از ساعت تسویه روزانه
         if (rateBadge) rateBadge.textContent = `+${platformUser.dailyRate.toFixed(2)}%`;
         if (todayProfitEl) todayProfitEl.textContent = platformUser.todayProfit.toLocaleString('en-US', { minimumFractionDigits: 2 });
     } else {
-        // تا قبل از ساعت تسویه: درصد و سود امروز مخفی می‌ماند
         if (rateBadge) rateBadge.textContent = '---';
         if (todayProfitEl) todayProfitEl.textContent = '---';
     }
@@ -512,8 +529,21 @@ if (langMenu) {
 }
 
 /**
- * ناوبری پایین صفحه
+ * ناوبری تب‌های داخلی و صفحات جانبی
  */
+function switchNavTab(tab) {
+    if (tab === 'home') {
+        document.querySelectorAll('.spa-view').forEach(v => v.classList.remove('active'));
+        const homeView = document.getElementById('view-home');
+        if (homeView) homeView.classList.add('active');
+        document.querySelectorAll('.bottom-nav .nav-item').forEach(btn => {
+            btn.classList.toggle('active', btn.getAttribute('data-target') === 'home');
+        });
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+}
+window.switchNavTab = switchNavTab;
+
 document.querySelectorAll('.bottom-nav .nav-item').forEach(button => {
     button.addEventListener('click', function (e) {
         const target = this.getAttribute('data-target') || this.getAttribute('href');
@@ -540,7 +570,7 @@ document.querySelectorAll('.bottom-nav .nav-item').forEach(button => {
         }
         if (target === 'home' || target === 'home.html') {
             e.preventDefault();
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            switchNavTab('home');
             return;
         }
         showToast(dashboardI18n[currentLanguage].comingSoon);
@@ -550,6 +580,8 @@ document.querySelectorAll('.bottom-nav .nav-item').forEach(button => {
 // باز و بسته کردن مودال‌ها
 function openDepositModal() { if (depositModal) depositModal.classList.remove('hidden'); }
 function closeDepositModal() { if (depositModal) depositModal.classList.add('hidden'); }
+window.openDepositModal = openDepositModal;
+window.closeDepositModal = closeDepositModal;
 
 const openDepositModalBtn = document.getElementById('openDepositModalBtn');
 if (openDepositModalBtn) {
@@ -576,6 +608,8 @@ function openWithdrawModal() {
 }
 
 function closeWithdrawModal() { if (withdrawModal) withdrawModal.classList.add('hidden'); }
+window.openWithdrawModal = openWithdrawModal;
+window.closeWithdrawModal = closeWithdrawModal;
 
 const openWithdrawModalBtn = document.getElementById('openWithdrawModalBtn');
 if (openWithdrawModalBtn) {
@@ -615,7 +649,7 @@ if (withdrawAmountInput) withdrawAmountInput.addEventListener('input', calculate
 if (withdrawAddressInput) withdrawAddressInput.addEventListener('input', calculateWithdrawal);
 
 /**
- * محاسبه کارمزد برداشت طبق پلکان مشترک با کامپاند
+ * محاسبه پله‌ای کارمزد و قوانین برداشت
  */
 function calculateWithdrawal() {
     if (!withdrawAmountInput || !withdrawAddressInput) return;
@@ -659,7 +693,7 @@ function calculateWithdrawal() {
 }
 
 /**
- * ارسال درخواست برداشت به دیتابیس
+ * ثبت نهایی درخواست برداشت
  */
 if (confirmWithdrawBtn) {
     confirmWithdrawBtn.addEventListener('click', async () => {
@@ -673,9 +707,7 @@ if (confirmWithdrawBtn) {
         }
         const currentUserId = sessionUser.userId || sessionUser.id || localStorage.getItem('user_id');
 
-        const withdrawApiUrl = (typeof window !== 'undefined' && window.APP_CONFIG && typeof window.APP_CONFIG.getApiUrl === 'function')
-            ? window.APP_CONFIG.getApiUrl('/api/home/withdraw')
-            : '/api/home/withdraw';
+        const withdrawApiUrl = resolveApiUrl('/api/home/withdraw');
 
         try {
             const response = await fetch(withdrawApiUrl, {
@@ -729,6 +761,8 @@ function openCompoundModal() {
 }
 
 function closeCompoundModal() { if (compoundModal) compoundModal.classList.add('hidden'); }
+window.openCompoundModal = openCompoundModal;
+window.closeCompoundModal = closeCompoundModal;
 
 const actionCompoundBtn = document.getElementById('actionCompound');
 if (actionCompoundBtn) {
@@ -736,7 +770,7 @@ if (actionCompoundBtn) {
 }
 
 /**
- * ارسال درخواست کامپاند به دیتابیس
+ * ارسال درخواست ترکیب سود
  */
 const confirmCompoundBtn = document.getElementById('confirmCompoundBtn');
 if (confirmCompoundBtn) {
@@ -749,9 +783,7 @@ if (confirmCompoundBtn) {
         }
         const currentUserId = sessionUser.userId || sessionUser.id || localStorage.getItem('user_id');
 
-        const compoundApiUrl = (typeof window !== 'undefined' && window.APP_CONFIG && typeof window.APP_CONFIG.getApiUrl === 'function')
-            ? window.APP_CONFIG.getApiUrl('/api/home/compound')
-            : '/api/home/compound';
+        const compoundApiUrl = resolveApiUrl('/api/home/compound');
 
         try {
             const response = await fetch(compoundApiUrl, {
@@ -780,6 +812,8 @@ if (confirmCompoundBtn) {
 
 function openInviteModal() { if (inviteModal) inviteModal.classList.remove('hidden'); }
 function closeInviteModal() { if (inviteModal) inviteModal.classList.add('hidden'); }
+window.openInviteModal = openInviteModal;
+window.closeInviteModal = closeInviteModal;
 
 const actionInviteBtn = document.getElementById('actionInvite');
 if (actionInviteBtn) {
@@ -788,11 +822,12 @@ if (actionInviteBtn) {
 
 function copyText(txt) {
     const refCode = platformUser.referralCode || 'ADM2026';
-    const textToCopy = txt.includes('http') ? `${window.location.origin}/?ref=${refCode}` : refCode;
+    const textToCopy = (txt && txt.includes('http')) ? `${window.location.origin}/?ref=${refCode}` : refCode;
     navigator.clipboard.writeText(textToCopy).then(() => {
         showToast(dashboardI18n[currentLanguage].copiedNotice, false);
     });
 }
+window.copyText = copyText;
 
 function initPlatformVideo() {
     const video = document.querySelector('.platform-video');
