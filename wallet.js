@@ -1,5 +1,10 @@
 /**
- * پلتفرم سرمایه‌گذاری بایننس - اسکریپت جامع کیف‌پول و برداشت (Wallet)
+ * ==============================================================================
+ * ADM Investment Platform - Wallet & Withdrawal Frontend Controller
+ * File: wallet.js
+ * Dependent on: config.js (window.APP_CONFIG)
+ * Backend Controller: wallet.py (API: /api/wallet/*)
+ * ==============================================================================
  */
 
 // دیکشنری ۵ زبانه کامل پلتفرم
@@ -361,6 +366,16 @@ const walletI18n = {
     }
 };
 
+/**
+ * تابع استاندارد دریافت اندپوینت از کانفیگ مرکزی
+ */
+function resolveApiUrl(endpoint) {
+    if (window.APP_CONFIG && typeof window.APP_CONFIG.getApiUrl === 'function') {
+        return window.APP_CONFIG.getApiUrl(endpoint);
+    }
+    return endpoint;
+}
+
 // کلید مشترک ذخیره زبان بین تمام صفحات
 const STORAGE_LANG_KEY = 'platform_lang';
 let currentLanguage = localStorage.getItem(STORAGE_LANG_KEY) || 'fa';
@@ -375,11 +390,11 @@ let walletUser = {
     daysSinceLastAction: 20
 };
 
-// تراکنش‌های نمونه کیف‌پول در صورت عدم اتصال به سرور
+// تراکنش‌های کیف‌پول
 let transactionData = [];
 
-let currentActiveTab = null; // هیچ‌کدام پیش‌فرض باز نیست
-let currentWithdrawType = 'profit'; // 'profit' یا 'principal'
+let currentActiveTab = null;
+let currentWithdrawType = 'profit';
 let selectedFilterType = 'all';
 let selectedFilterStatus = 'all';
 let currentPage = 1;
@@ -438,9 +453,6 @@ const depositAddresses = {
     BEP20: '0x71C8fb8613375776419707255146614f2430b321'
 };
 
-/**
- * نمایش اعلان Toast
- */
 function showToast(message, isError = false) {
     if (!toastNotification) return;
     toastNotification.textContent = message;
@@ -449,10 +461,8 @@ function showToast(message, isError = false) {
         toastNotification.className = 'toast-alert';
     }, 3500);
 }
+window.showToast = showToast;
 
-/**
- * محاسبه کارمزد پلکانی برداشت سود بر اساس روزهای سپری‌شده (دقیقاً مشابه کامپاند)
- */
 function getProfitWithdrawalFeeRate(days) {
     if (days < 10) {
         return { feePercent: 0, isBlocked: true, label: 'کمتر از ۱۰ روز (غیرمجاز)' };
@@ -467,9 +477,6 @@ function getProfitWithdrawalFeeRate(days) {
     }
 }
 
-/**
- * به‌روزرسانی کارت‌های موجودی و آمار
- */
 function updateWalletBalances() {
     const statActive = document.getElementById('statActiveCapital');
     const statLocked = document.getElementById('statLockedPrincipal');
@@ -498,9 +505,6 @@ function updateWalletBalances() {
     }
 }
 
-/**
- * به‌روزرسانی متن لیبل منوهای فیلتر بر اساس زبان جاری
- */
 function updateFilterDropdownLabels() {
     const dict = walletI18n[currentLanguage] || walletI18n.fa;
     const typeKeyMap = {
@@ -524,9 +528,6 @@ function updateFilterDropdownLabels() {
     }
 }
 
-/**
- * تغییر زبان و به‌روزرسانی المان‌های رابط کاربری
- */
 function setLanguage(lang) {
     currentLanguage = lang;
     localStorage.setItem(STORAGE_LANG_KEY, lang);
@@ -563,7 +564,6 @@ function setLanguage(lang) {
     renderTransactionsTable();
 }
 
-// رویدادهای دراپ‌داون زبان
 if (langTriggerBtn) {
     langTriggerBtn.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -581,15 +581,12 @@ if (langMenu) {
     });
 }
 
-/**
- * مدیریت دراپ‌داون‌های مدرن فیلترها
- */
 if (filterTypeTriggerBtn) {
     filterTypeTriggerBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         if (langDropdown) langDropdown.classList.remove('open');
         if (filterStatusDropdown) filterStatusDropdown.classList.remove('open');
-        if (filterTypeDropdown) filterTypeDropdown.classList.toggle('open');
+        if (filterTypeDropdown) filterTypeDropdown.classList.remove('open');
     });
 }
 
@@ -636,9 +633,6 @@ document.addEventListener('click', (e) => {
     if (filterStatusDropdown && !filterStatusDropdown.contains(e.target)) filterStatusDropdown.classList.remove('open');
 });
 
-/**
- * مدیریت سوییچ بین تب واریز و برداشت
- */
 function showDepositTab() {
     currentActiveTab = 'deposit';
     if (tabSwitchDeposit) tabSwitchDeposit.classList.add('active');
@@ -661,9 +655,6 @@ function showWithdrawTab() {
 if (tabSwitchDeposit) tabSwitchDeposit.addEventListener('click', showDepositTab);
 if (tabSwitchWithdraw) tabSwitchWithdraw.addEventListener('click', showWithdrawTab);
 
-/**
- * مدیریت انتخاب شبکه واریز
- */
 document.querySelectorAll('.network-card').forEach(card => {
     card.addEventListener('click', function () {
         document.querySelectorAll('.network-card').forEach(c => c.classList.remove('active'));
@@ -676,7 +667,6 @@ document.querySelectorAll('.network-card').forEach(card => {
     });
 });
 
-// کپی آدرس واریز
 const copyDepBtn = document.getElementById('copyDepositAddrBtn');
 if (copyDepBtn) {
     copyDepBtn.addEventListener('click', () => {
@@ -688,9 +678,6 @@ if (copyDepBtn) {
     });
 }
 
-/**
- * مدیریت برداشت وجه و محاسبات آنلاین کارمزد پلکانی
- */
 if (tabWithdrawProfit) {
     tabWithdrawProfit.addEventListener('click', () => {
         currentWithdrawType = 'profit';
@@ -766,19 +753,29 @@ function calculateWithdrawal() {
     if (confirmWithdrawBtn) confirmWithdrawBtn.disabled = !isValid;
 }
 
-// ثبت نهایی درخواست برداشت
 if (confirmWithdrawBtn) {
     confirmWithdrawBtn.addEventListener('click', async () => {
         const amount = parseFloat(withdrawAmountInput.value);
         const destAddr = withdrawAddressInput.value.trim();
         const net = destAddr.startsWith('0x') ? 'BEP20' : 'TRC20';
 
+        let sessionUser = {};
         try {
-            const res = await fetch('/api/wallet/withdraw', {
+            sessionUser = JSON.parse(sessionStorage.getItem('current_user') || localStorage.getItem('current_user') || '{}');
+        } catch (e) {
+            sessionUser = {};
+        }
+        const currentUserId = sessionUser.userId || sessionUser.id || localStorage.getItem('user_id') || '';
+
+        const withdrawApiUrl = resolveApiUrl('/api/wallet/withdraw');
+
+        try {
+            const res = await fetch(withdrawApiUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
                 body: JSON.stringify({
+                    userId: currentUserId,
                     type: currentWithdrawType,
                     amount: amount,
                     address: destAddr,
@@ -803,9 +800,6 @@ if (confirmWithdrawBtn) {
     });
 }
 
-/**
- * مدیریت جدول تاریخچه تراکنش‌ها و فیلترها
- */
 function getFilteredTransactions() {
     const type = selectedFilterType;
     const status = selectedFilterStatus;
@@ -916,9 +910,6 @@ if (nextPageBtn) {
     });
 }
 
-/**
- * ناوبری نوار پایین در فاز Capture برای جلوگیری از تداخل
- */
 document.querySelectorAll('.bottom-nav .nav-item').forEach(link => {
     link.addEventListener('click', function (e) {
         const target = this.getAttribute('data-target');
@@ -932,12 +923,27 @@ document.querySelectorAll('.bottom-nav .nav-item').forEach(link => {
 });
 
 /**
- * دریافت اطلاعات زنده کیف‌پول از سرور (بدون ریدایرکت مخرب)
+ * دریافت اطلاعات زنده کیف‌پول از سرور
  */
 async function fetchWalletOverview() {
+    let sessionUser = {};
     try {
-        const res = await fetch('/api/wallet/overview', {
+        sessionUser = JSON.parse(sessionStorage.getItem('current_user') || localStorage.getItem('current_user') || '{}');
+    } catch (e) {
+        sessionUser = {};
+    }
+    const currentUserId = sessionUser.userId || sessionUser.id || localStorage.getItem('user_id') || '';
+
+    const baseApi = resolveApiUrl('/api/wallet/overview');
+    const queryUrl = currentUserId ? `${baseApi}?user_id=${encodeURIComponent(currentUserId)}` : baseApi;
+
+    try {
+        const res = await fetch(queryUrl, {
             method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-User-Id': String(currentUserId)
+            },
             credentials: 'include'
         });
 
@@ -970,7 +976,8 @@ async function fetchWalletOverview() {
  */
 async function initWalletPage() {
     try {
-        const userRes = await fetch('/api/user_status', {
+        const statusUrl = resolveApiUrl('/api/user_status');
+        const userRes = await fetch(statusUrl, {
             method: 'GET',
             credentials: 'include'
         });

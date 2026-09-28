@@ -1,7 +1,19 @@
 /**
- * پلتفرم سرمایه‌گذاری بایننس - اسکریپت جامع پروفایل و امنیت (Profile & Security)
- * متصل به بک‌اند پایتون /api/profile
+ * ==============================================================================
+ * ADM Investment Platform - Profile, Security & Helpdesk Frontend Controller
+ * File: profile.js
+ * Dependent on: config.js (window.APP_CONFIG)
+ * Backend Controller: profile.py (API: /api/profile/*)
+ * ==============================================================================
  */
+
+// تابع استاندارد دریافت اندپوینت از کانفیگ مرکزی
+function resolveApiUrl(endpoint) {
+    if (window.APP_CONFIG && typeof window.APP_CONFIG.getApiUrl === 'function') {
+        return window.APP_CONFIG.getApiUrl(endpoint);
+    }
+    return endpoint;
+}
 
 // دیکشنری ۵ زبانه کامل پلتفرم
 const profileI18n = {
@@ -500,7 +512,7 @@ const profileI18n = {
 const STORAGE_LANG_KEY = 'platform_lang';
 let currentLanguage = localStorage.getItem(STORAGE_LANG_KEY) || 'fa';
 
-// بارگذاری فوری از حافظه ذخیره‌شده
+// بارگذاری اولیه مشخصات کاربر
 const savedSession = JSON.parse(sessionStorage.getItem('current_user') || '{}');
 let currentUser = {
     userId: savedSession.userId || savedSession.id || localStorage.getItem('user_id') || '',
@@ -621,9 +633,15 @@ function escapeHtml(str) {
  * دریافت اطلاعات زنده پروفایل از دیتابیس
  */
 async function fetchProfileData() {
-    const sessionUser = JSON.parse(sessionStorage.getItem('current_user') || '{}');
+    let sessionUser = {};
+    try {
+        sessionUser = JSON.parse(sessionStorage.getItem('current_user') || localStorage.getItem('current_user') || '{}');
+    } catch (e) {
+        sessionUser = {};
+    }
     const currentUserId = sessionUser.userId || sessionUser.id || localStorage.getItem('user_id') || '';
-    const queryUrl = currentUserId ? `/api/profile/overview?user_id=${currentUserId}` : '/api/profile/overview';
+    const baseApi = resolveApiUrl('/api/profile/overview');
+    const queryUrl = currentUserId ? `${baseApi}?user_id=${encodeURIComponent(currentUserId)}` : baseApi;
 
     try {
         const res = await fetch(queryUrl, {
@@ -668,7 +686,7 @@ async function fetchProfileData() {
 }
 
 /**
- * نمایش مشخصات کاربر در کارت بالای صفحه (۳ ستون دقیق)
+ * نمایش مشخصات کاربر در کارت بالای صفحه
  */
 function renderProfileInfo() {
     const dict = profileI18n[currentLanguage] || profileI18n.fa;
@@ -678,7 +696,6 @@ function renderProfileInfo() {
     if (displayReferralCode) displayReferralCode.textContent = currentUser.referralCode || localStorage.getItem('user_ref_code') || '---';
     if (displayCreatedAt) displayCreatedAt.textContent = currentUser.createdAt || localStorage.getItem('user_created_at') || '---';
 
-    // بازیابی یا بازسازی تصویر آواتار
     const savedAvatar = localStorage.getItem('user_avatar');
     if (savedAvatar && avatarImage) {
         avatarImage.src = savedAvatar;
@@ -719,7 +736,7 @@ function renderProfileInfo() {
 }
 
 /**
- * رندر جدول تیکت‌ها همراه با دکمه ورود به گفت‌وگو
+ * رندر جدول تیکت‌ها
  */
 function renderTicketsTable() {
     if (!ticketsTbody) return;
@@ -766,7 +783,7 @@ function renderTicketsTable() {
 }
 
 /**
- * باز کردن پنجره گفت‌وگو و دریافت تاریخچه پیام‌های تیکت
+ * باز کردن پنجره گفت‌وگو
  */
 window.openTicketChat = async function (ticketCode, subject, department, status) {
     if (!ticketChatModal) return;
@@ -790,15 +807,17 @@ window.openTicketChat = async function (ticketCode, subject, department, status)
 };
 
 /**
- * دریافت پیام‌های دوطرفه از سرور با حذف خودکار پیام‌های بالای ۵ روز
+ * دریافت پیام‌های تیکت از سرور
  */
 async function loadTicketMessages(ticketCode) {
     const dict = profileI18n[currentLanguage] || profileI18n.fa;
     if (!chatMessagesContainer) return;
     chatMessagesContainer.innerHTML = `<div style="text-align:center; padding:30px 10px; color:#848E9C; font-size:12.5px;">${dict.loadingChat}</div>`;
 
+    const chatApi = resolveApiUrl('/api/profile/ticket_messages');
+
     try {
-        const res = await fetch('/api/profile/ticket_messages', {
+        const res = await fetch(chatApi, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
@@ -867,10 +886,12 @@ if (chatReplyForm) {
 
         if (!ticketCode || !msgText) return;
 
+        const replyApi = resolveApiUrl('/api/profile/reply_ticket');
+
         try {
             if (btnSendChatReply) btnSendChatReply.disabled = true;
 
-            const res = await fetch('/api/profile/reply_ticket', {
+            const res = await fetch(replyApi, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
@@ -936,12 +957,16 @@ function setLanguage(lang) {
 
     document.querySelectorAll('[data-i18n]').forEach(el => {
         const key = el.getAttribute('data-i18n');
-        if (dict[key]) el.textContent = dict[key];
+        if (dict[key]) {
+            el.textContent = dict[key];
+        }
     });
 
     document.querySelectorAll('[data-i18n-ph]').forEach(el => {
         const key = el.getAttribute('data-i18n-ph');
-        if (dict[key]) el.placeholder = dict[key];
+        if (dict[key]) {
+            el.placeholder = dict[key];
+        }
     });
 
     if (langDropdown) langDropdown.classList.remove('open');
@@ -1007,7 +1032,7 @@ if (ticketCatTriggerBtn) {
     });
 }
 
-// مدیریت منوی عملیات سه‌گانه عکس پروفایل (گالری، دوربین، حذف)
+// مدیریت منوی عملیات سه‌گانه عکس پروفایل
 if (avatarMenuTriggerBtn && avatarActionMenu) {
     avatarMenuTriggerBtn.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -1057,7 +1082,7 @@ document.addEventListener('click', (e) => {
     }
 });
 
-// تب‌های صفحه (ناوبری افقی)
+// تب‌های صفحه
 tabButtons.forEach(btn => {
     btn.addEventListener('click', () => {
         const tabTarget = btn.getAttribute('data-tab');
@@ -1132,8 +1157,10 @@ if (changePasswordForm) {
             return;
         }
 
+        const passApi = resolveApiUrl('/api/profile/change_password');
+
         try {
-            const res = await fetch('/api/profile/change_password', {
+            const res = await fetch(passApi, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
@@ -1198,8 +1225,10 @@ if (btnEnableTwoFa) {
 if (terminateSessionsBtn) {
     terminateSessionsBtn.addEventListener('click', async () => {
         const dict = profileI18n[currentLanguage] || profileI18n.fa;
+        const termApi = resolveApiUrl('/api/profile/terminate_sessions');
+
         try {
-            const res = await fetch('/api/profile/terminate_sessions', {
+            const res = await fetch(termApi, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
@@ -1281,8 +1310,10 @@ if (kycSubmitForm) {
             return;
         }
 
+        const kycApi = resolveApiUrl('/api/profile/submit_kyc');
+
         try {
-            const res = await fetch('/api/profile/submit_kyc', {
+            const res = await fetch(kycApi, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
@@ -1320,8 +1351,10 @@ if (newTicketForm) {
 
         if (!subject || !msg) return;
 
+        const ticketApi = resolveApiUrl('/api/profile/submit_ticket');
+
         try {
-            const res = await fetch('/api/profile/submit_ticket', {
+            const res = await fetch(ticketApi, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
@@ -1350,7 +1383,7 @@ if (newTicketForm) {
     });
 }
 
-// پردازش عکس پروفایل چه از گالری و چه از دوربین
+// عکس پروفایل (گالری و دوربین)
 async function handleAvatarFileSelect(file) {
     if (!file) return;
     const compressed = await compressImage(file, 250, 0.85);
@@ -1384,7 +1417,8 @@ if (avatarCameraInput) {
 if (directLogoutBtn) {
     directLogoutBtn.addEventListener('click', async () => {
         try {
-            await fetch('/api/logout', { method: 'POST', credentials: 'include' });
+            const logoutApi = resolveApiUrl('/api/logout');
+            await fetch(logoutApi, { method: 'POST', credentials: 'include' });
         } catch (e) {}
         sessionStorage.clear();
         localStorage.removeItem('user_id');

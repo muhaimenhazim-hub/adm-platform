@@ -1,12 +1,20 @@
 /**
- * ==========================================================================
- * ADM Investment Platform - Team & Network Module
- * File: team.js (Connected to /api/team/data - 100% Real Live Database Data)
- * ==========================================================================
+ * ==============================================================================
+ * ADM Investment Platform - Team & Network Module Frontend Controller
+ * File: team.js (Connected dynamically via window.APP_CONFIG to /api/team/data)
+ * ==============================================================================
  */
 
 (function () {
   'use strict';
+
+  // تابع استاندارد دریافت اندپوینت از کانفیگ مرکزی
+  function resolveApiUrl(endpoint) {
+    if (window.APP_CONFIG && typeof window.APP_CONFIG.getApiUrl === 'function') {
+      return window.APP_CONFIG.getApiUrl(endpoint);
+    }
+    return endpoint;
+  }
 
   // دیکشنری جامع ۵ زبانه استاندارد پلتفرم
   const translations = {
@@ -618,9 +626,17 @@
    * دریافت داده‌های زنده از پایگاه‌داده و جایگذاری قطعی کد و لینک دعوت
    */
   async function fetchTeamData() {
-    const sessionUser = JSON.parse(sessionStorage.getItem('current_user') || '{}');
+    let sessionUser = {};
+    try {
+      sessionUser = JSON.parse(sessionStorage.getItem('current_user') || localStorage.getItem('current_user') || '{}');
+    } catch (e) {
+      sessionUser = {};
+    }
     const currentUserId = sessionUser.userId || sessionUser.id || localStorage.getItem('user_id') || '';
-    const queryUrl = currentUserId ? `/api/team/data?user_id=${currentUserId}` : '/api/team/data';
+    
+    // اتصال داینامیک از طریق config.js
+    const baseApi = resolveApiUrl('/api/team/data');
+    const queryUrl = currentUserId ? `${baseApi}?user_id=${encodeURIComponent(currentUserId)}` : baseApi;
 
     try {
       const res = await fetch(queryUrl, {
@@ -700,7 +716,6 @@
       }
     } catch (err) {
       console.warn("fetchTeamData notice:", err);
-      // حتی اگر درخواست بک‌اند با تاخیر مواجه شود، کدهای پیش‌فرض را نمایش بده تا Loading نماند
       const fallbackCode = localStorage.getItem('user_uid') ? `ADM-${localStorage.getItem('user_uid')}` : 'ADM2026';
       const refCodeInput = document.getElementById('referralCodeInput');
       const refLinkInput = document.getElementById('referralLinkInput');
@@ -726,7 +741,7 @@
         e.stopPropagation();
         closeAllDropdowns(langMenu);
         langMenu.classList.toggle('show');
-        if (langDropdownWrapper) langDropdownWrapper.classList.toggle('open');
+        if (langDropdownWrapper) langDropdownWrapper.classList.remove('open');
       };
 
       langMenu.querySelectorAll('li').forEach(li => {
@@ -782,7 +797,7 @@
         e.stopPropagation();
         closeAllDropdowns(menuDropdownGen);
         menuDropdownGen.classList.toggle('show');
-        if (dropdownGenWrapper) dropdownGenWrapper.classList.toggle('open');
+        if (dropdownGenWrapper) dropdownGenWrapper.classList.remove('open');
       };
 
       menuDropdownGen.querySelectorAll('li').forEach(li => {
@@ -810,7 +825,7 @@
         e.stopPropagation();
         closeAllDropdowns(menuDropdownType);
         menuDropdownType.classList.toggle('show');
-        if (dropdownTypeWrapper) dropdownTypeWrapper.classList.toggle('open');
+        if (dropdownTypeWrapper) dropdownTypeWrapper.classList.remove('open');
       };
 
       menuDropdownType.querySelectorAll('li').forEach(li => {

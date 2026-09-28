@@ -1,9 +1,11 @@
+# -*- coding: utf-8 -*-
 """
 ================================================================================
 ADM Investment Platform - Profile, Security & KYC Backend Module
 File: profile.py
-Blueprint: /api/profile
-Database: adm_db (MySQL XAMPP, port 3306)
+Blueprint: profile_bp
+Prefix: /api/profile
+Database: Configured centrally via config.py (Unified Connection Hub)
 Includes:
   - Account Credentials & Profile Overview
   - Password Change with scrypt Hashing
@@ -19,25 +21,16 @@ import pymysql
 from datetime import datetime, date
 from flask import Blueprint, request, jsonify, session
 from werkzeug.security import generate_password_hash, check_password_hash
+from config import get_db
 
 profile_bp = Blueprint('profile_bp', __name__)
 
-def get_db():
-    """ایجاد اتصال استاندارد و پایدار به دیتابیس MySQL در XAMPP"""
-    return pymysql.connect(
-        host='localhost',
-        port=3306,
-        user='root',
-        password='',
-        database='adm_db',
-        charset='utf8mb4',
-        cursorclass=pymysql.cursors.DictCursor,
-        autocommit=True
-    )
-
 def get_current_user_id():
-    """تشخیص دقیق شناسه کاربر لاگین‌شده از نشست، هدر امن یا پارامتر ارسالی"""
+    """تشخیص دقیق شناسه کاربر لاگین‌شده از پارامتر، هدر امن، بدنه JSON یا نشست"""
     user_id = request.args.get('user_id') or request.headers.get('X-User-Id')
+    if not user_id and request.is_json:
+        data = request.get_json(silent=True) or {}
+        user_id = data.get('userId') or data.get('user_id')
     if not user_id:
         user_id = session.get('user_id')
     try:
@@ -50,7 +43,7 @@ def get_current_user_id():
 @profile_bp.route('/overview', methods=['GET', 'POST'])
 def get_profile_overview():
     """
-    دریافت اطلاعات واقعی کاربر از دیتابیس شامل کد معرف، ایمیل و تاریخ واقعی عضویت
+    دریافت اطلاعات واقعی کاربر از دیتابیس ابری شامل کد معرف، ایمیل و تاریخ واقعی عضویت
     """
     user_id = get_current_user_id()
     conn = None

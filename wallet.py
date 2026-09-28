@@ -1,9 +1,11 @@
+# -*- coding: utf-8 -*-
 """
 ================================================================================
 ADM Investment Platform - Wallet & Withdrawal Backend Module
 File: wallet.py
-Blueprint: /api/wallet
-Database: adm_db (MySQL XAMPP, port 3306)
+Blueprint: wallet_bp
+Prefix: /api/wallet
+Database: Configured centrally via config.py (Unified Connection Hub)
 ================================================================================
 """
 
@@ -12,20 +14,9 @@ from datetime import datetime, date
 from decimal import Decimal
 import pymysql
 from flask import Blueprint, request, jsonify, session
+from config import get_db
 
 wallet_bp = Blueprint('wallet_bp', __name__)
-
-def get_db():
-    return pymysql.connect(
-        host='localhost',
-        port=3306,
-        user='root',
-        password='',
-        database='adm_db',
-        charset='utf8mb4',
-        cursorclass=pymysql.cursors.DictCursor,
-        autocommit=True
-    )
 
 def generate_tx_id():
     return f"TX-{random.randint(1000000, 9999999)}"
@@ -59,9 +50,19 @@ def get_profit_fee_tier(days):
     else:
         return {"allowed": True, "fee_rate": Decimal('0.00'), "tier_name": "0%"}
 
+def get_current_user_id():
+    user_id = session.get('user_id') or request.args.get('user_id') or request.headers.get('X-User-Id')
+    if not user_id and request.is_json:
+        data = request.get_json(silent=True) or {}
+        user_id = data.get('userId') or data.get('user_id')
+    try:
+        return int(user_id) if user_id else None
+    except Exception:
+        return None
+
 @wallet_bp.route('/overview', methods=['GET'])
 def get_wallet_overview():
-    user_id = session.get('user_id')
+    user_id = get_current_user_id()
     conn = None
     try:
         conn = get_db()
@@ -150,7 +151,7 @@ def get_wallet_overview():
 
 @wallet_bp.route('/withdraw', methods=['POST'])
 def process_withdrawal():
-    user_id = session.get('user_id')
+    user_id = get_current_user_id()
     if not user_id:
         return jsonify({"status": "unauthenticated", "success": False}), 401
 

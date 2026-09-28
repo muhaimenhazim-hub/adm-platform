@@ -1,10 +1,14 @@
 # -*- coding: utf-8 -*-
 """
-ماژول سرمایه‌گذاری پلتفرم ADM
-پشتیبانی از نوسانات ساعتی ۲۴ ساعته (امروز)، هفتگی، ماهانه و تاریخی از ۲۰۲۳
+==============================================================================
+ADM Investment Platform - Investment & Analytics Backend Blueprint
+File: invest.py
+Prefix: /api/invest
+Database: Configured centrally via config.py (Unified Connection Hub)
+==============================================================================
 """
 
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, session
 import pymysql
 import math
 from datetime import datetime, timezone, timedelta
@@ -17,12 +21,12 @@ def get_afghanistan_time():
     return datetime.now(afghan_tz)
 
 # ==============================================================================
-# ۱. دریافت اطلاعات کامل صفحه سرمایه‌گذاری و سودها
+# ۱. دریافت اطلاعات کامل صفحه سرمایه‌گذاری و سودها به صورت زنده از دیتابیس
 # ==============================================================================
 @invest_bp.route('/data', methods=['POST'])
 def get_investment_data():
     data = request.get_json() or {}
-    user_id = data.get('userId')
+    user_id = data.get('userId') or session.get('user_id')
 
     if not user_id:
         return jsonify({'success': False, 'message': 'شناسه کاربر ارسال نشده است.'}), 400
@@ -31,6 +35,7 @@ def get_investment_data():
     try:
         conn = get_db()
         with conn.cursor() as cursor:
+            # واکشی اطلاعات حساب و موجودی‌های زنده از پایگاه داده
             sql_user = """
                 SELECT u.id, u.role, u.kyc_status,
                        COALESCE(b.active_capital, 0.00) AS active_capital,
@@ -82,6 +87,7 @@ def get_investment_data():
                 except Exception:
                     days_held = 0
 
+            # واکشی لات‌های سرمایه‌گذاری زنده
             sql_lots = """
                 SELECT id, amount, source, 
                        DATE_FORMAT(start_date, '%%Y/%%m/%%d') as reg_date,
@@ -95,6 +101,7 @@ def get_investment_data():
             cursor.execute(sql_lots, (user_id,))
             lots = cursor.fetchall()
 
+            # سوابق سودهای روزانه سیستم
             sql_history = """
                 SELECT DATE_FORMAT(yield_date, '%%Y/%%m/%%d') as record_date,
                        rate_percent, is_distributed
@@ -142,7 +149,7 @@ def get_investment_data():
             conn.close()
 
 # ==============================================================================
-# ۲. دریافت داده‌های نمودار (۲۴ ساعته امروز، ۷ روز، ۳۰ روز و کلی)
+# ۲. دریافت داده‌های نمودار بازدهی
 # ==============================================================================
 @invest_bp.route('/chart', methods=['POST'])
 def get_chart_data():
@@ -166,7 +173,7 @@ def get_chart_data():
 
     points = []
 
-    # الف) حالت روزانه: نوسانات ۲۴ ساعته امروز
+    # الف) نوسانات ۲۴ ساعته امروز
     if range_type == 'today':
         today_base_rate = real_db_rates.get(today.strftime('%Y-%m-%d'), 1.15)
         for h in range(24):
@@ -180,7 +187,7 @@ def get_chart_data():
             })
         return jsonify({'success': True, 'points': points}), 200
 
-    # ب) حالت‌های ۷ روز، ۳۰ روز و همه (از ۲۰۲۳ تا امروز)
+    # ب) بازه‌های تاریخی (۷ روز، ۳۰ روز و همه)
     if range_type == '7':
         start_date = today - timedelta(days=6)
         step_days = 1
@@ -225,7 +232,7 @@ def get_chart_data():
 @invest_bp.route('/compound', methods=['POST'])
 def execute_compound():
     data = request.get_json() or {}
-    user_id = data.get('userId')
+    user_id = data.get('userId') or session.get('user_id')
     amount = data.get('amount')
 
     if not user_id or not amount or float(amount) <= 0:

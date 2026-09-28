@@ -1,7 +1,12 @@
 /**
- * پلتفرم سرمایه‌گذاری بایننس - صفحه سرمایه‌گذاری، سود و آمار واقعی
- * File: invest.js (پشتیبانی کامل از ۵ زبان، ۲۴ ساعته امروز و دیوار چسبان فیصدی)
+ * ==============================================================================
+ * ADM Investment Platform - Investment & Analytics Frontend Controller
+ * File: invest.js
+ * Dependent on: config.js (window.APP_CONFIG)
+ * Backend Controller: invest.py (API: /api/invest/*)
+ * ==============================================================================
  */
+
 const dashboardI18n = {
     en: {
         dir: 'ltr',
@@ -360,6 +365,16 @@ const dashboardI18n = {
     }
 };
 
+/**
+ * تابع مرکزی اتصال امن اندپوینت‌ها به config.js
+ */
+function resolveApiUrl(endpoint) {
+    if (window.APP_CONFIG && typeof window.APP_CONFIG.getApiUrl === 'function') {
+        return window.APP_CONFIG.getApiUrl(endpoint);
+    }
+    return endpoint;
+}
+
 const STORAGE_LANG_KEY = 'platform_lang';
 let currentLanguage = localStorage.getItem(STORAGE_LANG_KEY) || 'fa';
 
@@ -379,7 +394,7 @@ let investState = {
     profitHistory: []
 };
 
-// دریافت عناصر کنترل صفحه با اعتبارسنجی کامل
+// دریافت عناصر کنترل صفحه
 const langDropdown = document.getElementById('langDropdown');
 const langTriggerBtn = document.getElementById('langTriggerBtn');
 const currentLangLabel = document.getElementById('currentLangLabel');
@@ -409,9 +424,16 @@ function showToast(message, isError = false) {
     toastNotification.className = isError ? 'toast-alert error show' : 'toast-alert show';
     setTimeout(() => { if (toastNotification) toastNotification.className = 'toast-alert'; }, 3800);
 }
+window.showToast = showToast;
+
+if (adminPanelBtn) {
+    adminPanelBtn.addEventListener('click', () => {
+        window.location.href = 'admin.html';
+    });
+}
 
 /**
- * دریافت اطلاعات سرمایه‌گذاری متصل به بک‌اند
+ * دریافت اطلاعات سرمایه‌گذاری متصل به بک‌اند به صورت کاملاً زنده
  */
 async function fetchInvestData() {
     let sessionUser = {};
@@ -427,9 +449,7 @@ async function fetchInvestData() {
         return;
     }
 
-    const apiUrl = (typeof window !== 'undefined' && window.APP_CONFIG && typeof window.APP_CONFIG.getApiUrl === 'function')
-        ? window.APP_CONFIG.getApiUrl('/api/invest/data')
-        : '/api/invest/data';
+    const apiUrl = resolveApiUrl('/api/invest/data');
 
     try {
         const res = await fetch(apiUrl, {
@@ -595,14 +615,13 @@ function renderCompoundRulesMatrix() {
 }
 
 async function loadChartData() {
-    const chartApiUrl = (typeof window !== 'undefined' && window.APP_CONFIG && typeof window.APP_CONFIG.getApiUrl === 'function')
-        ? window.APP_CONFIG.getApiUrl('/api/invest/chart')
-        : '/api/invest/chart';
+    const chartApiUrl = resolveApiUrl('/api/invest/chart');
 
     try {
         const res = await fetch(chartApiUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
             body: JSON.stringify({ range: currentRange })
         });
         const result = await res.json();
@@ -643,7 +662,7 @@ function drawStickyYAxis(paddingTop, chartHeight, minVal, maxVal) {
 }
 
 /**
- * رسم نمودار نئونی
+ * رسم نمودار نئونی با ابعاد پایدار
  */
 function drawProfitChart() {
     if (!canvas || !ctx || !chartPoints || chartPoints.length === 0) return;
@@ -858,9 +877,7 @@ if (btnExecuteCompound) {
             return;
         }
 
-        const compoundApiUrl = (typeof window !== 'undefined' && window.APP_CONFIG && typeof window.APP_CONFIG.getApiUrl === 'function')
-            ? window.APP_CONFIG.getApiUrl('/api/invest/compound')
-            : '/api/invest/compound';
+        const compoundApiUrl = resolveApiUrl('/api/invest/compound');
 
         try {
             const res = await fetch(compoundApiUrl, {

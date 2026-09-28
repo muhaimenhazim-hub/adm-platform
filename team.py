@@ -1,8 +1,11 @@
+# -*- coding: utf-8 -*-
 """
 ================================================================================
 ADM Investment Platform - Team & Multi-Level Marketing Backend Module
 File: team.py
-Blueprint: /api/team
+Blueprint: team_bp
+Prefix: /api/team
+Database: Configured centrally via config.py (Unified Connection Hub)
 ================================================================================
 Golden Business Rules:
 1. Minimum $50 active capital and KYC 'verified' required to earn referral bonuses.
@@ -15,25 +18,16 @@ Golden Business Rules:
 import pymysql
 from flask import Blueprint, jsonify, request, session
 from datetime import datetime, date
+from config import get_db
 
-team_bp = Blueprint('team', __name__)
-
-def get_db_connection():
-    """ایجاد اتصال به پایگاه‌داده MySQL در XAMPP"""
-    return pymysql.connect(
-        host='localhost',
-        port=3306,
-        user='root',
-        password='',
-        database='adm_db',
-        charset='utf8mb4',
-        cursorclass=pymysql.cursors.DictCursor,
-        autocommit=True
-    )
+team_bp = Blueprint('team_bp', __name__, url_prefix='/api/team')
 
 def get_current_user_id():
     """تشخیص دقیق شناسه کاربر لاگین‌شده از پارامتر، هدر امن یا نشست"""
     user_id = request.args.get('user_id') or request.headers.get('X-User-Id')
+    if not user_id and request.is_json:
+        data = request.get_json(silent=True) or {}
+        user_id = data.get('userId') or data.get('user_id')
     if not user_id:
         user_id = session.get('user_id')
     try:
@@ -45,16 +39,12 @@ def get_current_user_id():
 def get_team_overview():
     """
     دریافت کلیه اطلاعات آماری، تفکیک ۵ نسل و تاریخچه تراکنش‌های واقعی تیم کاربر
-    کاملاً ایمن در برابر خطای ساختار ستون‌های دیتابیس
+    کاملاً ایمن و متصل به دیتابیس مرکزی Aiven از طریق config.py
     """
     conn = None
     try:
         current_uid = get_current_user_id()
-        if not current_uid and request.is_json:
-            data = request.get_json() or {}
-            current_uid = data.get('userId') or data.get('user_id')
-
-        conn = get_db_connection()
+        conn = get_db()
 
         with conn.cursor() as cursor:
             # اگر هیچ شناسه‌ای نبود، اولین کاربر دیتابیس را بردار
@@ -130,7 +120,7 @@ def get_team_overview():
                                 next_codes.append(child['referral_code'])
                 current_codes = next_codes
 
-            # ۳. استخراج کاملاً ایمن تراکنش‌ها (بدون ارور در صورت تفاوت نام ستون)
+            # ۳. استخراج کاملاً ایمن تراکنش‌ها
             total_network_earnings = 0.00
             today_referral_income = 0.00
             today_date = date.today()
@@ -181,7 +171,6 @@ def get_team_overview():
                         "timestamp": created_at.strftime("%Y-%m-%d %H:%M") if isinstance(created_at, datetime) else str(created_at or '')
                     })
             except Exception as sql_err:
-                # در صورتی که جدول کمیسیون هنوز رکوردی نداشته باشد یا ستونی متفاوت باشد
                 print(f"[Notice] referral_commissions read: {sql_err}")
 
             total_team_members = sum(generations[f"L{i}"]['members'] for i in range(1, 6))
@@ -240,7 +229,7 @@ def process_direct_bonus():
 
     conn = None
     try:
-        conn = get_db_connection()
+        conn = get_db()
         with conn.cursor() as cursor:
             cursor.execute("""
                 SELECT COUNT(*) as cnt FROM transactions 
@@ -319,7 +308,7 @@ def process_daily_commissions():
     """
     conn = None
     try:
-        conn = get_db_connection()
+        conn = get_db()
         with conn.cursor() as cursor:
             cursor.execute("""
                 SELECT rate_percent FROM daily_yield_rates 
