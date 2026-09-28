@@ -121,7 +121,6 @@ input, select, textarea {
     backdrop-filter: blur(10px);
 }
 
-/* ================= کامپوننت رسمی لوگو و افکت‌های امواج نوری ADM ================= */
 .header-logo-box {
     position: relative;
     display: flex;
@@ -326,25 +325,9 @@ input, select, textarea {
    کانتینر اصلی صفحه پروفایل
    ========================================================================== */
 .profile-main-wrapper {
-    padding: 24px 20px 100px;
+    padding: 20px 16px 100px;
     max-width: 1140px;
     margin: 0 auto;
-}
-
-.profile-page-header {
-    margin-bottom: 24px;
-}
-
-.profile-title {
-    font-size: 22px;
-    font-weight: 700;
-    color: var(--text-primary);
-    margin-bottom: 4px;
-}
-
-.profile-subtitle {
-    color: var(--text-secondary);
-    font-size: 13px;
 }
 
 /* ==========================================================================
@@ -354,21 +337,21 @@ input, select, textarea {
     background: linear-gradient(135deg, #181A20 0%, #15181D 100%);
     border: 1px solid var(--border-color);
     border-radius: 16px;
-    padding: 24px;
-    margin-bottom: 24px;
+    padding: 22px;
+    margin-bottom: 20px;
     box-shadow: var(--shadow-card);
 }
 
 .identity-flex-wrap {
     display: flex;
     align-items: center;
-    gap: 24px;
+    gap: 20px;
 }
 
 .avatar-container {
     position: relative;
-    width: 84px;
-    height: 84px;
+    width: 82px;
+    height: 82px;
     flex-shrink: 0;
 }
 
@@ -407,6 +390,7 @@ input, select, textarea {
     justify-content: center;
     cursor: pointer;
     transition: var(--transition-fast);
+    z-index: 5;
 }
 
 .avatar-upload-badge svg {
@@ -423,8 +407,74 @@ input, select, textarea {
     stroke: #000;
 }
 
+/* منوی عملیات عکس آواتار */
+.avatar-action-menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    background: #181A20;
+    border: 1px solid var(--border-light);
+    border-radius: 10px;
+    padding: 6px 0;
+    min-width: 170px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.65);
+    display: none;
+    z-index: 1200;
+}
+
+[dir="rtl"] .avatar-action-menu {
+    right: 0;
+    left: auto;
+}
+
+[dir="ltr"] .avatar-action-menu {
+    left: 0;
+    right: auto;
+}
+
+.avatar-action-menu.show {
+    display: flex;
+    flex-direction: column;
+}
+
+.avatar-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 14px;
+    font-size: 12px;
+    color: var(--text-primary);
+    text-align: right;
+    transition: var(--transition-fast);
+    width: 100%;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+[dir="ltr"] .avatar-menu-item {
+    text-align: left;
+}
+
+.avatar-menu-item svg {
+    width: 15px;
+    height: 15px;
+    flex-shrink: 0;
+}
+
+.avatar-menu-item:hover {
+    background: #20242B;
+    color: var(--brand-yellow);
+}
+
+.avatar-menu-item.text-danger:hover {
+    color: var(--danger-red);
+}
+
 .user-details-area {
     flex: 1;
+    min-width: 0;
 }
 
 .user-top-row {
@@ -436,9 +486,10 @@ input, select, textarea {
 }
 
 .user-username {
-    font-size: 20px;
+    font-size: 19px;
     font-weight: 700;
     color: var(--text-primary);
+    word-break: break-word;
 }
 
 .kyc-badge {
@@ -449,6 +500,7 @@ input, select, textarea {
     border-radius: 20px;
     font-size: 11px;
     font-weight: 600;
+    white-space: nowrap;
 }
 
 .kyc-badge.verified {
@@ -489,38 +541,44 @@ input, select, textarea {
 
 .user-meta-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 18px;
-    margin-bottom: 12px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
 }
 
 .meta-item {
     display: flex;
     flex-direction: column;
     gap: 3px;
+    min-width: 0;
 }
 
 .meta-label {
     font-size: 11px;
     color: var(--text-secondary);
+    white-space: nowrap;
 }
 
 .meta-value {
     font-size: 13px;
     font-weight: 600;
     color: var(--text-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .uid-copy-flex {
     display: flex;
     align-items: center;
     gap: 6px;
+    min-width: 0;
 }
 
 .copy-mini-btn {
     display: inline-flex;
     color: var(--text-secondary);
     transition: var(--transition-fast);
+    flex-shrink: 0;
 }
 
 .copy-mini-btn svg {
@@ -532,57 +590,46 @@ input, select, textarea {
     color: var(--brand-yellow);
 }
 
-/* بنر هشدار قانون عدم دریافت سود روزانه در صورت عدم احراز هویت */
-.kyc-yield-rule-banner {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: rgba(240, 185, 11, 0.08);
-    border: 1px solid rgba(240, 185, 11, 0.28);
-    border-radius: 8px;
-    padding: 8px 12px;
-    font-size: 12px;
-    color: var(--brand-yellow);
-    font-weight: 500;
-}
-
-.kyc-yield-rule-banner svg {
-    width: 16px;
-    height: 16px;
-    stroke: var(--brand-yellow);
-    flex-shrink: 0;
-}
-
 /* ==========================================================================
-   بخش ۲: تب‌های ناوبری تنظیمات
+   بخش ۲: تب‌های ناوبری تنظیمات (در یک ردیف افقی کامل)
    ========================================================================== */
 .profile-tabs-nav {
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 8px;
     background: var(--input-bg);
     border: 1px solid var(--border-color);
     border-radius: 12px;
     padding: 6px;
-    margin-bottom: 24px;
+    margin-bottom: 20px;
 }
 
 .p-tab-btn {
-    flex: 1;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
-    padding: 10px 16px;
+    padding: 10px 12px;
     border-radius: 8px;
-    font-size: 13px;
+    font-size: 12.5px;
     font-weight: 600;
     color: var(--text-secondary);
     transition: var(--transition-fast);
+    text-align: center;
+    line-height: 1.3;
+    min-width: 0;
+}
+
+.p-tab-btn span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .p-tab-btn svg {
     width: 16px;
     height: 16px;
+    flex-shrink: 0;
 }
 
 .p-tab-btn:hover {
@@ -608,7 +655,7 @@ input, select, textarea {
     background: var(--card-surface);
     border: 1px solid var(--border-color);
     border-radius: 14px;
-    padding: 24px;
+    padding: 22px;
     margin-bottom: 20px;
     box-shadow: var(--shadow-card);
 }
@@ -625,6 +672,7 @@ input, select, textarea {
     align-items: center;
     justify-content: space-between;
     margin-bottom: 20px;
+    gap: 12px;
 }
 
 .head-icon-box {
@@ -1161,11 +1209,35 @@ input, select, textarea {
     color: var(--text-muted);
 }
 
+/* ================= بنر هوشمند قانون احراز هویت (مستقل - بالای دکمه خروج) ================= */
+.standalone-rule-banner {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(240, 185, 11, 0.08);
+    border: 1px solid rgba(240, 185, 11, 0.28);
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 12.5px;
+    color: var(--brand-yellow);
+    font-weight: 500;
+    margin-top: 14px;
+    margin-bottom: 24px;
+    line-height: 1.5;
+}
+
+.standalone-rule-banner svg {
+    width: 18px;
+    height: 18px;
+    stroke: var(--brand-yellow);
+    flex-shrink: 0;
+}
+
 /* ================= دکمه خروج قرمز خالص و استاندارد جهانی ================= */
 .logout-action-area {
     display: flex;
     justify-content: center;
-    margin-top: 24px;
+    margin-bottom: 20px;
 }
 
 .btn-logout {
@@ -1175,7 +1247,7 @@ input, select, textarea {
     gap: 8px;
     background-color: var(--danger-red);
     color: #FFFFFF;
-    padding: 11px 32px;
+    padding: 12px 36px;
     border-radius: 8px;
     font-size: 13px;
     font-weight: 700;
@@ -1244,6 +1316,7 @@ input, select, textarea {
     font-weight: 500;
     margin-top: 4px;
     transition: var(--transition-fast);
+    white-space: nowrap;
 }
 
 .nav-item:hover, .nav-item.active {
@@ -1267,11 +1340,12 @@ input, select, textarea {
 }
 
 /* ==========================================================================
-   طراحی واکنش‌گرا (Responsive)
+   طراحی واکنش‌گرا (Responsive) - بهینه‌سازی شده برای تمامی زبان‌ها
    ========================================================================== */
 @media (max-width: 900px) {
     .user-meta-grid {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
     }
 
     .twofa-content-grid {
@@ -1284,44 +1358,116 @@ input, select, textarea {
     }
 }
 
-@media (max-width: 600px) {
+@media (max-width: 768px) {
     .profile-main-wrapper {
-        padding: 16px 12px 90px;
+        padding: 14px 10px 85px;
+    }
+
+    .user-identity-card {
+        padding: 16px 12px;
+        border-radius: 14px;
+        margin-bottom: 14px;
     }
 
     .identity-flex-wrap {
-        flex-direction: column;
-        text-align: center;
+        gap: 14px;
+    }
+
+    .avatar-container {
+        width: 72px;
+        height: 72px;
     }
 
     .user-top-row {
-        justify-content: center;
+        margin-bottom: 10px;
+        gap: 8px;
     }
 
-    .uid-copy-flex {
-        justify-content: center;
+    .user-username {
+        font-size: 16px;
     }
 
+    .kyc-badge {
+        font-size: 9.5px;
+        padding: 2px 7px;
+    }
+
+    /* ۳ ستون اطلاعات کاربر در موبایل به صورت متوازن ۲ ستونه یا خلاصه */
     .user-meta-grid {
-        grid-template-columns: 1fr;
-        gap: 12px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
     }
 
+    .meta-item:last-child {
+        grid-column: span 2;
+    }
+
+    .meta-label {
+        font-size: 10px;
+    }
+
+    .meta-value {
+        font-size: 11.5px;
+    }
+
+    /* تب‌های سه‌گانه در یک ردیف افقی کامل همراه با چیدمان آیکون بالای متن */
     .profile-tabs-nav {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 6px;
+        padding: 4px;
+        margin-bottom: 16px;
+    }
+
+    .p-tab-btn {
         flex-direction: column;
+        gap: 4px;
+        padding: 8px 4px;
+        font-size: 10.5px;
+    }
+
+    .p-tab-btn svg {
+        width: 17px;
+        height: 17px;
+    }
+
+    .p-tab-btn span {
+        white-space: normal;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        line-height: 1.25;
+    }
+
+    .settings-card {
+        padding: 16px 12px;
+        border-radius: 12px;
     }
 
     .form-row-grid, .upload-dropzones-grid {
         grid-template-columns: 1fr;
+        gap: 12px;
     }
 
     .card-head-between {
         flex-direction: column;
         align-items: flex-start;
-        gap: 12px;
+        gap: 10px;
     }
 
     .security-form-vertical {
         max-width: 100%;
+    }
+
+    .standalone-rule-banner {
+        padding: 10px 12px;
+        font-size: 11px;
+        gap: 8px;
+    }
+
+    .btn-logout {
+        width: 100%;
+        padding: 11px;
     }
 }

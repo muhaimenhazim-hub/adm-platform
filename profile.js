@@ -26,6 +26,10 @@ const profileI18n = {
         tabSecurity: 'Security Center',
         tabKyc: 'KYC Verification',
         tabSupport: 'Help & Tickets',
+        uploadPhoto: 'Choose from Gallery',
+        takePhoto: 'Take Photo with Camera',
+        removePhoto: 'Remove Profile Photo',
+        avatarRemoved: 'Profile photo removed successfully.',
         changePasswordTitle: 'Change Account Password',
         currentPasswordLabel: 'Current Password:',
         newPasswordLabel: 'New Password (min. 8 chars):',
@@ -120,6 +124,10 @@ const profileI18n = {
         tabSecurity: 'Sécurité et Connexion',
         tabKyc: 'Vérification KYC',
         tabSupport: 'Support et Tickets',
+        uploadPhoto: 'Choisir depuis la galerie',
+        takePhoto: 'Prendre une photo',
+        removePhoto: 'Supprimer la photo',
+        avatarRemoved: 'Photo de profil supprimée avec succès.',
         changePasswordTitle: 'Modifier le mot de passe',
         currentPasswordLabel: 'Mot de passe actuel :',
         newPasswordLabel: 'Nouveau mot de passe (min. 8 car.) :',
@@ -214,6 +222,10 @@ const profileI18n = {
         tabSecurity: 'Безопасность',
         tabKyc: 'Верификация (KYC)',
         tabSupport: 'Поддержка и тикеты',
+        uploadPhoto: 'Выбрать из галереи',
+        takePhoto: 'Сделать фото камерой',
+        removePhoto: 'Удалить фото профиля',
+        avatarRemoved: 'Фото профиля успешно удалено.',
         changePasswordTitle: 'Смена пароля аккаунта',
         currentPasswordLabel: 'Текущий пароль:',
         newPasswordLabel: 'Новый пароль (мин. 8 симв.):',
@@ -308,6 +320,10 @@ const profileI18n = {
         tabSecurity: 'مركز الأمان والدخول',
         tabKyc: 'التحقق من الهوية (KYC)',
         tabSupport: 'الدعم والتذاكر',
+        uploadPhoto: 'اختيار من المعرض',
+        takePhoto: 'التقاط صورة بالكاميرا',
+        removePhoto: 'حذف الصورة الشخصية',
+        avatarRemoved: 'تم حذف الصورة الشخصية بنجاح.',
         changePasswordTitle: 'تغيير كلمة مرور الحساب',
         currentPasswordLabel: 'كلمة المرور الحالية:',
         newPasswordLabel: 'كلمة المرور الجديدة (8 أحرف على الأقل):',
@@ -400,8 +416,12 @@ const profileI18n = {
         kycUnverifiedBadge: 'احراز هویت نشده',
         kycYieldRuleText: 'قانون سیستم: حساب‌هایی که احراز هویت نشده باشند سود روزانه دریافت نمی‌کنند.',
         tabSecurity: 'مرکز امنیت و ورود',
-        tabKyc: 'مدیریت احراز هویت (KYC)',
+        tabKyc: 'مدیریت احراز هویت',
         tabSupport: 'پشتیبانی و تیکت‌ها',
+        uploadPhoto: 'انتخاب از گالری',
+        takePhoto: 'گرفتن عکس با دوربین',
+        removePhoto: 'حذف عکس پروفایل',
+        avatarRemoved: 'عکس پروفایل با موفقیت حذف شد.',
         changePasswordTitle: 'تغییر رمز عبور حساب کاربری',
         currentPasswordLabel: 'رمز عبور فعلی:',
         newPasswordLabel: 'رمز عبور جدید (حداقل ۸ کاراکتر):',
@@ -516,7 +536,13 @@ const displayCreatedAt = document.getElementById('displayCreatedAt');
 const displayKycBadge = document.getElementById('displayKycBadge');
 const avatarInitials = document.getElementById('avatarInitials');
 const avatarImage = document.getElementById('avatarImage');
+const avatarMenuTriggerBtn = document.getElementById('avatarMenuTriggerBtn');
+const avatarActionMenu = document.getElementById('avatarActionMenu');
+const btnUploadGallery = document.getElementById('btnUploadGallery');
+const btnCaptureCamera = document.getElementById('btnCaptureCamera');
+const btnRemoveAvatar = document.getElementById('btnRemoveAvatar');
 const avatarUploadInput = document.getElementById('avatarUploadInput');
+const avatarCameraInput = document.getElementById('avatarCameraInput');
 
 const docTypeDropdown = document.getElementById('docTypeDropdown');
 const docTypeTriggerBtn = document.getElementById('docTypeTriggerBtn');
@@ -652,9 +678,17 @@ function renderProfileInfo() {
     if (displayReferralCode) displayReferralCode.textContent = currentUser.referralCode || localStorage.getItem('user_ref_code') || '---';
     if (displayCreatedAt) displayCreatedAt.textContent = currentUser.createdAt || localStorage.getItem('user_created_at') || '---';
 
-    if (avatarInitials) {
+    // بازیابی یا بازسازی تصویر آواتار
+    const savedAvatar = localStorage.getItem('user_avatar');
+    if (savedAvatar && avatarImage) {
+        avatarImage.src = savedAvatar;
+        avatarImage.classList.remove('hidden');
+        if (avatarInitials) avatarInitials.classList.add('hidden');
+    } else if (avatarInitials) {
         const uname = currentUser.username || localStorage.getItem('user_name') || 'ADM';
         avatarInitials.textContent = uname.substring(0, 2).toUpperCase();
+        avatarInitials.classList.remove('hidden');
+        if (avatarImage) avatarImage.classList.add('hidden');
     }
 
     if (adminPanelBtn) {
@@ -920,6 +954,7 @@ if (langTriggerBtn) {
         e.stopPropagation();
         if (docTypeDropdown) docTypeDropdown.classList.remove('open');
         if (ticketCatDropdown) ticketCatDropdown.classList.remove('open');
+        if (avatarActionMenu) avatarActionMenu.classList.remove('show');
         if (langDropdown) langDropdown.classList.toggle('open');
     });
 }
@@ -937,6 +972,7 @@ if (docTypeTriggerBtn) {
         e.stopPropagation();
         if (langDropdown) langDropdown.classList.remove('open');
         if (ticketCatDropdown) ticketCatDropdown.classList.remove('open');
+        if (avatarActionMenu) avatarActionMenu.classList.remove('show');
         docTypeDropdown.classList.toggle('open');
     });
 
@@ -956,6 +992,7 @@ if (ticketCatTriggerBtn) {
         e.stopPropagation();
         if (langDropdown) langDropdown.classList.remove('open');
         if (docTypeDropdown) docTypeDropdown.classList.remove('open');
+        if (avatarActionMenu) avatarActionMenu.classList.remove('show');
         ticketCatDropdown.classList.toggle('open');
     });
 
@@ -970,13 +1007,57 @@ if (ticketCatTriggerBtn) {
     });
 }
 
+// مدیریت منوی عملیات سه‌گانه عکس پروفایل (گالری، دوربین، حذف)
+if (avatarMenuTriggerBtn && avatarActionMenu) {
+    avatarMenuTriggerBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (langDropdown) langDropdown.classList.remove('open');
+        if (docTypeDropdown) docTypeDropdown.classList.remove('open');
+        if (ticketCatDropdown) ticketCatDropdown.classList.remove('open');
+        avatarActionMenu.classList.toggle('show');
+    });
+
+    if (btnUploadGallery) {
+        btnUploadGallery.addEventListener('click', () => {
+            avatarActionMenu.classList.remove('show');
+            if (avatarUploadInput) avatarUploadInput.click();
+        });
+    }
+
+    if (btnCaptureCamera) {
+        btnCaptureCamera.addEventListener('click', () => {
+            avatarActionMenu.classList.remove('show');
+            if (avatarCameraInput) avatarCameraInput.click();
+        });
+    }
+
+    if (btnRemoveAvatar) {
+        btnRemoveAvatar.addEventListener('click', () => {
+            avatarActionMenu.classList.remove('show');
+            localStorage.removeItem('user_avatar');
+            if (avatarImage) {
+                avatarImage.src = '';
+                avatarImage.classList.add('hidden');
+            }
+            if (avatarInitials) {
+                avatarInitials.classList.remove('hidden');
+            }
+            const dict = profileI18n[currentLanguage] || profileI18n.fa;
+            showToast(dict.avatarRemoved, false);
+        });
+    }
+}
+
 document.addEventListener('click', (e) => {
-    if (!langDropdown && !langDropdown.contains(e.target)) langDropdown.classList.remove('open');
+    if (langDropdown && !langDropdown.contains(e.target)) langDropdown.classList.remove('open');
     if (docTypeDropdown && !docTypeDropdown.contains(e.target)) docTypeDropdown.classList.remove('open');
     if (ticketCatDropdown && !ticketCatDropdown.contains(e.target)) ticketCatDropdown.classList.remove('open');
+    if (avatarActionMenu && !avatarActionMenu.contains(e.target) && e.target !== avatarMenuTriggerBtn) {
+        avatarActionMenu.classList.remove('show');
+    }
 });
 
-// تب‌های صفحه
+// تب‌های صفحه (ناوبری افقی)
 tabButtons.forEach(btn => {
     btn.addEventListener('click', () => {
         const tabTarget = btn.getAttribute('data-tab');
@@ -1269,16 +1350,32 @@ if (newTicketForm) {
     });
 }
 
-// تغییر آواتار
+// پردازش عکس پروفایل چه از گالری و چه از دوربین
+async function handleAvatarFileSelect(file) {
+    if (!file) return;
+    const compressed = await compressImage(file, 250, 0.85);
+    localStorage.setItem('user_avatar', compressed);
+    if (avatarImage) {
+        avatarImage.src = compressed;
+        avatarImage.classList.remove('hidden');
+    }
+    if (avatarInitials) avatarInitials.classList.add('hidden');
+    const dict = profileI18n[currentLanguage] || profileI18n.fa;
+    showToast(dict.avatarSuccess, false);
+}
+
 if (avatarUploadInput) {
-    avatarUploadInput.addEventListener('change', async function () {
+    avatarUploadInput.addEventListener('change', function () {
         if (this.files && this.files[0]) {
-            const compressed = await compressImage(this.files[0], 250, 0.85);
-            avatarImage.src = compressed;
-            avatarImage.classList.remove('hidden');
-            if (avatarInitials) avatarInitials.classList.add('hidden');
-            const dict = profileI18n[currentLanguage] || profileI18n.fa;
-            showToast(dict.avatarSuccess, false);
+            handleAvatarFileSelect(this.files[0]);
+        }
+    });
+}
+
+if (avatarCameraInput) {
+    avatarCameraInput.addEventListener('change', function () {
+        if (this.files && this.files[0]) {
+            handleAvatarFileSelect(this.files[0]);
         }
     });
 }
