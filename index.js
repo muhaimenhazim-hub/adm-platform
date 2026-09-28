@@ -1,7 +1,13 @@
 /**
- * سیستم چندزبانه و احراز هویت پلتفرم ADM
- * پشتیبانی از تشخیص هوشمند لینک دعوت و تکمیل خودکار کد معرف
+ * ==============================================================================
+ * ADM Investment Platform - Frontend Logic & Authentication Gateway
+ * File: index.js
+ * Dependent on: config.js (window.APP_CONFIG)
+ * Backend Controller: index.py
+ * ==============================================================================
  */
+
+// دیکشنری چندزبانه پلتفرم
 const i18n = {
     en: {
         dir: 'ltr',
@@ -187,6 +193,16 @@ const i18n = {
 
 let activeLang = 'en';
 
+/**
+ * تابع ایمن برای دریافت آدرس اندپوینت‌ها از کانفیگ مرکزی
+ */
+function resolveApiUrl(endpoint) {
+    if (window.APP_CONFIG && typeof window.APP_CONFIG.getApiUrl === 'function') {
+        return window.APP_CONFIG.getApiUrl(endpoint);
+    }
+    return endpoint;
+}
+
 // المان‌های صفحه
 const langDropdown = document.getElementById('langDropdown');
 const langTriggerBtn = document.getElementById('langTriggerBtn');
@@ -203,8 +219,8 @@ const logoutBtn = document.getElementById('logoutBtn');
 const termsCheck = document.getElementById('termsCheck');
 const regSubmitBtn = document.getElementById('regSubmitBtn');
 const toastNotification = document.getElementById('toastNotification');
-const userGreeting = document.getElementById('userGreeting');
 
+// مدیریت انتخاب زبان
 if (langTriggerBtn) {
     langTriggerBtn.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -311,7 +327,7 @@ function clearAllErrors() {
 }
 
 /**
- * ارسال فرم ورود به بک‌اند
+ * ارسال فرم ورود به بک‌اند (سازگار کامل با index.py)
  */
 const loginFormEl = document.getElementById('loginForm');
 if (loginFormEl) {
@@ -339,16 +355,17 @@ if (loginFormEl) {
 
         if (hasError) return;
 
-        const loginUrl = (typeof window !== 'undefined' && window.APP_CONFIG && typeof window.APP_CONFIG.getApiUrl === 'function')
-            ? window.APP_CONFIG.getApiUrl('/api/login')
-            : '/api/login';
+        const loginUrl = resolveApiUrl('/api/login');
 
         try {
             const response = await fetch(loginUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
-                body: JSON.stringify({ identifier: ident, password: pass })
+                body: JSON.stringify({
+                    identifier: ident,
+                    password: pass
+                })
             });
 
             let result = {};
@@ -369,8 +386,12 @@ if (loginFormEl) {
                 localStorage.setItem('user_uid', userData.uid || '');
 
                 setTimeout(() => {
-                    window.location.href = 'home.html';
-                }, 500);
+                    if (userData.role === 'admin') {
+                        window.location.href = 'admin.html';
+                    } else {
+                        window.location.href = 'home.html';
+                    }
+                }, 600);
             } else {
                 showToast(result.message || i18n[activeLang].errServerConn, true);
             }
@@ -381,7 +402,7 @@ if (loginFormEl) {
 }
 
 /**
- * ارسال فرم ثبت‌نام به بک‌اند
+ * ارسال فرم ثبت‌نام به بک‌اند (مطابق با فیلدهای مورد انتظار index.py و پایگاه‌داده Aiven)
  */
 const regFormEl = document.getElementById('registerForm');
 if (regFormEl) {
@@ -433,21 +454,22 @@ if (regFormEl) {
 
         if (hasError) return;
 
-        const regUrl = (typeof window !== 'undefined' && window.APP_CONFIG && typeof window.APP_CONFIG.getApiUrl === 'function')
-            ? window.APP_CONFIG.getApiUrl('/api/register')
-            : '/api/register';
+        const regUrl = resolveApiUrl('/api/register');
+        const isEmail = ident.includes('@');
 
         try {
-            const isEmail = ident.includes('@');
             const response = await fetch(regUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
                 body: JSON.stringify({
+                    identifier: ident,
+                    fullName: fullName,
                     username: fullName,
-                    email: isEmail ? ident : `${ident}@adm.local`,
+                    email: isEmail ? ident : '',
                     phone: isEmail ? '' : ident,
                     password: pass,
+                    inviteCode: inviteCode,
                     referral_code: inviteCode
                 })
             });
@@ -470,8 +492,12 @@ if (regFormEl) {
                 localStorage.setItem('user_uid', userData.uid || '');
 
                 setTimeout(() => {
-                    window.location.href = 'home.html';
-                }, 500);
+                    if (userData.role === 'admin') {
+                        window.location.href = 'admin.html';
+                    } else {
+                        window.location.href = 'home.html';
+                    }
+                }, 600);
 
                 regFormEl.reset();
                 if (regSubmitBtn) regSubmitBtn.disabled = true;
@@ -484,15 +510,58 @@ if (regFormEl) {
     });
 }
 
+/**
+ * خروج ایمن از حساب (همزمان پاکسازی کلاینت و ابطال سشن در سرور پایتون)
+ */
 if (logoutBtn) {
-    logoutBtn.addEventListener('click', () => {
-        if (homeSection) homeSection.classList.add('hidden');
-        if (loginSection) loginSection.classList.remove('hidden');
-        sessionStorage.removeItem('current_user');
-        localStorage.removeItem('current_user');
+    logoutBtn.addEventListener('click', async () => {
+        try {
+            await fetch(resolveApiUrl('/api/logout'), {
+                method: 'POST',
+                credentials: 'include'
+            });
+        } catch (e) {
+            console.warn('Backend logout call completed with fallback.');
+        } finally {
+            sessionStorage.clear();
+            localStorage.clear();
+            if (homeSection) homeSection.classList.add('hidden');
+            if (loginSection) loginSection.classList.remove('hidden');
+        }
     });
 }
 
+/**
+ * بررسی وضعیت لاگین فعلی کاربر هنگام بارگذاری صفحه
+ */
+async function checkExistingAuth() {
+    try {
+        const response = await fetch(resolveApiUrl('/api/user_status'), {
+            method: 'GET',
+            credentials: 'include'
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            if (data.success && data.user) {
+                sessionStorage.setItem('current_user', JSON.stringify(data.user));
+                localStorage.setItem('current_user', JSON.stringify(data.user));
+                // اگر قبلاً لاگین بوده، مستقیم هدایت شود
+                if (data.user.role === 'admin') {
+                    window.location.href = 'admin.html';
+                } else {
+                    window.location.href = 'home.html';
+                }
+            }
+        }
+    } catch (e) {
+        // در صورت عدم برقراری اتصال یا عدم لاگین، صفحه ورود باقی می‌ماند
+    }
+}
+
+/**
+ * شناسایی خودکار کد معرف از طریق لینک (مانند ?ref=ADM123)
+ */
 function handleReferralLinkDetection() {
     const urlParams = new URLSearchParams(window.location.search);
     const refCode = urlParams.get('ref') || urlParams.get('invite');
@@ -511,5 +580,7 @@ function handleReferralLinkDetection() {
     }
 }
 
+// اجرای توابع اولیه صفحه
 handleReferralLinkDetection();
 updateLanguage('en');
+checkExistingAuth();

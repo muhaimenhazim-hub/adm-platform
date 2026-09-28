@@ -21,26 +21,37 @@ from flask_cors import CORS
 from werkzeug.security import generate_password_hash, check_password_hash
 
 # اتصال ایمن به فایل تنظیمات مرکزی
-from config import DB_CONFIG, get_db
+from config import (
+    DB_CONFIG, 
+    get_db, 
+    SECRET_KEY, 
+    CORS_ORIGINS, 
+    SESSION_CONFIG, 
+    SERVER_HOST, 
+    SERVER_PORT, 
+    DEBUG_MODE
+)
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
 app = Flask(__name__, static_folder=BASE_DIR, static_url_path='')
-app.secret_key = os.getenv('SECRET_KEY', 'ADM_BINANCE_PRO_SECRET_KEY_#2026!@$')
+app.secret_key = SECRET_KEY
 
-# تنظیمات دائمی سشن
-app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=30)
-app.config['SESSION_COOKIE_NAME'] = 'adm_session'
-app.config['SESSION_COOKIE_HTTPONLY'] = False
-app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
-app.config['SESSION_COOKIE_SECURE'] = False
+# اعمال تنظیمات سشن بر اساس config.py
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=SESSION_CONFIG['PERMANENT_SESSION_LIFETIME_DAYS'])
+app.config['SESSION_COOKIE_NAME'] = SESSION_CONFIG['SESSION_COOKIE_NAME']
+app.config['SESSION_COOKIE_HTTPONLY'] = SESSION_CONFIG['SESSION_COOKIE_HTTPONLY']
+app.config['SESSION_COOKIE_SAMESITE'] = SESSION_CONFIG['SESSION_COOKIE_SAMESITE']
+app.config['SESSION_COOKIE_SECURE'] = SESSION_CONFIG['SESSION_COOKIE_SECURE']
 
-# اصلاح کامل CORS برای پذیرش دامنه ورسل و لوکال‌ها
-CORS(app, supports_credentials=True, origins=[
-    "http://localhost:5000",
-    "http://127.0.0.1:5000",
-    "https://adm-platform-eta.vercel.app"
-], allow_headers=["Content-Type", "Authorization"], methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"])
+# اتصال تنظیمات CORS مستقیم از config.py (کاملاً ماژولار و مستقل از هاست)
+CORS(
+    app, 
+    supports_credentials=True, 
+    origins=CORS_ORIGINS, 
+    allow_headers=["Content-Type", "Authorization"], 
+    methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+)
 
 # ==================== ثبت بلواپرینت‌های صفحات کاربر ====================
 
@@ -315,4 +326,4 @@ def user_status():
             conn.close()
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host=SERVER_HOST, port=SERVER_PORT, debug=DEBUG_MODE)
