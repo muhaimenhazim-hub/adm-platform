@@ -767,6 +767,44 @@ function renderProfileInfo() {
     renderTicketsTable();
 }
 
+
+/**
+ * توابع مدیریت وضعیت خوانده‌شدن اعلان پاسخ ادمین
+ */
+function getReadTicketReplies() {
+    try {
+        return JSON.parse(localStorage.getItem('adm_read_tickets') || '[]');
+    } catch (e) {
+        return [];
+    }
+}
+
+function markTicketReplyAsRead(ticketCode) {
+    if (!ticketCode) return;
+    try {
+        const readList = getReadTicketReplies();
+        if (!readList.includes(ticketCode)) {
+            readList.push(ticketCode);
+            localStorage.setItem('adm_read_tickets', JSON.stringify(readList));
+        }
+    } catch (e) {}
+}
+
+function resetTicketReplyReadState(ticketCode) {
+    if (!ticketCode) return;
+    try {
+        let readList = getReadTicketReplies();
+        readList = readList.filter(c => c !== ticketCode);
+        localStorage.setItem('adm_read_tickets', JSON.stringify(readList));
+    } catch (e) {}
+}
+
+function isTicketReplyUnread(ticketCode, status) {
+    if (status !== 'answered') return false;
+    const readList = getReadTicketReplies();
+    return !readList.includes(ticketCode);
+}
+
 /**
  * رندر جدول تیکت‌ها
  */
@@ -786,6 +824,7 @@ function renderTicketsTable() {
         let statusLabel = dict.ticketStatusPending;
 
         const isAnswered = (tk.status === 'answered');
+        const isUnread = isTicketReplyUnread(tk.id, tk.status);
 
         if (isAnswered) {
             statusClass = 'completed';
@@ -800,8 +839,8 @@ function renderTicketsTable() {
         const safeDept = escapeHtml(tk.department);
         const safeStatus = escapeHtml(tk.status);
 
-        // اعلان روشن، مشخص و زنده در صورت دریافت پاسخ از سوی ادمین
-        const replyBadgeHtml = isAnswered
+        // نمایش اعلان ناخوانده فقط زمانی که کاربر هنوز پاسخ ادمین را باز نکرده است
+        const replyBadgeHtml = isUnread
             ? `<span class="adm-reply-badge">● ${dict.newReplyBadge || 'پاسخ جدید'}</span>`
             : '';
 
@@ -812,7 +851,7 @@ function renderTicketsTable() {
             <td><span class="status-badge ${statusClass}">${statusLabel}</span></td>
             <td>${tk.date}</td>
             <td>
-                <button type="button" class="btn-open-chat ${isAnswered ? 'has-admin-reply' : ''}" onclick="openTicketChat('${safeCode}', '${safeSubject}', '${safeDept}', '${safeStatus}')">
+                <button type="button" class="btn-open-chat ${isUnread ? 'has-admin-reply' : ''}" onclick="openTicketChat('${safeCode}', '${safeSubject}', '${safeDept}', '${safeStatus}')">
                     ${replyBadgeHtml}
                     <span>${dict.openChatBtn}</span>
                 </button>
@@ -828,6 +867,10 @@ function renderTicketsTable() {
 window.openTicketChat = async function (ticketCode, subject, department, status) {
     if (!ticketChatModal) return;
     const dict = profileI18n[currentLanguage] || profileI18n.en;
+
+    // علامت‌گذاری پاسخ به عنوان خوانده‌شده و به‌روزرسانی جدول جهت حذف فوری نشان اعلان
+    markTicketReplyAsRead(ticketCode);
+    renderTicketsTable();
 
     if (chatModalTicketCode) chatModalTicketCode.textContent = ticketCode;
     if (chatModalTicketSubject) chatModalTicketSubject.textContent = subject;
@@ -943,6 +986,8 @@ if (chatReplyForm) {
             const data = await res.json();
             if (res.ok && data.status === 'success') {
                 if (chatReplyMessageInput) chatReplyMessageInput.value = '';
+                // بازنشانی وضعیت تا در پاسخ بعدی ادمین، اعلان مجدداً ظاهر شود
+                resetTicketReplyReadState(ticketCode);
                 showToast(dict.replySuccess, false);
                 await loadTicketMessages(ticketCode);
             } else {
