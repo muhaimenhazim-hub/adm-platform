@@ -7,7 +7,7 @@
  * ==============================================================================
  */
 
-// دیکشنری ۵ زبانه کامل پلتفرم
+// دیکشنری ۵ زبانه کامل پلتفرم همراه با کلیدهای اختصاصی پله‌های کارمزد و خطا
 const walletI18n = {
     en: {
         dir: 'ltr',
@@ -78,7 +78,11 @@ const walletI18n = {
         withdrawSuccess: 'Withdrawal request submitted successfully.',
         prevPage: 'Previous',
         nextPage: 'Next',
-        pageInfo: 'Page {cur} of {total}'
+        pageInfo: 'Page {cur} of {total}',
+        tierBlockedUnder10: 'Under 10 days (Disallowed)',
+        tierFree: '0% (Free)',
+        feeTierFixedPrincipal: '5% (Fixed Principal)',
+        errConnection: 'Network connection error with backend server.'
     },
     fr: {
         dir: 'ltr',
@@ -149,7 +153,11 @@ const walletI18n = {
         withdrawSuccess: 'Demande de retrait transmise avec succès.',
         prevPage: 'Précédent',
         nextPage: 'Suivant',
-        pageInfo: 'Page {cur} sur {total}'
+        pageInfo: 'Page {cur} sur {total}',
+        tierBlockedUnder10: 'Moins de 10 jours (Interdit)',
+        tierFree: '0% (Gratuit)',
+        feeTierFixedPrincipal: '5% (Capital libéré)',
+        errConnection: 'Erreur de connexion au serveur.'
     },
     ru: {
         dir: 'ltr',
@@ -220,7 +228,11 @@ const walletI18n = {
         withdrawSuccess: 'Заявка на вывод успешно отправлена.',
         prevPage: 'Назад',
         nextPage: 'Вперед',
-        pageInfo: 'Стр. {cur} из {total}'
+        pageInfo: 'Стр. {cur} из {total}',
+        tierBlockedUnder10: 'Менее 10 дней (Запрещено)',
+        tierFree: '0% (Бесплатно)',
+        feeTierFixedPrincipal: '5% (Фикс. капитал)',
+        errConnection: 'Ошибка подключения к серверу.'
     },
     ar: {
         dir: 'rtl',
@@ -291,7 +303,11 @@ const walletI18n = {
         withdrawSuccess: 'تم إرسال طلب السحب بنجاح.',
         prevPage: 'السابق',
         nextPage: 'التالي',
-        pageInfo: 'صفحة {cur} من {total}'
+        pageInfo: 'صفحة {cur} من {total}',
+        tierBlockedUnder10: 'أقل من 10 أيام (غير مسموح)',
+        tierFree: '0% (مجاناً)',
+        feeTierFixedPrincipal: '5% (رأس المال المحرر)',
+        errConnection: 'خطأ في الاتصال بالخادم.'
     },
     fa: {
         dir: 'rtl',
@@ -362,7 +378,11 @@ const walletI18n = {
         withdrawSuccess: 'درخواست برداشت شما با موفقیت ثبت شد.',
         prevPage: 'قبلی',
         nextPage: 'بعدی',
-        pageInfo: 'صفحه {cur} از {total}'
+        pageInfo: 'صفحه {cur} از {total}',
+        tierBlockedUnder10: 'کمتر از ۱۰ روز (غیرمجاز)',
+        tierFree: '۰٪ (رایگان)',
+        feeTierFixedPrincipal: '۵٪ (ثابت اصل سرمایه)',
+        errConnection: 'خطا در برقراری ارتباط با سرور.'
     }
 };
 
@@ -376,9 +396,10 @@ function resolveApiUrl(endpoint) {
     return endpoint;
 }
 
-// کلید مشترک ذخیره زبان بین تمام صفحات
+// کلید مشترک ذخیره زبان بین تمام صفحات با فال‌بک پیش‌فرض انگلیسی
 const STORAGE_LANG_KEY = 'platform_lang';
-let currentLanguage = localStorage.getItem(STORAGE_LANG_KEY) || 'fa';
+let currentLanguage = localStorage.getItem(STORAGE_LANG_KEY) || 'en';
+if (!walletI18n[currentLanguage]) currentLanguage = 'en';
 
 // داده‌های مالی کاربر
 let walletUser = {
@@ -463,9 +484,13 @@ function showToast(message, isError = false) {
 }
 window.showToast = showToast;
 
+/**
+ * محاسبه کارمزد پلکانی برداشت سود بر اساس روزهای سپری‌شده با متون داینامیک ۵ زبانه
+ */
 function getProfitWithdrawalFeeRate(days) {
+    const dict = walletI18n[currentLanguage] || walletI18n.en;
     if (days < 10) {
-        return { feePercent: 0, isBlocked: true, label: 'کمتر از ۱۰ روز (غیرمجاز)' };
+        return { feePercent: 0, isBlocked: true, label: dict.tierBlockedUnder10 };
     } else if (days >= 10 && days < 15) {
         return { feePercent: 0.05, isBlocked: false, label: '5%' };
     } else if (days >= 15 && days < 25) {
@@ -473,7 +498,7 @@ function getProfitWithdrawalFeeRate(days) {
     } else if (days >= 25 && days < 35) {
         return { feePercent: 0.01, isBlocked: false, label: '1%' };
     } else {
-        return { feePercent: 0.00, isBlocked: false, label: '0% (رایگان)' };
+        return { feePercent: 0.00, isBlocked: false, label: dict.tierFree };
     }
 }
 
@@ -491,7 +516,7 @@ function updateWalletBalances() {
     if (withdrawModalProfit) withdrawModalProfit.textContent = Number(walletUser.withdrawableProfit).toLocaleString('en-US', { minimumFractionDigits: 2 });
     if (withdrawModalUnlocked) withdrawModalUnlocked.textContent = Number(walletUser.unlockedPrincipal).toLocaleString('en-US', { minimumFractionDigits: 2 });
 
-    const dict = walletI18n[currentLanguage] || walletI18n.fa;
+    const dict = walletI18n[currentLanguage] || walletI18n.en;
     const isTenPercentMet = walletUser.activeCapital >= 50 && (walletUser.withdrawableProfit >= (walletUser.activeCapital * 0.10));
     const profitBadge = document.getElementById('profitRuleBadge');
     const overviewDot = document.getElementById('overviewRuleDot');
@@ -506,7 +531,7 @@ function updateWalletBalances() {
 }
 
 function updateFilterDropdownLabels() {
-    const dict = walletI18n[currentLanguage] || walletI18n.fa;
+    const dict = walletI18n[currentLanguage] || walletI18n.en;
     const typeKeyMap = {
         'all': 'filterAllTypes',
         'deposit': 'filterDeposit',
@@ -529,12 +554,14 @@ function updateFilterDropdownLabels() {
 }
 
 function setLanguage(lang) {
+    if (!walletI18n[lang]) lang = 'en';
     currentLanguage = lang;
     localStorage.setItem(STORAGE_LANG_KEY, lang);
-    const dict = walletI18n[lang] || walletI18n.fa;
+    const dict = walletI18n[lang];
 
+    const isRtl = (lang === 'fa' || lang === 'ar');
     document.documentElement.lang = lang;
-    document.documentElement.dir = dict.dir || 'rtl';
+    document.documentElement.dir = isRtl ? 'rtl' : 'ltr';
     if (currentLangLabel) currentLangLabel.textContent = dict.langName;
 
     if (langMenu) {
@@ -586,7 +613,7 @@ if (filterTypeTriggerBtn) {
         e.stopPropagation();
         if (langDropdown) langDropdown.classList.remove('open');
         if (filterStatusDropdown) filterStatusDropdown.classList.remove('open');
-        if (filterTypeDropdown) filterTypeDropdown.classList.remove('open');
+        if (filterTypeDropdown) filterTypeDropdown.classList.toggle('open');
     });
 }
 
@@ -672,7 +699,7 @@ if (copyDepBtn) {
     copyDepBtn.addEventListener('click', () => {
         const addr = document.getElementById('depositAddressDisplay').textContent.trim();
         navigator.clipboard.writeText(addr).then(() => {
-            const dict = walletI18n[currentLanguage] || walletI18n.fa;
+            const dict = walletI18n[currentLanguage] || walletI18n.en;
             showToast(dict.copiedNotice, false);
         });
     });
@@ -718,11 +745,12 @@ function calculateWithdrawal() {
     let net = 0;
     let isValid = false;
 
-    // بررسی شرط حداقل ۱۰٪ سود
     const isTenPercentMet = walletUser.activeCapital >= 50 && (walletUser.withdrawableProfit >= (walletUser.activeCapital * 0.10));
     if (tenPercentRuleDot) {
         tenPercentRuleDot.className = isTenPercentMet ? 'status-indicator ready' : 'status-indicator';
     }
+
+    const dict = walletI18n[currentLanguage] || walletI18n.en;
 
     if (currentWithdrawType === 'profit') {
         const tier = getProfitWithdrawalFeeRate(walletUser.daysSinceLastAction);
@@ -737,7 +765,7 @@ function calculateWithdrawal() {
             isValid = true;
         }
     } else {
-        if (feeTierValue) feeTierValue.textContent = '5% (ثابت اصل سرمایه)';
+        if (feeTierValue) feeTierValue.textContent = dict.feeTierFixedPrincipal;
         if (amount > 0) {
             fee = amount * 0.05;
             net = Math.max(0, amount - fee);
@@ -768,6 +796,7 @@ if (confirmWithdrawBtn) {
         const currentUserId = sessionUser.userId || sessionUser.id || localStorage.getItem('user_id') || '';
 
         const withdrawApiUrl = resolveApiUrl('/api/wallet/withdraw');
+        const dict = walletI18n[currentLanguage] || walletI18n.en;
 
         try {
             const res = await fetch(withdrawApiUrl, {
@@ -784,7 +813,6 @@ if (confirmWithdrawBtn) {
             });
 
             const data = await res.json();
-            const dict = walletI18n[currentLanguage] || walletI18n.fa;
 
             if (data.status === 'success' || data.success) {
                 showToast(dict.withdrawSuccess, false);
@@ -792,10 +820,10 @@ if (confirmWithdrawBtn) {
                 withdrawAddressInput.value = '';
                 await fetchWalletOverview();
             } else {
-                showToast(data.message || 'Error occurred', true);
+                showToast(data.message || dict.errConnection, true);
             }
         } catch (e) {
-            showToast('Connection error occurred', true);
+            showToast(dict.errConnection, true);
         }
     });
 }
@@ -815,7 +843,7 @@ function getFilteredTransactions() {
 
 function renderTransactionsTable() {
     if (!txHistoryTbody) return;
-    const dict = walletI18n[currentLanguage] || walletI18n.fa;
+    const dict = walletI18n[currentLanguage] || walletI18n.en;
     const filtered = getFilteredTransactions();
     const totalPages = Math.ceil(filtered.length / itemsPerPage) || 1;
 
@@ -882,7 +910,7 @@ function renderTransactionsTable() {
 
 window.copyTxId = function (txId) {
     navigator.clipboard.writeText(txId).then(() => {
-        const dict = walletI18n[currentLanguage] || walletI18n.fa;
+        const dict = walletI18n[currentLanguage] || walletI18n.en;
         showToast(dict.copiedNotice, false);
     });
 };
@@ -972,9 +1000,28 @@ async function fetchWalletOverview() {
 }
 
 /**
- * راه‌اندازی اولیه صفحه
+ * راه‌اندازی اولیه صفحه در ثانیه صفر
  */
 async function initWalletPage() {
+    // ۱. اعمال فوری زبان در همان لحظه بارگذاری بدون صبر برای شبکه
+    setLanguage(currentLanguage);
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const actionParam = urlParams.get('action');
+    if (actionParam === 'withdraw') {
+        showWithdrawTab();
+    } else if (actionParam === 'deposit') {
+        showDepositTab();
+    } else {
+        currentActiveTab = null;
+        if (tabSwitchDeposit) tabSwitchDeposit.classList.remove('active');
+        if (tabSwitchWithdraw) tabSwitchWithdraw.classList.remove('active');
+        if (panelDeposit) panelDeposit.classList.add('hidden');
+        if (panelWithdraw) panelWithdraw.classList.add('hidden');
+        if (panelPlaceholder) panelPlaceholder.classList.remove('hidden');
+    }
+
+    // ۲. بررسی سطح دسترسی ادمین
     try {
         const statusUrl = resolveApiUrl('/api/user_status');
         const userRes = await fetch(statusUrl, {
@@ -998,22 +1045,7 @@ async function initWalletPage() {
         console.warn('Admin check notice:', e);
     }
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const actionParam = urlParams.get('action');
-    if (actionParam === 'withdraw') {
-        showWithdrawTab();
-    } else if (actionParam === 'deposit') {
-        showDepositTab();
-    } else {
-        currentActiveTab = null;
-        if (tabSwitchDeposit) tabSwitchDeposit.classList.remove('active');
-        if (tabSwitchWithdraw) tabSwitchWithdraw.classList.remove('active');
-        if (panelDeposit) panelDeposit.classList.add('hidden');
-        if (panelWithdraw) panelWithdraw.classList.add('hidden');
-        if (panelPlaceholder) panelPlaceholder.classList.remove('hidden');
-    }
-
-    setLanguage(currentLanguage);
+    // ۳. دریافت آمار زنده از دیتابیس
     await fetchWalletOverview();
 }
 
@@ -1022,3 +1054,8 @@ if (document.readyState === 'loading') {
 } else {
     initWalletPage();
 }
+
+window.addEventListener('pageshow', () => {
+    setLanguage(currentLanguage);
+    fetchWalletOverview();
+});

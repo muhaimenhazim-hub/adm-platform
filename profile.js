@@ -15,7 +15,7 @@ function resolveApiUrl(endpoint) {
     return endpoint;
 }
 
-// دیکشنری ۵ زبانه کامل پلتفرم
+// دیکشنری ۵ زبانه کامل پلتفرم همراه با کلیدهای اختصاصی خطا و پشتیبانی
 const profileI18n = {
     en: {
         dir: 'ltr',
@@ -113,7 +113,12 @@ const profileI18n = {
         sessionsTerminated: 'All other sessions have been terminated.',
         kycSuccess: 'Documents compressed and submitted successfully!',
         ticketSuccess: 'Ticket submitted successfully.',
-        avatarSuccess: 'Avatar image updated.'
+        avatarSuccess: 'Avatar image updated.',
+        officialSupportName: 'ADM Official Support',
+        errConnection: 'Network connection error with backend server.',
+        errDocNumRequired: 'Identity document number is required.',
+        errGeneral: 'An error occurred. Please try again.',
+        errLoadChat: 'Failed to load conversation messages.'
     },
     fr: {
         dir: 'ltr',
@@ -211,7 +216,12 @@ const profileI18n = {
         sessionsTerminated: 'Toutes les autres sessions ont été fermées.',
         kycSuccess: 'Documents compressés et transmis avec succès !',
         ticketSuccess: 'Ticket envoyé avec succès.',
-        avatarSuccess: 'Photo d’avatar mise à jour.'
+        avatarSuccess: 'Photo d’avatar mise à jour.',
+        officialSupportName: 'Support officiel ADM',
+        errConnection: 'Erreur de connexion au serveur.',
+        errDocNumRequired: 'Le numéro de document est obligatoire.',
+        errGeneral: 'Une erreur est survenue. Veuillez réessayer.',
+        errLoadChat: 'Échec du chargement des messages.'
     },
     ru: {
         dir: 'ltr',
@@ -309,7 +319,12 @@ const profileI18n = {
         sessionsTerminated: 'Все остальные сеансы завершены.',
         kycSuccess: 'Документы сжаты и отправлены на проверку!',
         ticketSuccess: 'Тикет успешно создан.',
-        avatarSuccess: 'Аватар успешно обновлен.'
+        avatarSuccess: 'Аватар успешно обновлен.',
+        officialSupportName: 'Официальная поддержка ADM',
+        errConnection: 'Ошибка подключения к серверу.',
+        errDocNumRequired: 'Номер документа обязателен.',
+        errGeneral: 'Произошла ошибка. Пожалуйста, попробуйте еще раз.',
+        errLoadChat: 'Не удалось загрузить сообщения.'
     },
     ar: {
         dir: 'rtl',
@@ -407,7 +422,12 @@ const profileI18n = {
         sessionsTerminated: 'تم إنهاء جميع الجلسات الأخرى.',
         kycSuccess: 'تم ضغط وإرسال المستندات بنجاح!',
         ticketSuccess: 'تم إرسال التذكرة بنجاح.',
-        avatarSuccess: 'تم تحديث الصورة الشخصية.'
+        avatarSuccess: 'تم تحديث الصورة الشخصية.',
+        officialSupportName: 'فريق دعم ADM الرسمي',
+        errConnection: 'خطأ في الاتصال بالخادم.',
+        errDocNumRequired: 'رقم الوثيقة مطلوب.',
+        errGeneral: 'حدث خطأ. يرجى المحاولة مرة أخرى.',
+        errLoadChat: 'فشل تحميل الرسائل.'
     },
     fa: {
         dir: 'rtl',
@@ -505,14 +525,20 @@ const profileI18n = {
         sessionsTerminated: 'تمامی نشست‌های متصل دیگر با موفقیت مسدود شدند.',
         kycSuccess: 'مدارک با موفقیت فشرده‌سازی و جهت بررسی ارسال گردیدند!',
         ticketSuccess: 'تیکت شما با موفقیت ثبت شد.',
-        avatarSuccess: 'تصویر آواتار به‌روز شد.'
+        avatarSuccess: 'تصویر آواتار به‌روز شد.',
+        officialSupportName: 'تیم پشتیبانی رسمی ADM',
+        errConnection: 'خطا در برقراری ارتباط با سرور.',
+        errDocNumRequired: 'شماره مدرک شناسایی الزامی است.',
+        errGeneral: 'خطایی رخ داده است. لطفاً مجدداً تلاش کنید.',
+        errLoadChat: 'خطا در دریافت پیام‌های گفت‌وگو.'
     }
 };
 
 const STORAGE_LANG_KEY = 'platform_lang';
-let currentLanguage = localStorage.getItem(STORAGE_LANG_KEY) || 'fa';
+// زبان انتخابی سیستم با فال‌بک پیش‌فرض انگلیسی
+let currentLanguage = localStorage.getItem(STORAGE_LANG_KEY) || 'en';
+if (!profileI18n[currentLanguage]) currentLanguage = 'en';
 
-// بارگذاری اولیه مشخصات کاربر
 const savedSession = JSON.parse(sessionStorage.getItem('current_user') || '{}');
 let currentUser = {
     userId: savedSession.userId || savedSession.id || localStorage.getItem('user_id') || '',
@@ -618,6 +644,7 @@ function showToast(message, isError = false) {
         toastNotification.className = 'toast-alert';
     }, 3600);
 }
+window.showToast = showToast;
 
 function escapeHtml(str) {
     if (!str) return '';
@@ -689,7 +716,7 @@ async function fetchProfileData() {
  * نمایش مشخصات کاربر در کارت بالای صفحه
  */
 function renderProfileInfo() {
-    const dict = profileI18n[currentLanguage] || profileI18n.fa;
+    const dict = profileI18n[currentLanguage] || profileI18n.en;
 
     if (displayUsername) displayUsername.textContent = currentUser.username || localStorage.getItem('user_name') || 'Investor';
     if (displayEmail) displayEmail.textContent = currentUser.email || localStorage.getItem('user_email') || '---';
@@ -740,7 +767,7 @@ function renderProfileInfo() {
  */
 function renderTicketsTable() {
     if (!ticketsTbody) return;
-    const dict = profileI18n[currentLanguage] || profileI18n.fa;
+    const dict = profileI18n[currentLanguage] || profileI18n.en;
     ticketsTbody.innerHTML = '';
 
     if (!currentUser.tickets || currentUser.tickets.length === 0) {
@@ -787,7 +814,7 @@ function renderTicketsTable() {
  */
 window.openTicketChat = async function (ticketCode, subject, department, status) {
     if (!ticketChatModal) return;
-    const dict = profileI18n[currentLanguage] || profileI18n.fa;
+    const dict = profileI18n[currentLanguage] || profileI18n.en;
 
     if (chatModalTicketCode) chatModalTicketCode.textContent = ticketCode;
     if (chatModalTicketSubject) chatModalTicketSubject.textContent = subject;
@@ -810,7 +837,7 @@ window.openTicketChat = async function (ticketCode, subject, department, status)
  * دریافت پیام‌های تیکت از سرور
  */
 async function loadTicketMessages(ticketCode) {
-    const dict = profileI18n[currentLanguage] || profileI18n.fa;
+    const dict = profileI18n[currentLanguage] || profileI18n.en;
     if (!chatMessagesContainer) return;
     chatMessagesContainer.innerHTML = `<div style="text-align:center; padding:30px 10px; color:#848E9C; font-size:12.5px;">${dict.loadingChat}</div>`;
 
@@ -838,7 +865,7 @@ async function loadTicketMessages(ticketCode) {
 
                     const senderTitle = isUser 
                         ? (currentUser.username || 'You') 
-                        : (currentLanguage === 'fa' ? 'تیم پشتیبانی رسمی ADM' : 'ADM Official Support');
+                        : dict.officialSupportName;
 
                     bubble.innerHTML = `
                         <div class="bubble-text">${escapeHtml(msg.message)}</div>
@@ -854,14 +881,13 @@ async function loadTicketMessages(ticketCode) {
                 chatMessagesContainer.innerHTML = `<div style="text-align:center; padding:30px 10px; color:#848E9C; font-size:12.5px;">${dict.noMessages}</div>`;
             }
         } else {
-            chatMessagesContainer.innerHTML = `<div style="text-align:center; padding:30px 10px; color:#F6465D; font-size:12.5px;">Failed to load messages</div>`;
+            chatMessagesContainer.innerHTML = `<div style="text-align:center; padding:30px 10px; color:#F6465D; font-size:12.5px;">${dict.errLoadChat}</div>`;
         }
     } catch (e) {
-        chatMessagesContainer.innerHTML = `<div style="text-align:center; padding:30px 10px; color:#F6465D; font-size:12.5px;">Connection error</div>`;
+        chatMessagesContainer.innerHTML = `<div style="text-align:center; padding:30px 10px; color:#F6465D; font-size:12.5px;">${dict.errConnection}</div>`;
     }
 }
 
-// بستن پنجره گفت‌وگو
 if (closeChatModalBtn) {
     closeChatModalBtn.addEventListener('click', () => {
         if (ticketChatModal) ticketChatModal.classList.add('hidden');
@@ -876,11 +902,10 @@ if (ticketChatModal) {
     });
 }
 
-// ارسال پاسخ جدید تحت همان تیکت
 if (chatReplyForm) {
     chatReplyForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const dict = profileI18n[currentLanguage] || profileI18n.fa;
+        const dict = profileI18n[currentLanguage] || profileI18n.en;
         const ticketCode = activeChatTicketId ? activeChatTicketId.value.trim() : '';
         const msgText = chatReplyMessageInput ? chatReplyMessageInput.value.trim() : '';
 
@@ -908,10 +933,10 @@ if (chatReplyForm) {
                 showToast(dict.replySuccess, false);
                 await loadTicketMessages(ticketCode);
             } else {
-                showToast(data.message || 'Error sending reply', true);
+                showToast(data.message || dict.errGeneral, true);
             }
         } catch (err) {
-            showToast('Connection error', true);
+            showToast(dict.errConnection, true);
         } finally {
             if (btnSendChatReply) btnSendChatReply.disabled = false;
         }
@@ -919,7 +944,7 @@ if (chatReplyForm) {
 }
 
 function updateDropdownLabels() {
-    const dict = profileI18n[currentLanguage] || profileI18n.fa;
+    const dict = profileI18n[currentLanguage] || profileI18n.en;
     const docMap = {
         'passport': 'passport',
         'national_id': 'nationalId',
@@ -941,12 +966,14 @@ function updateDropdownLabels() {
 }
 
 function setLanguage(lang) {
+    if (!profileI18n[lang]) lang = 'en';
     currentLanguage = lang;
     localStorage.setItem(STORAGE_LANG_KEY, lang);
-    const dict = profileI18n[lang] || profileI18n.fa;
+    const dict = profileI18n[lang];
 
+    const isRtl = (lang === 'fa' || lang === 'ar');
     document.documentElement.lang = lang;
-    document.documentElement.dir = dict.dir || 'rtl';
+    document.documentElement.dir = isRtl ? 'rtl' : 'ltr';
     if (currentLangLabel) currentLangLabel.textContent = dict.langName;
 
     if (langMenu) {
@@ -1032,7 +1059,6 @@ if (ticketCatTriggerBtn) {
     });
 }
 
-// مدیریت منوی عملیات سه‌گانه عکس پروفایل
 if (avatarMenuTriggerBtn && avatarActionMenu) {
     avatarMenuTriggerBtn.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -1067,7 +1093,7 @@ if (avatarMenuTriggerBtn && avatarActionMenu) {
             if (avatarInitials) {
                 avatarInitials.classList.remove('hidden');
             }
-            const dict = profileI18n[currentLanguage] || profileI18n.fa;
+            const dict = profileI18n[currentLanguage] || profileI18n.en;
             showToast(dict.avatarRemoved, false);
         });
     }
@@ -1082,7 +1108,6 @@ document.addEventListener('click', (e) => {
     }
 });
 
-// تب‌های صفحه
 tabButtons.forEach(btn => {
     btn.addEventListener('click', () => {
         const tabTarget = btn.getAttribute('data-tab');
@@ -1103,11 +1128,10 @@ tabButtons.forEach(btn => {
     });
 });
 
-// قدرت کلمه عبور
 if (newPassInput) {
     newPassInput.addEventListener('input', () => {
         const val = newPassInput.value;
-        const dict = profileI18n[currentLanguage] || profileI18n.fa;
+        const dict = profileI18n[currentLanguage] || profileI18n.en;
         let score = 0;
 
         if (val.length >= 8) score++;
@@ -1146,11 +1170,10 @@ window.togglePassVisibility = function (inputId, btnEl) {
     }
 };
 
-// تغییر پسورد
 if (changePasswordForm) {
     changePasswordForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const dict = profileI18n[currentLanguage] || profileI18n.fa;
+        const dict = profileI18n[currentLanguage] || profileI18n.en;
 
         if (newPassInput.value !== confirmPassInput.value) {
             showToast(dict.passMismatch, true);
@@ -1179,21 +1202,20 @@ if (changePasswordForm) {
                 passStrengthBar.style.background = 'var(--danger-red)';
                 passStrengthLabel.textContent = dict.strengthWeak;
             } else {
-                showToast(data.message || 'Error occurred', true);
+                showToast(data.message || dict.errGeneral, true);
             }
         } catch (err) {
-            showToast('Connection error', true);
+            showToast(dict.errConnection, true);
         }
     });
 }
 
-// کپی کد معرف اختصاصی
 const copyRefCodeBtn = document.getElementById('copyRefCodeBtn');
 if (copyRefCodeBtn) {
     copyRefCodeBtn.addEventListener('click', () => {
         const ref = displayReferralCode ? displayReferralCode.textContent.trim() : currentUser.referralCode;
         navigator.clipboard.writeText(ref).then(() => {
-            const dict = profileI18n[currentLanguage] || profileI18n.fa;
+            const dict = profileI18n[currentLanguage] || profileI18n.en;
             showToast(dict.copiedNotice, false);
         });
     });
@@ -1202,7 +1224,7 @@ if (copyRefCodeBtn) {
 if (copySecretBtn) {
     copySecretBtn.addEventListener('click', () => {
         navigator.clipboard.writeText(secretKeyDisplay.textContent.trim()).then(() => {
-            const dict = profileI18n[currentLanguage] || profileI18n.fa;
+            const dict = profileI18n[currentLanguage] || profileI18n.en;
             showToast(dict.copiedNotice, false);
         });
     });
@@ -1210,7 +1232,7 @@ if (copySecretBtn) {
 
 if (btnEnableTwoFa) {
     btnEnableTwoFa.addEventListener('click', () => {
-        const dict = profileI18n[currentLanguage] || profileI18n.fa;
+        const dict = profileI18n[currentLanguage] || profileI18n.en;
         const code = twoFaCodeInput.value.trim();
         if (code.length === 6) {
             showToast(dict.twoFaSuccess, false);
@@ -1221,10 +1243,9 @@ if (btnEnableTwoFa) {
     });
 }
 
-// خاتمه سایر نشست‌ها
 if (terminateSessionsBtn) {
     terminateSessionsBtn.addEventListener('click', async () => {
-        const dict = profileI18n[currentLanguage] || profileI18n.fa;
+        const dict = profileI18n[currentLanguage] || profileI18n.en;
         const termApi = resolveApiUrl('/api/profile/terminate_sessions');
 
         try {
@@ -1298,15 +1319,14 @@ if (fileDocBack) {
     });
 }
 
-// ثبت KYC
 if (kycSubmitForm) {
     kycSubmitForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const dict = profileI18n[currentLanguage] || profileI18n.fa;
+        const dict = profileI18n[currentLanguage] || profileI18n.en;
         const docNum = kycDocNumberInput.value.trim();
 
         if (!docNum) {
-            showToast('Document number required', true);
+            showToast(dict.errDocNumRequired, true);
             return;
         }
 
@@ -1332,19 +1352,18 @@ if (kycSubmitForm) {
                 currentUser.kycStatus = 'pending';
                 renderProfileInfo();
             } else {
-                showToast(data.message || 'Error submitting KYC', true);
+                showToast(data.message || dict.errGeneral, true);
             }
         } catch (err) {
-            showToast('Connection error', true);
+            showToast(dict.errConnection, true);
         }
     });
 }
 
-// ثبت تیکت جدید
 if (newTicketForm) {
     newTicketForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const dict = profileI18n[currentLanguage] || profileI18n.fa;
+        const dict = profileI18n[currentLanguage] || profileI18n.en;
         const subject = ticketSubjectInput.value.trim();
         const department = selectedTicketCatLabel.textContent;
         const msg = ticketMessageInput.value.trim();
@@ -1375,15 +1394,14 @@ if (newTicketForm) {
                     renderTicketsTable();
                 }
             } else {
-                showToast(data.message || 'Error submitting ticket', true);
+                showToast(data.message || dict.errGeneral, true);
             }
         } catch (err) {
-            showToast('Connection error', true);
+            showToast(dict.errConnection, true);
         }
     });
 }
 
-// عکس پروفایل (گالری و دوربین)
 async function handleAvatarFileSelect(file) {
     if (!file) return;
     const compressed = await compressImage(file, 250, 0.85);
@@ -1393,7 +1411,7 @@ async function handleAvatarFileSelect(file) {
         avatarImage.classList.remove('hidden');
     }
     if (avatarInitials) avatarInitials.classList.add('hidden');
-    const dict = profileI18n[currentLanguage] || profileI18n.fa;
+    const dict = profileI18n[currentLanguage] || profileI18n.en;
     showToast(dict.avatarSuccess, false);
 }
 
@@ -1413,7 +1431,6 @@ if (avatarCameraInput) {
     });
 }
 
-// خروج قطعی
 if (directLogoutBtn) {
     directLogoutBtn.addEventListener('click', async () => {
         try {
@@ -1442,8 +1459,9 @@ document.querySelectorAll('.bottom-nav .nav-item').forEach(link => {
 });
 
 async function initProfilePage() {
-    renderProfileInfo();
+    // ۱. اعمال قطعی و فوری زبان در ثانیه صفر
     setLanguage(currentLanguage);
+    // ۲. دریافت اطلاعات زنده از سرور
     await fetchProfileData();
 }
 
@@ -1452,3 +1470,8 @@ if (document.readyState === 'loading') {
 } else {
     initProfilePage();
 }
+
+window.addEventListener('pageshow', () => {
+    setLanguage(currentLanguage);
+    fetchProfileData();
+});

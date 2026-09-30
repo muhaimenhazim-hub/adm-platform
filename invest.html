@@ -1,9 +1,20 @@
 <!DOCTYPE html>
-<html lang="fa" dir="rtl">
+<html lang="en" dir="ltr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Platform - Investment & Analytics</title>
+    
+    <!-- تنظیم فوری زبان و جهت صفحه در ثانیه صفر جهت حذف کامل پرش زبانی -->
+    <script>
+        (function () {
+            var savedLang = localStorage.getItem('platform_lang') || 'en';
+            var isRtl = (savedLang === 'fa' || savedLang === 'ar');
+            document.documentElement.lang = savedLang;
+            document.documentElement.dir = isRtl ? 'rtl' : 'ltr';
+        })();
+    </script>
+
     <link rel="stylesheet" href="invest.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -34,9 +45,9 @@
                     <svg class="globe-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <circle cx="12" cy="12" r="10"></circle>
                         <line x1="2" y1="12" x2="22" y2="12"></line>
-                        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
                     </svg>
-                    <span id="currentLangLabel">فارسی</span>
+                    <span id="currentLangLabel">Language</span>
                     <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <polyline points="6 9 12 15 18 9"></polyline>
                     </svg>
@@ -47,7 +58,7 @@
                     <div class="lang-item" data-value="fr">Français <span class="check-mark">✓</span></div>
                     <div class="lang-item" data-value="ru">Русский <span class="check-mark">✓</span></div>
                     <div class="lang-item" data-value="ar">العربية <span class="check-mark">✓</span></div>
-                    <div class="lang-item active" data-value="fa">فارسی <span class="check-mark">✓</span></div>
+                    <div class="lang-item" data-value="fa">فارسی <span class="check-mark">✓</span></div>
                 </div>
             </div>
         </div>

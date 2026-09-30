@@ -70,6 +70,8 @@ const dashboardI18n = {
         errBelow10Days: 'Cannot compound yet! Minimum 10 days of holding required.',
         errExceedBalance: 'Entered amount exceeds available profit balance.',
         daysUnit: 'Days',
+        errFetchInvest: 'Error fetching investment data from server.',
+        errCompound: 'Error processing compound profit request.',
         tiers: [
             { label: 'Under 10 days:', val: 'Disallowed (Error)', isErr: true },
             { label: 'Between 10 to 15 days:', val: '5% Fee' },
@@ -141,6 +143,8 @@ const dashboardI18n = {
         errBelow10Days: 'Composition impossible ! Rétention minimale de 10 jours requise.',
         errExceedBalance: 'Le montant dépasse votre solde de profit.',
         daysUnit: 'Jours',
+        errFetchInvest: "Erreur lors de la récupération des données d'investissement.",
+        errCompound: "Erreur lors du traitement de l'intérêt composé.",
         tiers: [
             { label: 'Moins de 10 jours :', val: 'Interdit (Erreur)', isErr: true },
             { label: 'Entre 10 et 15 jours :', val: '5% Frais' },
@@ -212,6 +216,8 @@ const dashboardI18n = {
         errBelow10Days: 'Реинвест недоступен! Требуется минимум 10 дней удержания.',
         errExceedBalance: 'Сумма превышает доступный баланс.',
         daysUnit: 'Дней',
+        errFetchInvest: 'Ошибка при получении данных об инвестициях.',
+        errCompound: 'Ошибка при обработке сложного процента.',
         tiers: [
             { label: 'Менее 10 дней:', val: 'Запрещено (Ошибка)', isErr: true },
             { label: 'От 10 до 15 дней:', val: '5% Комиссия' },
@@ -283,6 +289,8 @@ const dashboardI18n = {
         errBelow10Days: 'لا يمكن إضافة الأرباح الآن! يجب الاحتفاظ بها لمدة 10 أيام على الأقل.',
         errExceedBalance: 'المبلغ المدخل يتجاوز رصيد الأرباح المتاح.',
         daysUnit: 'يوم',
+        errFetchInvest: 'خطأ في استرداد بيانات الاستثمار.',
+        errCompound: 'خطأ في معالجة الفائدة المركبة.',
         tiers: [
             { label: 'أقل من 10 أيام:', val: 'غير مسموح (خطأ)', isErr: true },
             { label: 'بين 10 و 15 يوماً:', val: '5% عمولة' },
@@ -354,6 +362,8 @@ const dashboardI18n = {
         errBelow10Days: 'شما در حال حاضر مجاز به ترکیب سود نیستید! حداقل ۱۰ روز نگهداری الزامی است.',
         errExceedBalance: 'مبلغ وارد شده از موجودی سود شما بیشتر است.',
         daysUnit: 'روز',
+        errFetchInvest: 'خطا در دریافت اطلاعات سرمایه‌گذاری از سرور.',
+        errCompound: 'خطا در پردازش ترکیب سود.',
         tiers: [
             { label: 'کمتر از ۱۰ روز:', val: 'غیرمجاز (خطا)', isErr: true },
             { label: 'بین ۱۰ تا ۱۵ روز:', val: '۵٪ کارمزد' },
@@ -376,7 +386,9 @@ function resolveApiUrl(endpoint) {
 }
 
 const STORAGE_LANG_KEY = 'platform_lang';
-let currentLanguage = localStorage.getItem(STORAGE_LANG_KEY) || 'fa';
+// زبان انتخابی سیستم با فال‌بک پیش‌فرض انگلیسی در صورت خالی بودن
+let currentLanguage = localStorage.getItem(STORAGE_LANG_KEY) || 'en';
+if (!dashboardI18n[currentLanguage]) currentLanguage = 'en';
 
 let investState = {
     role: 'user',
@@ -450,6 +462,7 @@ async function fetchInvestData() {
     }
 
     const apiUrl = resolveApiUrl('/api/invest/data');
+    const dict = dashboardI18n[currentLanguage] || dashboardI18n.en;
 
     try {
         const res = await fetch(apiUrl, {
@@ -475,15 +488,15 @@ async function fetchInvestData() {
             renderCompoundRulesMatrix();
             updateCompoundCalculations();
         } else {
-            showToast(result.message || 'خطا در دریافت اطلاعات سرمایه‌گذاری', true);
+            showToast(result.message || dict.errFetchInvest, true);
         }
     } catch (e) {
-        showToast('خطا در دریافت اطلاعات سرمایه‌گذاری', true);
+        showToast(dict.errFetchInvest, true);
     }
 }
 
 function updateSummaryCards() {
-    const dict = dashboardI18n[currentLanguage];
+    const dict = dashboardI18n[currentLanguage] || dashboardI18n.en;
 
     const statAccProfit = document.getElementById('statAccumulatedProfit');
     const statTotalCap = document.getElementById('statTotalCapital');
@@ -525,7 +538,7 @@ function updateSummaryCards() {
 
 function renderDailyProfitsTable() {
     const tbody = document.getElementById('dailyProfitsTableBody');
-    const dict = dashboardI18n[currentLanguage];
+    const dict = dashboardI18n[currentLanguage] || dashboardI18n.en;
     if (!tbody) return;
     tbody.innerHTML = '';
 
@@ -553,7 +566,7 @@ function renderDailyProfitsTable() {
 
 function renderLotsTable() {
     const tbody = document.getElementById('lotsTableBody');
-    const dict = dashboardI18n[currentLanguage];
+    const dict = dashboardI18n[currentLanguage] || dashboardI18n.en;
     if (!tbody) return;
     tbody.innerHTML = '';
 
@@ -595,7 +608,7 @@ function renderLotsTable() {
 function renderCompoundRulesMatrix() {
     const matrixList = document.getElementById('compoundMatrixList');
     if (!matrixList) return;
-    const dict = dashboardI18n[currentLanguage];
+    const dict = dashboardI18n[currentLanguage] || dashboardI18n.en;
 
     matrixList.innerHTML = '';
     dict.tiers.forEach(tier => {
@@ -858,7 +871,7 @@ if (compoundAmountInput) {
 if (btnExecuteCompound) {
     btnExecuteCompound.addEventListener('click', async () => {
         const amount = parseFloat(compoundAmountInput.value);
-        const dict = dashboardI18n[currentLanguage];
+        const dict = dashboardI18n[currentLanguage] || dashboardI18n.en;
         let sessionUser = {};
         try {
             sessionUser = JSON.parse(sessionStorage.getItem('current_user') || localStorage.getItem('current_user') || '{}');
@@ -896,21 +909,23 @@ if (btnExecuteCompound) {
                 showToast(result.message || dict.compoundSuccess, false);
                 fetchInvestData();
             } else {
-                showToast(result.message, true);
+                showToast(result.message || dict.errCompound, true);
             }
         } catch (e) {
-            showToast('خطا در ثبت سود مرکب', true);
+            showToast(dict.errCompound, true);
         }
     });
 }
 
 function setLanguage(lang) {
+    if (!dashboardI18n[lang]) lang = 'en';
     currentLanguage = lang;
     localStorage.setItem(STORAGE_LANG_KEY, lang);
     const dict = dashboardI18n[lang];
 
+    const isRtl = (lang === 'fa' || lang === 'ar');
     document.documentElement.lang = lang;
-    document.documentElement.dir = dict.dir;
+    document.documentElement.dir = isRtl ? 'rtl' : 'ltr';
     if (currentLangLabel) currentLangLabel.textContent = dict.langName;
 
     if (langMenu) {
@@ -921,7 +936,9 @@ function setLanguage(lang) {
 
     document.querySelectorAll('[data-i18n]').forEach(el => {
         const key = el.getAttribute('data-i18n');
-        if (dict[key]) el.textContent = dict[key];
+        if (dict[key]) {
+            el.textContent = dict[key];
+        }
     });
 
     if (langDropdown) langDropdown.classList.remove('open');
@@ -997,8 +1014,9 @@ function bindBulletproofNav() {
 }
 
 function initInvestPage() {
-    bindBulletproofNav();
+    // اعمال فوری زبان در ثانیه صفر جهت حذف چشمک زدن اولیه
     setLanguage(currentLanguage);
+    bindBulletproofNav();
     fetchInvestData();
     loadChartData();
 }
@@ -1008,3 +1026,8 @@ if (document.readyState === 'loading') {
 } else {
     initInvestPage();
 }
+
+window.addEventListener('pageshow', () => {
+    setLanguage(currentLanguage);
+    fetchInvestData();
+});

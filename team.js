@@ -1,8 +1,8 @@
 /**
- * ==============================================================================
- * ADM Investment Platform - Team & Network Module Frontend Controller
- * File: team.js (Connected dynamically via window.APP_CONFIG to /api/team/data)
- * ==============================================================================
+ * ==========================================================================
+ * ADM Investment Platform - Team & Network Module
+ * File: team.js (Connected to /api/team/data - 100% Real Live Database Data)
+ * ==========================================================================
  */
 
 (function () {
@@ -16,7 +16,7 @@
     return endpoint;
   }
 
-  // دیکشنری جامع ۵ زبانه استاندارد پلتفرم
+  // دیکشنری جامع ۵ زبانه استاندارد پلتفرم همراه با کلیدهای اختصاصی خطا
   const translations = {
     fa: {
       admin_panel: "پنل ادمین",
@@ -87,7 +87,9 @@
       cap_triggered_tag: "قانون سقف اعمال شد",
       profit_prefix: "سود:",
       no_results: "هیچ رکوردی در شبکه یافت نشد.",
-      share_text_payload: "به بزرگترین پلتفرم سرمایه‌گذاری کریپتو بپیوندید و روزانه تا ۱.۳٪ سود تضمینی دریافت کنید. کد دعوت من:"
+      share_text_payload: "به بزرگترین پلتفرم سرمایه‌گذاری کریپتو بپیوندید و روزانه تا ۱.۳٪ سود تضمینی دریافت کنید. کد دعوت من:",
+      error_network: "خطا در برقراری ارتباط با سرور پلتفرم.",
+      error_occurred: "خطایی رخ داده است. لطفاً مجدداً تلاش نمایید."
     },
 
     en: {
@@ -159,7 +161,9 @@
       cap_triggered_tag: "Cap Applied",
       profit_prefix: "Profit:",
       no_results: "No team records found.",
-      share_text_payload: "Join the leading crypto investment platform and earn up to 1.3% daily profit! My referral code:"
+      share_text_payload: "Join the leading crypto investment platform and earn up to 1.3% daily profit! My referral code:",
+      error_network: "Network connection error with backend server.",
+      error_occurred: "An error occurred. Please try again."
     },
 
     fr: {
@@ -231,7 +235,9 @@
       cap_triggered_tag: "Plafond appliqué",
       profit_prefix: "Bénéfice :",
       no_results: "Aucun enregistrement trouvé.",
-      share_text_payload: "Rejoignez la plateforme crypto et gagnez jusqu'à 1,3% par jour ! Mon code d'invitation :"
+      share_text_payload: "Rejoignez la plateforme crypto et gagnez jusqu'à 1,3% par jour ! Mon code d'invitation :",
+      error_network: "Erreur de connexion au serveur.",
+      error_occurred: "Une erreur est survenue. Veuillez réessayer."
     },
 
     ru: {
@@ -303,7 +309,9 @@
       cap_triggered_tag: "Сработал лимит",
       profit_prefix: "Прибыль:",
       no_results: "Данные не найдены.",
-      share_text_payload: "Присоединяйтесь к ведущей инвестиционной платформе и зарабатывайте до 1.3% в день! Код:"
+      share_text_payload: "Присоединяйтесь к ведущей инвестиционной платформе и зарабатывайте до 1.3% в день! Код:",
+      error_network: "Ошибка подключения к серверу.",
+      error_occurred: "Произошла ошибка. Пожалуйста, попробуйте еще раз."
     },
 
     ar: {
@@ -375,7 +383,9 @@
       cap_triggered_tag: "تم تطبيق السقف",
       profit_prefix: "الربح:",
       no_results: "لا توجد سجلات مطابقة.",
-      share_text_payload: "انضم إلى منصة الاستثمار الرائدة في العملات المشفرة واربح يومياً حتى ۱.۳٪! رمز الدعوة:"
+      share_text_payload: "انضم إلى منصة الاستثمار الرائدة في العملات المشفرة واربح يومياً حتى ۱.۳٪! رمز الدعوة:",
+      error_network: "خطأ في الاتصال بالخادم.",
+      error_occurred: "حدث خطأ. يرجى المحاولة مرة أخرى."
     }
   };
 
@@ -399,8 +409,9 @@
   let currentLeaderCapital = 0.00;
   let isLeaderEligible = true;
 
-  let currentLang = localStorage.getItem('platform_lang') || 'fa';
-  if (!translations[currentLang]) currentLang = 'fa';
+  // خواندن زبان ذخیره‌شده یا انگلیسی به عنوان پیش‌فرض در صورت نبود
+  let currentLang = localStorage.getItem('platform_lang') || 'en';
+  if (!translations[currentLang]) currentLang = 'en';
 
   let activeGenerationTab = "L1";
   let currentFilterGen = "ALL";
@@ -429,7 +440,7 @@
   }
 
   function updateFilterDropdownLabels() {
-    const t = translations[currentLang] || translations.fa;
+    const t = translations[currentLang] || translations.en;
     const selectedGenLabel = document.getElementById('selectedGenLabel');
     const selectedTypeLabel = document.getElementById('selectedTypeLabel');
 
@@ -476,7 +487,7 @@
 
     const memberSearchInput = document.getElementById('memberSearchInput');
     const searchTerm = memberSearchInput ? memberSearchInput.value.trim().toLowerCase() : '';
-    const t = translations[currentLang] || translations.fa;
+    const t = translations[currentLang] || translations.en;
 
     const filtered = serverTransactionsData.filter(tx => {
       const matchSearch =
@@ -541,7 +552,7 @@
   }
 
   function applyLanguage(lang) {
-    if (!translations[lang]) lang = 'fa';
+    if (!translations[lang]) lang = 'en';
     currentLang = lang;
     localStorage.setItem('platform_lang', lang);
 
@@ -574,7 +585,7 @@
 
     const capStatusText = document.getElementById('capStatusText');
     const capStatusPill = document.getElementById('capStatusPill');
-    const t = translations[currentLang] || translations.fa;
+    const t = translations[currentLang] || translations.en;
 
     if (capStatusText) {
       if (!isLeaderEligible) {
@@ -597,7 +608,9 @@
     const toastNotification = document.getElementById('toastNotification');
     const toastMessage = document.getElementById('toastMessage');
     if (!toastNotification || !toastMessage) return;
-    toastMessage.textContent = msg || translations[currentLang].copied_toast;
+
+    const t = translations[currentLang] || translations.en;
+    toastMessage.textContent = msg || t.copied_toast;
     toastNotification.classList.add('show');
 
     clearTimeout(toastTimer);
@@ -612,18 +625,19 @@
     if (!btn || !input) return;
 
     btn.onclick = () => {
+      const t = translations[currentLang] || translations.en;
       navigator.clipboard.writeText(input.value).then(() => {
-        showToast(translations[currentLang].copied_toast);
+        showToast(t.copied_toast);
       }).catch(() => {
         input.select();
         document.execCommand('copy');
-        showToast(translations[currentLang].copied_toast);
+        showToast(t.copied_toast);
       });
     };
   }
 
   /**
-   * دریافت داده‌های زنده از پایگاه‌داده و جایگذاری قطعی کد و لینک دعوت
+   * دریافت داده‌های زنده از پایگاه‌داده
    */
   async function fetchTeamData() {
     let sessionUser = {};
@@ -634,9 +648,9 @@
     }
     const currentUserId = sessionUser.userId || sessionUser.id || localStorage.getItem('user_id') || '';
     
-    // اتصال داینامیک از طریق config.js
     const baseApi = resolveApiUrl('/api/team/data');
     const queryUrl = currentUserId ? `${baseApi}?user_id=${encodeURIComponent(currentUserId)}` : baseApi;
+    const t = translations[currentLang] || translations.en;
 
     try {
       const res = await fetch(queryUrl, {
@@ -665,7 +679,7 @@
           else adminBadgeBtn.classList.add('hidden');
         }
 
-        // جایگذاری قطعی کد و لینک دعوت
+        // جایگذاری کد و لینک دعوت
         const referralCodeInput = document.getElementById('referralCodeInput');
         const referralLinkInput = document.getElementById('referralLinkInput');
 
@@ -686,7 +700,7 @@
           referralLinkInput.value = myLink;
         }
 
-        // آمارها
+        // بروزرسانی آمارها
         if (d.stats) {
           isLeaderEligible = Boolean(d.stats.is_eligible);
           currentLeaderCapital = Number(d.stats.leader_active_capital) || 0.00;
@@ -721,7 +735,9 @@
       const refLinkInput = document.getElementById('referralLinkInput');
       if (refCodeInput && refCodeInput.value.includes('Loading')) refCodeInput.value = fallbackCode;
       if (refLinkInput && refLinkInput.value.includes('Loading')) refLinkInput.value = `${window.location.origin}/index.html?ref=${fallbackCode}`;
+      
       applyLanguage(currentLang);
+      showToast(t.error_network);
     }
   }
 
@@ -741,7 +757,7 @@
         e.stopPropagation();
         closeAllDropdowns(langMenu);
         langMenu.classList.toggle('show');
-        if (langDropdownWrapper) langDropdownWrapper.classList.remove('open');
+        if (langDropdownWrapper) langDropdownWrapper.classList.toggle('open');
       };
 
       langMenu.querySelectorAll('li').forEach(li => {
@@ -759,9 +775,10 @@
     const btnDirectShare = document.getElementById('btnDirectShare');
     if (btnDirectShare) {
       btnDirectShare.onclick = () => {
+        const t = translations[currentLang] || translations.en;
         const refLink = document.getElementById('referralLinkInput') ? document.getElementById('referralLinkInput').value : '';
         const refCode = document.getElementById('referralCodeInput') ? document.getElementById('referralCodeInput').value : '';
-        const sharePayload = `${translations[currentLang].share_text_payload} ${refCode}\n${refLink}`;
+        const sharePayload = `${t.share_text_payload} ${refCode}\n${refLink}`;
 
         if (navigator.share) {
           navigator.share({
@@ -771,7 +788,7 @@
           }).catch(() => {});
         } else {
           navigator.clipboard.writeText(sharePayload).then(() => {
-            showToast(translations[currentLang].copied_toast);
+            showToast(t.copied_toast);
           });
         }
       };
@@ -797,7 +814,7 @@
         e.stopPropagation();
         closeAllDropdowns(menuDropdownGen);
         menuDropdownGen.classList.toggle('show');
-        if (dropdownGenWrapper) dropdownGenWrapper.classList.remove('open');
+        if (dropdownGenWrapper) dropdownGenWrapper.classList.toggle('open');
       };
 
       menuDropdownGen.querySelectorAll('li').forEach(li => {
@@ -825,7 +842,7 @@
         e.stopPropagation();
         closeAllDropdowns(menuDropdownType);
         menuDropdownType.classList.toggle('show');
-        if (dropdownTypeWrapper) dropdownTypeWrapper.classList.remove('open');
+        if (dropdownTypeWrapper) dropdownTypeWrapper.classList.toggle('open');
       };
 
       menuDropdownType.querySelectorAll('li').forEach(li => {
@@ -862,10 +879,13 @@
   }
 
   function initTeamPage() {
+    // اعمال فوری زبان در ثانیه صفر جهت حذف کامل چشمک زدن متن‌ها
+    applyLanguage(currentLang);
     bindInteractiveEvents();
     fetchTeamData();
   }
 
+  // اجرای بلافاصله بدون تاخیر
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initTeamPage);
   } else {
@@ -873,6 +893,7 @@
   }
 
   window.addEventListener('pageshow', () => {
+    applyLanguage(currentLang);
     fetchTeamData();
   });
 

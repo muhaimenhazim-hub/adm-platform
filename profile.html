@@ -1,9 +1,20 @@
 <!DOCTYPE html>
-<html lang="fa" dir="rtl">
+<html lang="en" dir="ltr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Platform - Profile &amp; Security</title>
+
+    <!-- تنظیم فوری زبان و جهت صفحه در ثانیه صفر جهت حذف کامل پرش زبانی -->
+    <script>
+        (function () {
+            var savedLang = localStorage.getItem('platform_lang') || 'en';
+            var isRtl = (savedLang === 'fa' || savedLang === 'ar');
+            document.documentElement.lang = savedLang;
+            document.documentElement.dir = isRtl ? 'rtl' : 'ltr';
+        })();
+    </script>
+
     <link rel="stylesheet" href="profile.css">
     <!-- فونت‌های استاندارد بین‌المللی بایننس -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -42,9 +53,9 @@
                     <svg class="globe-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <circle cx="12" cy="12" r="10"></circle>
                         <line x1="2" y1="12" x2="22" y2="12"></line>
-                        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1 4-10z"></path>
+                        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
                     </svg>
-                    <span id="currentLangLabel">فارسی</span>
+                    <span id="currentLangLabel">Language</span>
                     <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <polyline points="6 9 12 15 18 9"></polyline>
                     </svg>
@@ -475,7 +486,7 @@
                 </div>
             </section>
 
-            <!-- ================= بنر هوشمند قانون احراز هویت جهت سود روزانه (بالاتر از دکمه خروج) ================= -->
+            <!-- ================= بنر هوشمند قانون احراز هویت جهت سود روزانه ================= -->
             <div class="kyc-yield-rule-banner standalone-rule-banner">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
@@ -483,7 +494,7 @@
                 <span data-i18n="kycYieldRuleText">قانون سیستم: حساب‌هایی که احراز هویت نشده باشند سود روزانه دریافت نمی‌کنند.</span>
             </div>
 
-            <!-- ================= دکمه قرمز خروج ================= -->
+            <!-- ================= دکمه خروج ================= -->
             <div class="logout-action-area">
                 <button type="button" class="btn-logout" id="directLogoutBtn">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
@@ -514,7 +525,6 @@
             </div>
 
             <div class="chat-modal-body">
-                <!-- بنر هوشمند پاک‌سازی پیام‌های بالای ۵ روز -->
                 <div class="chat-auto-purge-notice">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <circle cx="12" cy="12" r="10"></circle>
@@ -523,13 +533,9 @@
                     <span data-i18n="autoPurgeNotice">پیام‌های قدیمی‌تر از ۵ روز به صورت خودکار جهت بهینه‌سازی و امنیت پاک‌سازی می‌شوند.</span>
                 </div>
                 
-                <!-- کانتینر پیام‌های دوطرفه کاربر و ادمین -->
-                <div class="chat-messages-container" id="chatMessagesContainer" style="display:flex; flex-direction:column; gap:12px;">
-                    <!-- حباب‌های گفت‌وگو لود می‌شوند -->
-                </div>
+                <div class="chat-messages-container" id="chatMessagesContainer" style="display:flex; flex-direction:column; gap:12px;"></div>
             </div>
 
-            <!-- فرم ارسال پاسخ جدید به همین تیکت -->
             <form id="chatReplyForm" class="chat-modal-footer">
                 <input type="hidden" id="activeChatTicketId">
                 <div class="chat-input-wrapper">
@@ -604,7 +610,7 @@
         </a>
     </nav>
 
-    <!-- اتصال به فایل کانفیگ سراسری پلتفرم قبل از اسکریپت پروفایل -->
+    <!-- بارگذاری کانفیگ مرکزی قبل از اسکریپت پروفایل -->
     <script src="config.js"></script>
     <script src="profile.js"></script>
 </body>

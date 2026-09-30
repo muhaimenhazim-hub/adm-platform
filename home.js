@@ -59,6 +59,10 @@ const dashboardI18n = {
         compoundErrUnder10: 'You cannot compound yet! You must wait another {days} day(s) to reach 10 days.',
         compoundSuccessMsg: 'Conditions met. Tiered fees apply upon compounding.',
         comingSoon: 'This section will be available soon.',
+        errFetchDashboard: 'Error fetching dashboard data.',
+        errWithdraw: 'Error submitting withdrawal request.',
+        errCompound: 'Error processing compound profit.',
+        errConnection: 'Network connection error with backend server.',
         tiers: [
             { label: 'Under 10 days:', val: 'Disallowed (Error)', isErr: true },
             { label: 'Between 10 to 15 days:', val: '5% Fee' },
@@ -119,6 +123,10 @@ const dashboardI18n = {
         compoundErrUnder10: 'Impossible de composer ! Veuillez attendre encore {days} jour(s) pour atteindre 10 jours.',
         compoundSuccessMsg: 'Conditions remplies. Les frais échelonnés seront appliqués.',
         comingSoon: 'Bientôt disponible.',
+        errFetchDashboard: 'Erreur lors de la récupération des données du tableau de bord.',
+        errWithdraw: 'Erreur lors de la transmission de la demande de retrait.',
+        errCompound: "Erreur lors du traitement de l'intérêt composé.",
+        errConnection: 'Erreur de connexion au serveur.',
         tiers: [
             { label: 'Moins de 10 jours :', val: 'Interdit (Erreur)', isErr: true },
             { label: 'Entre 10 et 15 jours :', val: '5% Frais' },
@@ -179,6 +187,10 @@ const dashboardI18n = {
         compoundErrUnder10: 'Реинвест недоступен! Подождите еще {days} дн.',
         compoundSuccessMsg: 'Условия соблюдены. Действует ступенчатая комиссия.',
         comingSoon: 'Раздел скоро будет доступен.',
+        errFetchDashboard: 'Ошибка при получении данных панели управления.',
+        errWithdraw: 'Ошибка при отправке заявки на вывод.',
+        errCompound: 'Ошибка при обработке реинвестирования.',
+        errConnection: 'Ошибка подключения к серверу.',
         tiers: [
             { label: 'Менее 10 дней:', val: 'Запрещено (Ошибка)', isErr: true },
             { label: 'От 10 до 15 дней:', val: '5% Комиссия' },
@@ -239,6 +251,10 @@ const dashboardI18n = {
         compoundErrUnder10: 'لا يمكن إضافة الأرباح الآن! يجب الانتظار {days} يوم/أيام إضافية.',
         compoundSuccessMsg: 'الشروط مستوفاة. سيتم تطبيق جدول العمولات المتدرج.',
         comingSoon: 'سيتوفر هذا القسم قريباً.',
+        errFetchDashboard: 'خطأ في استرداد بيانات لوحة التحكم.',
+        errWithdraw: 'خطأ في إرسال طلب السحب.',
+        errCompound: 'خطأ في معالجة الفائدة المركبة.',
+        errConnection: 'خطأ في الاتصال بالخادم.',
         tiers: [
             { label: 'أقل من 10 أيام:', val: 'غير مسموح (خطأ)', isErr: true },
             { label: 'بين 10 و 15 يوماً:', val: '5% عمولة' },
@@ -299,6 +315,10 @@ const dashboardI18n = {
         compoundErrUnder10: 'شما در حال حاضر مجاز به ترکیب سود نیستید! برای پوره شدن ۱۰ روز، باید {days} روز دیگر صبر کنید.',
         compoundSuccessMsg: 'شرایط سود فراهم است. کارمزد طبق جدول پله‌ای اعمال می‌گردد.',
         comingSoon: 'این بخش به زودی فعال خواهد شد.',
+        errFetchDashboard: 'خطا در دریافت اطلاعات داشبورد.',
+        errWithdraw: 'خطا در ارسال درخواست برداشت.',
+        errCompound: 'خطا در پردازش ترکیب سود.',
+        errConnection: 'خطا در برقراری ارتباط با سرور.',
         tiers: [
             { label: 'کمتر از ۱۰ روز:', val: 'غیرمجاز (خطا)', isErr: true },
             { label: 'بین ۱۰ تا ۱۵ روز:', val: '۵٪ کارمزد' },
@@ -321,7 +341,9 @@ function resolveApiUrl(endpoint) {
 }
 
 const STORAGE_LANG_KEY = 'platform_lang';
-let currentLanguage = localStorage.getItem(STORAGE_LANG_KEY) || 'fa';
+// زبان انتخابی سیستم با فال‌بک پیش‌فرض انگلیسی در صورت خالی بودن
+let currentLanguage = localStorage.getItem(STORAGE_LANG_KEY) || 'en';
+if (!dashboardI18n[currentLanguage]) currentLanguage = 'en';
 
 // وضعیت داده‌های زنده دریافتی از دیتابیس
 let platformUser = {
@@ -387,6 +409,7 @@ async function fetchUserDashboardData() {
     }
 
     const apiUrl = resolveApiUrl('/api/home/stats');
+    const dict = dashboardI18n[currentLanguage] || dashboardI18n.en;
 
     try {
         const response = await fetch(apiUrl, {
@@ -423,10 +446,10 @@ async function fetchUserDashboardData() {
 
             updateDashboardStats();
         } else {
-            showToast(result.message || 'خطا در دریافت اطلاعات داشبورد', true);
+            showToast(result.message || dict.errFetchDashboard, true);
         }
     } catch (e) {
-        showToast('خطا در دریافت اطلاعات داشبورد', true);
+        showToast(dict.errFetchDashboard, true);
     }
 }
 
@@ -462,9 +485,10 @@ function showToast(message, isError = false) {
     toastNotification.className = isError ? 'toast-alert error show' : 'toast-alert show';
     setTimeout(() => { if (toastNotification) toastNotification.className = 'toast-alert'; }, 3800);
 }
+window.showToast = showToast;
 
 function renderCompoundTiers() {
-    const dict = dashboardI18n[currentLanguage];
+    const dict = dashboardI18n[currentLanguage] || dashboardI18n.en;
     const container = document.getElementById('tierRulesList');
     if (!container) return;
 
@@ -486,12 +510,14 @@ function renderCompoundTiers() {
 }
 
 function setLanguage(lang) {
+    if (!dashboardI18n[lang]) lang = 'en';
     currentLanguage = lang;
     localStorage.setItem(STORAGE_LANG_KEY, lang);
     const dict = dashboardI18n[lang];
 
+    const isRtl = (lang === 'fa' || lang === 'ar');
     document.documentElement.lang = lang;
-    document.documentElement.dir = dict.dir;
+    document.documentElement.dir = isRtl ? 'rtl' : 'ltr';
     if (currentLangLabel) currentLangLabel.textContent = dict.langName;
 
     if (langMenu) {
@@ -573,7 +599,8 @@ document.querySelectorAll('.bottom-nav .nav-item').forEach(button => {
             switchNavTab('home');
             return;
         }
-        showToast(dashboardI18n[currentLanguage].comingSoon);
+        const dict = dashboardI18n[currentLanguage] || dashboardI18n.en;
+        showToast(dict.comingSoon);
     });
 });
 
@@ -708,6 +735,7 @@ if (confirmWithdrawBtn) {
         const currentUserId = sessionUser.userId || sessionUser.id || localStorage.getItem('user_id');
 
         const withdrawApiUrl = resolveApiUrl('/api/home/withdraw');
+        const dict = dashboardI18n[currentLanguage] || dashboardI18n.en;
 
         try {
             const response = await fetch(withdrawApiUrl, {
@@ -726,19 +754,19 @@ if (confirmWithdrawBtn) {
             const result = await response.json();
             if (response.ok && (result.success || result.status === 'success')) {
                 closeWithdrawModal();
-                showToast(result.message || dashboardI18n[currentLanguage].withdrawSuccess, false);
+                showToast(result.message || dict.withdrawSuccess, false);
                 fetchUserDashboardData();
             } else {
-                showToast(result.message, true);
+                showToast(result.message || dict.errWithdraw, true);
             }
         } catch (e) {
-            showToast('خطا در ارسال درخواست برداشت', true);
+            showToast(dict.errWithdraw, true);
         }
     });
 }
 
 function openCompoundModal() {
-    const dict = dashboardI18n[currentLanguage];
+    const dict = dashboardI18n[currentLanguage] || dashboardI18n.en;
     renderCompoundTiers();
     const alertBox = document.getElementById('compoundStatusAlert');
     const confirmBtn = document.getElementById('confirmCompoundBtn');
@@ -784,6 +812,7 @@ if (confirmCompoundBtn) {
         const currentUserId = sessionUser.userId || sessionUser.id || localStorage.getItem('user_id');
 
         const compoundApiUrl = resolveApiUrl('/api/home/compound');
+        const dict = dashboardI18n[currentLanguage] || dashboardI18n.en;
 
         try {
             const response = await fetch(compoundApiUrl, {
@@ -799,13 +828,13 @@ if (confirmCompoundBtn) {
             const result = await response.json();
             if (response.ok && (result.success || result.status === 'success')) {
                 closeCompoundModal();
-                showToast(result.message || dashboardI18n[currentLanguage].compoundSuccessMsg, false);
+                showToast(result.message || dict.compoundSuccessMsg, false);
                 fetchUserDashboardData();
             } else {
-                showToast(result.message, true);
+                showToast(result.message || dict.errCompound, true);
             }
         } catch (e) {
-            showToast('خطا در پردازش ترکیب سود', true);
+            showToast(dict.errCompound, true);
         }
     });
 }
@@ -821,10 +850,11 @@ if (actionInviteBtn) {
 }
 
 function copyText(txt) {
+    const dict = dashboardI18n[currentLanguage] || dashboardI18n.en;
     const refCode = platformUser.referralCode || 'ADM2026';
     const textToCopy = (txt && txt.includes('http')) ? `${window.location.origin}/?ref=${refCode}` : refCode;
     navigator.clipboard.writeText(textToCopy).then(() => {
-        showToast(dashboardI18n[currentLanguage].copiedNotice, false);
+        showToast(dict.copiedNotice, false);
     });
 }
 window.copyText = copyText;
@@ -841,11 +871,13 @@ function initPlatformVideo() {
 }
 
 function initHomePage() {
+    // اعمال فوری زبان در ثانیه صفر
+    setLanguage(currentLanguage);
+
     document.querySelectorAll('.spa-view').forEach(v => v.classList.remove('active'));
     const homeView = document.getElementById('view-home');
     if (homeView) homeView.classList.add('active');
 
-    setLanguage(currentLanguage);
     initPlatformVideo();
     fetchUserDashboardData();
 }
@@ -855,3 +887,8 @@ if (document.readyState === 'loading') {
 } else {
     initHomePage();
 }
+
+window.addEventListener('pageshow', () => {
+    setLanguage(currentLanguage);
+    fetchUserDashboardData();
+});

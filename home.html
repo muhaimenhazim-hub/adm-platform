@@ -1,9 +1,20 @@
 <!DOCTYPE html>
-<html lang="fa" dir="rtl">
+<html lang="en" dir="ltr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Platform - Home Dashboard</title>
+
+    <!-- تنظیم فوری زبان و جهت صفحه در ثانیه صفر جهت حذف کامل پرش زبانی -->
+    <script>
+        (function () {
+            var savedLang = localStorage.getItem('platform_lang') || 'en';
+            var isRtl = (savedLang === 'fa' || savedLang === 'ar');
+            document.documentElement.lang = savedLang;
+            document.documentElement.dir = isRtl ? 'rtl' : 'ltr';
+        })();
+    </script>
+
     <link rel="stylesheet" href="home.css">
     <!-- فونت‌های استاندارد بین‌المللی -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -39,9 +50,9 @@
                     <svg class="globe-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <circle cx="12" cy="12" r="10"></circle>
                         <line x1="2" y1="12" x2="22" y2="12"></line>
-                        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1 4-10z"></path>
                     </svg>
-                    <span id="currentLangLabel">فارسی</span>
+                    <span id="currentLangLabel">Language</span>
                     <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <polyline points="6 9 12 15 18 9"></polyline>
                     </svg>
@@ -363,7 +374,7 @@
         <button type="button" class="nav-item" data-target="profile"><div class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="5"></circle><path d="M20 21a8 8 0 0 0-16 0"></path></svg></div><span class="nav-label" data-i18n="navProfile">پروفایل</span></button>
     </nav>
 
-    <!-- بارگذاری کانفیگ مرکزی قبل از اسکریپت اصلی داشبورد -->
+    <!-- بارگذاری کانفیگ مرکزی قبل از اسکریپت داشبورد -->
     <script src="config.js"></script>
     <script src="home.js"></script>
 </body>

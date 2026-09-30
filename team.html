@@ -1,10 +1,20 @@
 <!DOCTYPE html>
-<html lang="fa" dir="rtl">
+<html lang="en" dir="ltr">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>تیم و شبکه | ADM Binance Pro</title>
   
+  <!-- تنظیم فوری زبان و جهت صفحه در ثانیه صفر جهت جلوگیری کامل از فلش زبانی -->
+  <script>
+    (function () {
+      var savedLang = localStorage.getItem('platform_lang') || 'en';
+      var isRtl = (savedLang === 'fa' || savedLang === 'ar');
+      document.documentElement.lang = savedLang;
+      document.documentElement.dir = isRtl ? 'rtl' : 'ltr';
+    })();
+  </script>
+
   <!-- فونت‌های استاندارد بایننس -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -42,7 +52,7 @@
             <line x1="2" y1="12" x2="22" y2="12"></line>
             <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1 4-10z"></path>
           </svg>
-          <span id="currentLangLabel">فارسی</span>
+          <span id="currentLangLabel">Language</span>
           <svg class="chevron-icon" width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
             <path d="M7 10l5 5 5-5z"/>
           </svg>
@@ -53,7 +63,7 @@
           <li data-lang="fr">Français</li>
           <li data-lang="ru">Русский</li>
           <li data-lang="ar">العربية</li>
-          <li data-lang="fa" class="active">فارسی</li>
+          <li data-lang="fa">فارسی</li>
         </ul>
       </div>
     </div>
@@ -86,7 +96,7 @@
         <div class="ref-box-col code-col">
           <label data-i18n="referral_code_label">کد دعوت اختصاصی شما</label>
           <div class="modern-input-group">
-            <input type="text" id="referralCodeInput" value="ADM-Loading..." readonly>
+            <input type="text" id="referralCodeInput" value="Loading..." readonly>
             <button class="btn-input-action primary-copy" id="btnCopyCode">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
@@ -435,7 +445,7 @@
         <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
       </svg>
     </div>
-    <span id="toastMessage">در کلیپ‌بورد کپی شد!</span>
+    <span id="toastMessage"></span>
   </div>
 
   <!-- ==================== STICKY BOTTOM NAVIGATION ==================== -->
@@ -494,7 +504,7 @@
     </a>
   </nav>
 
-  <!-- اتصال به فایل کانفیگ سراسری پلتفرم قبل از اسکریپت تیم -->
+  <!-- بارگذاری کانفیگ مرکزی قبل از اسکریپت تیم -->
   <script src="config.js"></script>
   <script src="team.js"></script>
 </body>
