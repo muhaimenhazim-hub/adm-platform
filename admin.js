@@ -265,6 +265,62 @@
     // -------------------------------------------------------------------------
     // 2. Initialization and Language Management
     // -------------------------------------------------------------------------
+    // تزریق استایل‌های استاندارد جهت تضمین باز شدن کامل منوی ۳ خط در هر دو جهت راست‌به‌چپ (فارسی) و چپ‌به‌راست (انگلیسی)
+    (function injectRtlSidebarFix() {
+        const styleId = "adm-admin-sidebar-rtl-fix";
+        if (document.getElementById(styleId)) return;
+        const style = document.createElement("style");
+        style.id = styleId;
+        style.textContent = `
+            /* موقعیت سایدبار در حالت بسته برای زبان فارسی (راست‌به‌چپ) */
+            [dir="rtl"] #adminSidebar,
+            body[dir="rtl"] #adminSidebar {
+                right: -290px !important;
+                left: auto !important;
+                transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s ease !important;
+            }
+            /* موقعیت سایدبار در حالت باز برای زبان فارسی (راست‌به‌چپ) */
+            [dir="rtl"] #adminSidebar.mobile-open,
+            body[dir="rtl"] #adminSidebar.mobile-open {
+                right: 0 !important;
+                left: auto !important;
+                transform: none !important;
+                display: flex !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+                z-index: 999999 !important;
+                box-shadow: -5px 0 25px rgba(0, 0, 0, 0.75) !important;
+            }
+            /* موقعیت سایدبار در حالت باز برای زبان انگلیسی (چپ‌به‌راست) */
+            [dir="ltr"] #adminSidebar.mobile-open,
+            body[dir="ltr"] #adminSidebar.mobile-open {
+                left: 0 !important;
+                right: auto !important;
+                transform: none !important;
+                display: flex !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+                z-index: 999999 !important;
+                box-shadow: 5px 0 25px rgba(0, 0, 0, 0.75) !important;
+            }
+            /* دکمه ۳ خط منوی همبرگری و دکمه بستن */
+            #mobileSidebarToggle {
+                position: relative !important;
+                z-index: 10005 !important;
+                cursor: pointer !important;
+                pointer-events: auto !important;
+                user-select: none !important;
+                -webkit-tap-highlight-color: transparent !important;
+            }
+            #mobileSidebarClose {
+                cursor: pointer !important;
+                pointer-events: auto !important;
+                z-index: 10006 !important;
+            }
+        `;
+        document.head.appendChild(style);
+    })();
+
     document.addEventListener("DOMContentLoaded", function () {
         initLanguage();
         initNavigation();
@@ -360,8 +416,34 @@
         const closeBtn = document.getElementById("mobileSidebarClose");
         const sidebar = document.getElementById("adminSidebar");
 
-        if (toggleBtn) toggleBtn.addEventListener("click", () => sidebar.classList.add("mobile-open"));
-        if (closeBtn) closeBtn.addEventListener("click", () => sidebar.classList.remove("mobile-open"));
+        if (toggleBtn && sidebar) {
+            const handleToggle = function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                sidebar.classList.toggle("mobile-open");
+            };
+            toggleBtn.addEventListener("click", handleToggle);
+            toggleBtn.addEventListener("touchstart", handleToggle, { passive: false });
+        }
+
+        if (closeBtn && sidebar) {
+            const handleClose = function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                sidebar.classList.remove("mobile-open");
+            };
+            closeBtn.addEventListener("click", handleClose);
+            closeBtn.addEventListener("touchstart", handleClose, { passive: false });
+        }
+
+        // بستن سایدبار موبایل هنگام کلیک در فضای بیرون از آن
+        document.addEventListener("click", function (e) {
+            if (sidebar && sidebar.classList.contains("mobile-open")) {
+                if (!sidebar.contains(e.target) && toggleBtn && !toggleBtn.contains(e.target)) {
+                    sidebar.classList.remove("mobile-open");
+                }
+            }
+        });
 
         const subNavBtns = document.querySelectorAll(".pane-sub-nav .sub-nav-btn");
         subNavBtns.forEach(btn => {
