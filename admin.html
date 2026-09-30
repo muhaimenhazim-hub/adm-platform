@@ -123,7 +123,6 @@
 
                 <!-- 1. DASHBOARD OVERVIEW TAB -->
                 <section class="tab-pane active" id="pane-overview">
-                    <!-- متقارن ۲×۲ در موبایل طبق راهکار اول -->
                     <div class="stats-grid">
                         <div class="stat-card">
                             <div class="stat-header">
@@ -271,7 +270,6 @@
 
                 <!-- 3. FINANCE & APPROVALS TAB -->
                 <section class="tab-pane" id="pane-finance">
-                    <!-- Tab Sub-filters -->
                     <div class="pane-sub-nav">
                         <button class="sub-nav-btn active" data-sub="withdrawals" data-i18n="sub_pending_withdrawals">Pending Withdrawals (<span id="countWithdrawSub">0</span>)</button>
                         <button class="sub-nav-btn" data-sub="deposits" data-i18n="sub_pending_deposits">Pending Deposits (<span id="countDepositSub">0</span>)</button>
@@ -568,7 +566,7 @@
 
     <!-- ================================= MODALS ================================= -->
 
-    <!-- Modal 1: User Balance Manual Adjustment (شامل هر ۵ بخش داشبورد و بدون اشاره‌گر مزاحم) -->
+    <!-- Modal 1: User Balance Manual Adjustment -->
     <div class="adm-modal-backdrop" id="modalBalanceAdjust">
         <div class="adm-modal">
             <div class="modal-header">
@@ -603,7 +601,6 @@
 
                     <div class="form-group">
                         <label data-i18n="label_adjust_amount">Amount (USD)</label>
-                        <!-- ورودی بدون اسپینر و آماده تایپ دستی آزاد اعشاری -->
                         <input type="text" inputmode="decimal" id="adjustAmount" class="adm-input font-bold" placeholder="0.0000" required autocomplete="off">
                     </div>
 
@@ -694,7 +691,8 @@
     <!-- Notification Toast Element -->
     <div class="adm-toast-container" id="toastContainer"></div>
 
-    <!-- Scripts -->
+    <!-- Scripts: بارگذاری کانفیگ مرکزی قبل از اسکریپت ادمین -->
+    <script src="config.js"></script>
     <script src="admin.js"></script>
 </body>
 </html>

@@ -2,13 +2,21 @@
  * ============================================================================
  * ADM BINANCE PRO - MASTER ADMIN PANEL JAVASCRIPT ENGINE
  * File: admin.js
- * Exclusively Supporting: English (en) & Persian/Dari (fa) with RTL/LTR
- * Completely synced with adm_db & admin.py API endpoints
+ * Dependent on: config.js (window.APP_CONFIG)
+ * Backend Blueprint: admin.py (API: /api/admin/*)
  * ============================================================================
  */
 
 (function () {
     "use strict";
+
+    // تابع استاندارد دریافت اندپوینت از کانفیگ مرکزی
+    function resolveApiUrl(endpoint) {
+        if (typeof window !== "undefined" && window.APP_CONFIG && typeof window.APP_CONFIG.getApiUrl === "function") {
+            return window.APP_CONFIG.getApiUrl(endpoint);
+        }
+        return endpoint;
+    }
 
     // -------------------------------------------------------------------------
     // 1. Two-Language Dictionary (English & Persian)
@@ -245,7 +253,6 @@
     let currentLang = localStorage.getItem("adm_admin_lang") || "en";
     let activeTicketId = null;
 
-    // تابع تبدیل خودکار ارقام فارسی/عربی به انگلیسی و پشتیبانی از تایپ آزاد اعشاری
     function normalizeAmountInput(val) {
         if (!val) return "";
         return String(val)
@@ -256,7 +263,7 @@
     }
 
     // -------------------------------------------------------------------------
-    // 2. Initialization and Language Management (EN & FA Only)
+    // 2. Initialization and Language Management
     // -------------------------------------------------------------------------
     document.addEventListener("DOMContentLoaded", function () {
         initLanguage();
@@ -264,7 +271,6 @@
         initLiveClock();
         bindGlobalEvents();
 
-        // Initial Data Fetching
         loadOverviewMetrics();
         loadLiveTransactions();
         loadPendingCounters();
@@ -402,9 +408,6 @@
         else if (tabId === "support") loadTickets();
     }
 
-    // -------------------------------------------------------------------------
-    // 4. Afghanistan Live Clock (UTC+4:30)
-    // -------------------------------------------------------------------------
     function initLiveClock() {
         const clockEl = document.getElementById("serverClock");
         setInterval(() => {
@@ -423,7 +426,7 @@
     // -------------------------------------------------------------------------
     async function loadOverviewMetrics() {
         try {
-            const res = await fetch("/api/admin/overview", { credentials: "include" });
+            const res = await fetch(resolveApiUrl("/api/admin/overview"), { credentials: "include" });
             const data = await res.json();
             if (data.success) {
                 document.getElementById("statTotalCapital").textContent = `$${parseFloat(data.stats.total_circulating_capital || 0).toFixed(4)}`;
@@ -444,7 +447,7 @@
     async function loadLiveTransactions() {
         const tbody = document.getElementById("liveStreamTableBody");
         try {
-            const res = await fetch("/api/admin/transactions/live", { credentials: "include" });
+            const res = await fetch(resolveApiUrl("/api/admin/transactions/live"), { credentials: "include" });
             const data = await res.json();
             if (data.success && data.transactions && data.transactions.length > 0) {
                 tbody.innerHTML = data.transactions.map(tx => `
@@ -468,7 +471,7 @@
 
     async function loadPendingCounters() {
         try {
-            const res = await fetch("/api/admin/counters", { credentials: "include" });
+            const res = await fetch(resolveApiUrl("/api/admin/counters"), { credentials: "include" });
             const data = await res.json();
             if (data.success) {
                 const fwCount = document.getElementById("badgePendingFinance");
@@ -502,7 +505,7 @@
         tbody.innerHTML = `<tr><td colspan="8" class="text-center py-4 text-muted">${t('loading_data')}</td></tr>`;
 
         try {
-            const url = `/api/admin/users?q=${encodeURIComponent(query)}&role=${encodeURIComponent(role)}&kyc=${encodeURIComponent(kyc)}`;
+            const url = resolveApiUrl(`/api/admin/users?q=${encodeURIComponent(query)}&role=${encodeURIComponent(role)}&kyc=${encodeURIComponent(kyc)}`);
             const res = await fetch(url, { credentials: "include" });
             const data = await res.json();
 
@@ -546,14 +549,14 @@
     }
 
     // -------------------------------------------------------------------------
-    // 7. Finance & Approvals (Withdrawals, Deposits, Logs)
+    // 7. Finance & Approvals
     // -------------------------------------------------------------------------
     async function loadPendingWithdrawals() {
         const tbody = document.getElementById("pendingWithdrawalsBody");
         tbody.innerHTML = `<tr><td colspan="9" class="text-center py-4 text-muted">${t('loading_data')}</td></tr>`;
 
         try {
-            const res = await fetch("/api/admin/withdrawals/pending", { credentials: "include" });
+            const res = await fetch(resolveApiUrl("/api/admin/withdrawals/pending"), { credentials: "include" });
             const data = await res.json();
 
             if (data.success && data.withdrawals && data.withdrawals.length > 0) {
@@ -606,35 +609,17 @@
 
     function evaluateFeeTier(days) {
         if (days < 10) {
-            return {
-                label: currentLang === 'fa' ? 'مسدود (زیر ۱۰ روز)' : 'Blocked (< 10 Days)',
-                cssClass: 'tier-danger'
-            };
+            return { label: currentLang === 'fa' ? 'مسدود (زیر ۱۰ روز)' : 'Blocked (< 10 Days)', cssClass: 'tier-danger' };
         } else if (days >= 10 && days < 15) {
-            return {
-                label: currentLang === 'fa' ? 'پله ۵٪ کارمزد' : '5% Fee Tier',
-                cssClass: 'tier-orange'
-            };
+            return { label: currentLang === 'fa' ? 'پله ۵٪ کارمزد' : '5% Fee Tier', cssClass: 'tier-orange' };
         } else if (days >= 15 && days < 25) {
-            return {
-                label: currentLang === 'fa' ? 'پله ۳٪ کارمزد' : '3% Fee Tier',
-                cssClass: 'tier-yellow'
-            };
+            return { label: currentLang === 'fa' ? 'پله ۳٪ کارمزد' : '3% Fee Tier', cssClass: 'tier-yellow' };
         } else if (days >= 25 && days < 35) {
-            return {
-                label: currentLang === 'fa' ? 'پله ۱٪ کارمزد' : '1% Fee Tier',
-                cssClass: 'tier-blue'
-            };
+            return { label: currentLang === 'fa' ? 'پله ۱٪ کارمزد' : '1% Fee Tier', cssClass: 'tier-blue' };
         } else if (days >= 35 && days <= 50) {
-            return {
-                label: currentLang === 'fa' ? 'پله ۰٪ (رایگان)' : '0% Free Tier',
-                cssClass: 'tier-free'
-            };
+            return { label: currentLang === 'fa' ? 'پله ۰٪ (رایگان)' : '0% Free Tier', cssClass: 'tier-free' };
         } else {
-            return {
-                label: currentLang === 'fa' ? '۰٪ + ۳٪ بانس پاداش' : '0% + 3% Bonus',
-                cssClass: 'tier-bonus'
-            };
+            return { label: currentLang === 'fa' ? '۰٪ + ۳٪ بانس پاداش' : '0% + 3% Bonus', cssClass: 'tier-bonus' };
         }
     }
 
@@ -643,7 +628,7 @@
         tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-muted">${t('loading_data')}</td></tr>`;
 
         try {
-            const res = await fetch("/api/admin/deposits/pending", { credentials: "include" });
+            const res = await fetch(resolveApiUrl("/api/admin/deposits/pending"), { credentials: "include" });
             const data = await res.json();
 
             if (data.success && data.deposits && data.deposits.length > 0) {
@@ -685,7 +670,7 @@
         tbody.innerHTML = `<tr><td colspan="10" class="text-center py-4 text-muted">${t('loading_data')}</td></tr>`;
 
         try {
-            const res = await fetch("/api/admin/finance/history", { credentials: "include" });
+            const res = await fetch(resolveApiUrl("/api/admin/finance/history"), { credentials: "include" });
             const data = await res.json();
 
             if (data.success && data.history && data.history.length > 0) {
@@ -719,7 +704,7 @@
         tbody.innerHTML = `<tr><td colspan="8" class="text-center py-4 text-muted">${t('loading_data')}</td></tr>`;
 
         try {
-            const res = await fetch("/api/admin/kyc/pending", { credentials: "include" });
+            const res = await fetch(resolveApiUrl("/api/admin/kyc/pending"), { credentials: "include" });
             const data = await res.json();
 
             if (data.success && data.kyc_records && data.kyc_records.length > 0) {
@@ -759,7 +744,7 @@
     // -------------------------------------------------------------------------
     async function loadYieldEngineData() {
         try {
-            const res = await fetch("/api/admin/yield/status", { credentials: "include" });
+            const res = await fetch(resolveApiUrl("/api/admin/yield/status"), { credentials: "include" });
             const data = await res.json();
 
             if (data.success) {
@@ -812,7 +797,7 @@
         container.innerHTML = `<div class="text-center py-4 text-muted">${t('loading_tickets')}</div>`;
 
         try {
-            const res = await fetch(`/api/admin/tickets?status=${encodeURIComponent(filterStatus)}`, { credentials: "include" });
+            const res = await fetch(resolveApiUrl(`/api/admin/tickets?status=${encodeURIComponent(filterStatus)}`), { credentials: "include" });
             const data = await res.json();
 
             if (data.success && data.tickets && data.tickets.length > 0) {
@@ -846,7 +831,7 @@
         document.querySelectorAll(".ticket-item-row").forEach(el => el.classList.remove("active"));
 
         try {
-            const res = await fetch(`/api/admin/tickets/${ticketId}`, { credentials: "include" });
+            const res = await fetch(resolveApiUrl(`/api/admin/tickets/${ticketId}`), { credentials: "include" });
             const data = await res.json();
 
             if (data.success) {
@@ -906,7 +891,6 @@
         const btnRefKYC = document.getElementById("btnRefreshKYC");
         if (btnRefKYC) btnRefKYC.addEventListener("click", loadPendingKYC);
 
-        // تنظیم دستی هر کدام از ۵ بخش مالی داشبورد با پذیرش تایپ دستی و عددی
         const formBal = document.getElementById("formBalanceAdjust");
         if (formBal) {
             formBal.addEventListener("submit", async function (e) {
@@ -925,7 +909,7 @@
                 }
 
                 try {
-                    const res = await fetch("/api/admin/users/adjust_balance", {
+                    const res = await fetch(resolveApiUrl("/api/admin/users/adjust_balance"), {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         credentials: "include",
@@ -945,7 +929,6 @@
             });
         }
 
-        // Rejection Modal Form
         const formRej = document.getElementById("formRejectWithdrawal");
         if (formRej) {
             formRej.addEventListener("submit", async function (e) {
@@ -954,7 +937,7 @@
                 const reason = document.getElementById("rejectReasonNote").value.trim();
 
                 try {
-                    const res = await fetch("/api/admin/withdrawals/reject", {
+                    const res = await fetch(resolveApiUrl("/api/admin/withdrawals/reject"), {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         credentials: "include",
@@ -975,7 +958,6 @@
             });
         }
 
-        // KYC Decisions
         const btnApproveKyc = document.getElementById("btnApproveKycModal");
         if (btnApproveKyc) {
             btnApproveKyc.addEventListener("click", async function () {
@@ -993,7 +975,6 @@
             });
         }
 
-        // Yield Rate Save & Distribute
         const formYield = document.getElementById("formSetDailyRate");
         if (formYield) {
             formYield.addEventListener("submit", async function (e) {
@@ -1002,7 +983,7 @@
                 const targetDate = document.getElementById("yieldTargetDate").value;
 
                 try {
-                    const res = await fetch("/api/admin/yield/set_rate", {
+                    const res = await fetch(resolveApiUrl("/api/admin/yield/set_rate"), {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         credentials: "include",
@@ -1027,7 +1008,7 @@
         const executeDist = async () => {
             if (!confirm(currentLang === 'fa' ? 'آیا از توزیع آنی سود شبانه برای کلیه کاربران واجد شرایط اطمینان دارید؟' : 'Are you sure you want to execute instant batch yield distribution?')) return;
             try {
-                const res = await fetch("/api/admin/yield/distribute", {
+                const res = await fetch(resolveApiUrl("/api/admin/yield/distribute"), {
                     method: "POST",
                     credentials: "include"
                 });
@@ -1047,7 +1028,6 @@
         if (btnDistribute) btnDistribute.addEventListener("click", executeDist);
         if (btnQuickDist) btnQuickDist.addEventListener("click", executeDist);
 
-        // Support Reply
         const formReply = document.getElementById("formTicketReply");
         if (formReply) {
             formReply.addEventListener("submit", async function (e) {
@@ -1058,7 +1038,7 @@
                 if (!message) return;
 
                 try {
-                    const res = await fetch("/api/admin/tickets/reply", {
+                    const res = await fetch(resolveApiUrl("/api/admin/tickets/reply"), {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         credentials: "include",
@@ -1085,7 +1065,7 @@
                 if (!confirm("Are you sure you want to close this ticket?")) return;
 
                 try {
-                    const res = await fetch("/api/admin/tickets/close", {
+                    const res = await fetch(resolveApiUrl("/api/admin/tickets/close"), {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         credentials: "include",
@@ -1104,7 +1084,6 @@
             });
         }
 
-        // دکمه بازگشت مستقیم به داشبورد اصلی (بدون از بین بردن سشن یا ریدایرکت به لاگین)
         const logoutBtn = document.getElementById("adminLogoutBtn");
         if (logoutBtn) {
             logoutBtn.addEventListener("click", () => {
@@ -1115,7 +1094,7 @@
 
     async function submitKycDecision(kycId, action, note) {
         try {
-            const url = action === "verify" ? "/api/admin/kyc/approve" : "/api/admin/kyc/reject";
+            const url = action === "verify" ? resolveApiUrl("/api/admin/kyc/approve") : resolveApiUrl("/api/admin/kyc/reject");
             const res = await fetch(url, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -1240,7 +1219,7 @@
     }
 
     // -------------------------------------------------------------------------
-    // 13. Public AdminApp Namespace for Global HTML Callbacks
+    // 13. Public AdminApp Namespace for Global Callbacks
     // -------------------------------------------------------------------------
     window.AdminApp = {
         openBalanceModal: function (userId, username, uid) {
@@ -1260,7 +1239,7 @@
         approveWithdrawal: async function (txId) {
             if (!confirm(`Are you sure you want to approve payout for TX: ${txId}?`)) return;
             try {
-                const res = await fetch("/api/admin/withdrawals/approve", {
+                const res = await fetch(resolveApiUrl("/api/admin/withdrawals/approve"), {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     credentials: "include",
@@ -1282,7 +1261,7 @@
         approveDeposit: async function (txId) {
             if (!confirm(`Confirm and create 90-day active lot for deposit: ${txId}?`)) return;
             try {
-                const res = await fetch("/api/admin/deposits/approve", {
+                const res = await fetch(resolveApiUrl("/api/admin/deposits/approve"), {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     credentials: "include",
@@ -1306,7 +1285,7 @@
             const reason = prompt("Enter deposit rejection reason:");
             if (reason === null) return;
             try {
-                const res = await fetch("/api/admin/deposits/reject", {
+                const res = await fetch(resolveApiUrl("/api/admin/deposits/reject"), {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     credentials: "include",
@@ -1349,7 +1328,7 @@
             const newRole = currentRole === "admin" ? "user" : "admin";
             if (!confirm(`Change role of User #${userId} to "${newRole}"?`)) return;
             try {
-                const res = await fetch("/api/admin/users/toggle_role", {
+                const res = await fetch(resolveApiUrl("/api/admin/users/toggle_role"), {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     credentials: "include",
@@ -1369,7 +1348,7 @@
             const newStatus = currentStatus === "banned" ? "active" : "banned";
             if (!confirm(`Set user account status to "${newStatus}"?`)) return;
             try {
-                const res = await fetch("/api/admin/users/toggle_status", {
+                const res = await fetch(resolveApiUrl("/api/admin/users/toggle_status"), {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     credentials: "include",
