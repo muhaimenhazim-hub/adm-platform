@@ -156,7 +156,7 @@ const profileI18n = {
         strengthStrong: 'Fort',
         savePasswordBtn: 'Mettre à jour le mot de passe',
         twoFaTitle: 'Authentification à deux facteurs (2FA)',
-        twoFaSub: 'Protection renforcée برای vos retraits et connexions.',
+        twoFaSub: 'Protection renforcée pour vos retraits et connexions.',
         scanQrGoogle: 'Scanner le QR dans l’application',
         twoFaSecretLabel: 'Clé secrète :',
         copyBtn: 'Copier',
@@ -800,7 +800,7 @@ function renderTicketsTable() {
         const safeDept = escapeHtml(tk.department);
         const safeStatus = escapeHtml(tk.status);
 
-        // اعلان روشن و زنده هنگام دریافت پاسخ از ادمین
+        // اعلان روشن، مشخص و زنده در صورت دریافت پاسخ از سوی ادمین
         const replyBadgeHtml = isAnswered
             ? `<span class="adm-reply-badge">● ${dict.newReplyBadge || 'پاسخ جدید'}</span>`
             : '';
@@ -1471,26 +1471,344 @@ document.querySelectorAll('.bottom-nav .nav-item').forEach(link => {
     }, true);
 });
 
-// اصلاح فوری ساعت غول‌پیکر، جایگاه مودال و رنگ دکمه با کمترین خطوط ممکن
-(function injectMinimalChatFix() {
-    const s = document.createElement('style');
-    s.textContent = `
-        .chat-auto-purge-notice svg { width: 16px !important; height: 16px !important; min-width: 16px !important; flex-shrink: 0 !important; }
-        .chat-modal-overlay { position: fixed !important; inset: 0 !important; z-index: 999999 !important; background: rgba(0,0,0,0.85) !important; display: flex !important; align-items: center !important; justify-content: center !important; }
-        .chat-modal-overlay.hidden { display: none !important; }
-        .btn-open-chat { background: #F0B90B !important; color: #000 !important; font-weight: 700 !important; border: none !important; border-radius: 6px !important; padding: 6px 12px !important; cursor: pointer !important; display: inline-flex !important; align-items: center !important; gap: 6px !important; }
-        .btn-open-chat.has-admin-reply { background: #0ECB81 !important; color: #000 !important; box-shadow: 0 0 10px rgba(14,203,129,0.5) !important; }
-        .adm-reply-badge { background: #000 !important; color: #0ECB81 !important; font-size: 10px !important; font-weight: 800 !important; padding: 2px 6px !important; border-radius: 8px !important; }
+
+/**
+ * تزریق تضمینی استایل‌های مدرن بایننس برای پنجره چت تیکت، حذف کامل ساعت غول‌پیکر و روشنایی دکمه
+ */
+function injectChatModalStyles() {
+    const styleId = 'adm-ticket-chat-enhanced-styles';
+    if (document.getElementById(styleId)) return;
+
+    const styleEl = document.createElement('style');
+    styleEl.id = styleId;
+    styleEl.textContent = `
+        /* ========================================================================= */
+        /* استایل‌های اختصاصی مودال گفت‌وگو، دکمه روشن و اعلان پاسخ ادمین */
+        /* ========================================================================= */
+
+        /* دکمه باز کردن چت به رنگ روشن و کاملاً خوانا */
+        .btn-open-chat {
+            background: #F0B90B !important;
+            color: #0B0E11 !important;
+            border: none !important;
+            font-weight: 700 !important;
+            font-size: 12.5px !important;
+            padding: 7px 14px !important;
+            border-radius: 6px !important;
+            cursor: pointer !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 6px !important;
+            transition: all 0.2s ease !important;
+            white-space: nowrap !important;
+            text-decoration: none !important;
+            box-shadow: 0 2px 8px rgba(240, 185, 11, 0.25) !important;
+        }
+        .btn-open-chat:hover {
+            background: #FCD535 !important;
+            transform: translateY(-1px) !important;
+            box-shadow: 0 4px 12px rgba(240, 185, 11, 0.4) !important;
+        }
+
+        /* حالت دریافت پاسخ از طرف ادمین همراه با اعلان پالس‌دار */
+        .btn-open-chat.has-admin-reply {
+            background: #0ECB81 !important;
+            color: #0B0E11 !important;
+            box-shadow: 0 0 14px rgba(14, 203, 129, 0.45) !important;
+            animation: pulse-answered-btn 2s infinite ease-in-out !important;
+        }
+        .btn-open-chat.has-admin-reply:hover {
+            background: #00f096 !important;
+        }
+
+        @keyframes pulse-answered-btn {
+            0%, 100% {
+                box-shadow: 0 0 8px rgba(14, 203, 129, 0.35);
+                transform: scale(1);
+            }
+            50% {
+                box-shadow: 0 0 18px rgba(14, 203, 129, 0.7);
+                transform: scale(1.03);
+            }
+        }
+
+        /* بج اعلان پاسخ ادمین در کنار دکمه */
+        .adm-reply-badge {
+            background: #0B0E11 !important;
+            color: #0ECB81 !important;
+            font-size: 10px !important;
+            font-weight: 800 !important;
+            padding: 2px 6px !important;
+            border-radius: 10px !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            letter-spacing: 0.3px !important;
+        }
+
+        /* اصلاح کامل پوشش و جایگاه مودال چت بالاتر از تمام المان‌ها و بالاتر از نوار ناوبری پایین */
+        .chat-modal-overlay {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            background: rgba(11, 14, 17, 0.88) !important;
+            backdrop-filter: blur(6px) !important;
+            -webkit-backdrop-filter: blur(6px) !important;
+            z-index: 999999 !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            padding: 16px !important;
+            box-sizing: border-box !important;
+        }
+        .chat-modal-overlay.hidden {
+            display: none !important;
+        }
+
+        /* کارت مودال چت با ابعاد واکنش‌گرا و طراحی مدرن بایننس */
+        .chat-modal-card {
+            background: #181A20 !important;
+            border: 1px solid #2B313A !important;
+            border-radius: 16px !important;
+            width: 100% !important;
+            max-width: 480px !important;
+            max-height: 85vh !important;
+            display: flex !important;
+            flex-direction: column !important;
+            overflow: hidden !important;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8) !important;
+            position: relative !important;
+        }
+
+        /* هدر پنجره چت */
+        .chat-modal-header {
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: flex-start !important;
+            padding: 16px 18px !important;
+            border-bottom: 1px solid #2B313A !important;
+            background: #1E2329 !important;
+        }
+        .chat-modal-header .chat-header-info {
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 4px !important;
+        }
+        .chat-modal-header .chat-header-tags {
+            display: flex !important;
+            align-items: center !important;
+            gap: 8px !important;
+        }
+        .chat-modal-header .ticket-code-tag {
+            background: #2B313A !important;
+            color: #F0B90B !important;
+            font-size: 11px !important;
+            font-weight: 700 !important;
+            padding: 2px 8px !important;
+            border-radius: 4px !important;
+        }
+        .chat-modal-header .chat-status-pill {
+            font-size: 11px !important;
+            padding: 2px 8px !important;
+            border-radius: 4px !important;
+            font-weight: 600 !important;
+        }
+        .chat-modal-header .chat-status-pill.answered {
+            background: rgba(14, 203, 129, 0.15) !important;
+            color: #0ECB81 !important;
+            border: 1px solid rgba(14, 203, 129, 0.3) !important;
+        }
+        .chat-modal-header .chat-status-pill.pending {
+            background: rgba(240, 185, 11, 0.15) !important;
+            color: #F0B90B !important;
+            border: 1px solid rgba(240, 185, 11, 0.3) !important;
+        }
+        .chat-modal-header .chat-status-pill.closed {
+            background: #2B313A !important;
+            color: #848E9C !important;
+        }
+        .chat-modal-header .chat-modal-subject {
+            font-size: 15px !important;
+            font-weight: 700 !important;
+            color: #EAECEF !important;
+            margin: 4px 0 2px 0 !important;
+        }
+        .chat-modal-header .chat-modal-dept {
+            font-size: 11.5px !important;
+            color: #848E9C !important;
+        }
+        .chat-modal-header .chat-modal-close {
+            background: transparent !important;
+            border: none !important;
+            color: #848E9C !important;
+            font-size: 26px !important;
+            line-height: 1 !important;
+            cursor: pointer !important;
+            padding: 0 4px !important;
+            transition: color 0.2s !important;
+        }
+        .chat-modal-header .chat-modal-close:hover {
+            color: #F6465D !important;
+        }
+
+        /* بدنه پنجره چت */
+        .chat-modal-body {
+            flex: 1 !important;
+            overflow-y: auto !important;
+            padding: 14px 16px !important;
+            display: flex !important;
+            flex-direction: column !important;
+            background: #121418 !important;
+            min-height: 220px !important;
+            max-height: 48vh !important;
+        }
+
+        /* رفع قطعی آیکون غول‌پیکر ساعت در نوار اعلان ۵ روزه */
+        .chat-auto-purge-notice {
+            display: flex !important;
+            align-items: center !important;
+            gap: 8px !important;
+            padding: 8px 12px !important;
+            background: rgba(240, 185, 11, 0.08) !important;
+            border: 1px solid rgba(240, 185, 11, 0.2) !important;
+            border-radius: 8px !important;
+            font-size: 11.5px !important;
+            color: #F0B90B !important;
+            margin-bottom: 12px !important;
+            line-height: 1.4 !important;
+            flex-shrink: 0 !important;
+        }
+        .chat-auto-purge-notice svg {
+            width: 16px !important;
+            height: 16px !important;
+            min-width: 16px !important;
+            max-width: 16px !important;
+            min-height: 16px !important;
+            max-height: 16px !important;
+            stroke: #F0B90B !important;
+            flex-shrink: 0 !important;
+            display: inline-block !important;
+        }
+
+        /* کانتینر پیام‌های گفت‌وگو */
+        .chat-messages-container {
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 12px !important;
+            flex: 1 !important;
+            overflow-y: auto !important;
+        }
+
+        /* حباب پیام کاربر */
+        .chat-bubble.user-msg {
+            align-self: flex-end !important;
+            background: #2B313A !important;
+            color: #EAECEF !important;
+            border-radius: 14px 14px 2px 14px !important;
+            padding: 10px 14px !important;
+            max-width: 82% !important;
+            font-size: 13.5px !important;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2) !important;
+        }
+
+        /* حباب پیام ادمین با رنگ طلایی بایننس و کادر مشخص */
+        .chat-bubble.admin-msg {
+            align-self: flex-start !important;
+            background: rgba(240, 185, 11, 0.15) !important;
+            border: 1px solid rgba(240, 185, 11, 0.35) !important;
+            color: #FCD535 !important;
+            border-radius: 14px 14px 14px 2px !important;
+            padding: 10px 14px !important;
+            max-width: 85% !important;
+            font-size: 13.5px !important;
+            box-shadow: 0 2px 8px rgba(240, 185, 11, 0.15) !important;
+        }
+
+        .chat-bubble .bubble-text {
+            word-break: break-word !important;
+            line-height: 1.5 !important;
+            font-size: 13px !important;
+        }
+        .chat-bubble .bubble-meta-row {
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            gap: 10px !important;
+            margin-top: 6px !important;
+            font-size: 10.5px !important;
+            color: #848E9C !important;
+        }
+        .chat-bubble.admin-msg .chat-sender-badge {
+            color: #F0B90B !important;
+            font-weight: 700 !important;
+        }
+
+        /* فوتر چت و فرم ارسال پاسخ مجدد */
+        .chat-modal-footer {
+            padding: 12px 16px !important;
+            border-top: 1px solid #2B313A !important;
+            background: #1E2329 !important;
+            flex-shrink: 0 !important;
+        }
+        .chat-input-wrapper {
+            display: flex !important;
+            gap: 10px !important;
+            align-items: center !important;
+        }
+        #chatReplyMessageInput {
+            flex: 1 !important;
+            background: #121418 !important;
+            border: 1px solid #2B313A !important;
+            border-radius: 8px !important;
+            color: #EAECEF !important;
+            padding: 10px 12px !important;
+            font-size: 13px !important;
+            resize: none !important;
+            font-family: inherit !important;
+            outline: none !important;
+        }
+        #chatReplyMessageInput:focus {
+            border-color: #F0B90B !important;
+        }
+        .btn-send-reply {
+            background: #F0B90B !important;
+            color: #0B0E11 !important;
+            border: none !important;
+            font-weight: 700 !important;
+            border-radius: 8px !important;
+            padding: 10px 18px !important;
+            cursor: pointer !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 6px !important;
+            font-size: 13px !important;
+            transition: all 0.2s !important;
+            height: 42px !important;
+            white-space: nowrap !important;
+        }
+        .btn-send-reply:hover {
+            background: #FCD535 !important;
+            transform: translateY(-1px) !important;
+        }
     `;
-    document.head.appendChild(s);
-})();
+    document.head.appendChild(styleEl);
+}
 
 async function initProfilePage() {
+    // تزریق استایل‌های بهبودیافته چت و دکمه
+    injectChatModalStyles();
     // ۱. اعمال قطعی و فوری زبان در ثانیه صفر
     setLanguage(currentLanguage);
     // ۲. دریافت اطلاعات زنده از سرور
     await fetchProfileData();
 }
+
+// اعمال آنی استایل‌ها در اولین ثانیه اجرا
+try { injectChatModalStyles(); } catch (e) {}
 
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initProfilePage);
