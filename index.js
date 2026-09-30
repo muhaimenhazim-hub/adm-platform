@@ -191,7 +191,10 @@ const i18n = {
     }
 };
 
-let activeLang = 'en';
+// کلید مشترک ذخیره زبان بین تمام صفحات پروژه
+const STORAGE_LANG_KEY = 'platform_lang';
+let activeLang = localStorage.getItem(STORAGE_LANG_KEY) || 'en';
+if (!i18n[activeLang]) activeLang = 'en';
 
 /**
  * تابع ایمن برای دریافت آدرس اندپوینت‌ها از کانفیگ مرکزی
@@ -220,7 +223,7 @@ const termsCheck = document.getElementById('termsCheck');
 const regSubmitBtn = document.getElementById('regSubmitBtn');
 const toastNotification = document.getElementById('toastNotification');
 
-// مدیریت انتخاب زبان
+// مدیریت منوی کشویی زبان
 if (langTriggerBtn) {
     langTriggerBtn.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -238,8 +241,6 @@ if (langMenu) {
     langMenu.querySelectorAll('.lang-item').forEach(item => {
         item.addEventListener('click', function () {
             const selectedLang = this.getAttribute('data-value');
-            langMenu.querySelectorAll('.lang-item').forEach(i => i.classList.remove('active'));
-            this.classList.add('active');
             if (langDropdown) langDropdown.classList.remove('open');
             updateLanguage(selectedLang);
         });
@@ -255,13 +256,25 @@ function showToast(message, isError = false) {
     }, 4000);
 }
 
+/**
+ * به‌روزرسانی زبان، چیدمان (RTL/LTR) و ذخیره قطعی در حافظه مشترک پلتفرم
+ */
 function updateLanguage(lang) {
+    if (!i18n[lang]) lang = 'en';
     activeLang = lang;
+    localStorage.setItem(STORAGE_LANG_KEY, lang);
+
     const dict = i18n[lang];
 
     document.documentElement.lang = lang;
     document.documentElement.dir = dict.dir;
     if (currentLangLabel) currentLangLabel.textContent = dict.langName;
+
+    if (langMenu) {
+        langMenu.querySelectorAll('.lang-item').forEach(i => {
+            i.classList.toggle('active', i.getAttribute('data-value') === lang);
+        });
+    }
 
     document.querySelectorAll('[data-i18n]').forEach(el => {
         const key = el.getAttribute('data-i18n');
@@ -327,7 +340,7 @@ function clearAllErrors() {
 }
 
 /**
- * ارسال فرم ورود به بک‌اند (سازگار کامل با index.py)
+ * ارسال فرم ورود به بک‌اند
  */
 const loginFormEl = document.getElementById('loginForm');
 if (loginFormEl) {
@@ -402,7 +415,7 @@ if (loginFormEl) {
 }
 
 /**
- * ارسال فرم ثبت‌نام به بک‌اند (مطابق با فیلدهای مورد انتظار index.py و پایگاه‌داده Aiven)
+ * ارسال فرم ثبت‌نام به بک‌اند
  */
 const regFormEl = document.getElementById('registerForm');
 if (regFormEl) {
@@ -511,7 +524,7 @@ if (regFormEl) {
 }
 
 /**
- * خروج ایمن از حساب (همزمان پاکسازی کلاینت و ابطال سشن در سرور پایتون)
+ * خروج ایمن از حساب کاربری
  */
 if (logoutBtn) {
     logoutBtn.addEventListener('click', async () => {
@@ -521,10 +534,13 @@ if (logoutBtn) {
                 credentials: 'include'
             });
         } catch (e) {
-            console.warn('Backend logout call completed with fallback.');
+            console.warn('Backend logout fallback.');
         } finally {
             sessionStorage.clear();
-            localStorage.clear();
+            localStorage.removeItem('current_user');
+            localStorage.removeItem('user_role');
+            localStorage.removeItem('user_id');
+            localStorage.removeItem('user_uid');
             if (homeSection) homeSection.classList.add('hidden');
             if (loginSection) loginSection.classList.remove('hidden');
         }
@@ -546,13 +562,23 @@ async function checkExistingAuth() {
             if (data.success && data.user) {
                 sessionStorage.setItem('current_user', JSON.stringify(data.user));
                 localStorage.setItem('current_user', JSON.stringify(data.user));
-                // اگر قبلاً لاگین بوده، مستقیم هدایت شود
+                localStorage.setItem('user_role', data.user.role || 'user');
+                localStorage.setItem('user_id', data.user.id || data.user.userId || '');
+                localStorage.setItem('user_uid', data.user.uid || '');
+
                 if (data.user.role === 'admin') {
                     window.location.href = 'admin.html';
                 } else {
                     window.location.href = 'home.html';
                 }
             }
+        } else {
+            // در صورت عدم احراز هویت، داده‌های محلی پاکسازی شوند تا هیچ ریدایرکت اشتباهی رخ ندهد
+            sessionStorage.removeItem('current_user');
+            localStorage.removeItem('current_user');
+            localStorage.removeItem('user_role');
+            localStorage.removeItem('user_id');
+            localStorage.removeItem('user_uid');
         }
     } catch (e) {
         // در صورت عدم برقراری اتصال یا عدم لاگین، صفحه ورود باقی می‌ماند
@@ -580,7 +606,13 @@ function handleReferralLinkDetection() {
     }
 }
 
-// اجرای توابع اولیه صفحه
+// ۱. اعمال قطعی و فوری زبان در ثانیه صفر
+updateLanguage(activeLang);
+
+// ۲. پردازش لینک دعوت و بررسی ورود کاربر
 handleReferralLinkDetection();
-updateLanguage('en');
 checkExistingAuth();
+
+window.addEventListener('pageshow', () => {
+    updateLanguage(activeLang);
+});

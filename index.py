@@ -2,10 +2,10 @@
 ================================================================================
 ADM Investment Platform - Main Flask Application & Central Gateway
 File: index.py
-Database: adm_db (Configured via config.py)
+Database: Configured centrally via config.py (Unified Connection Hub)
 Includes:
   - Stable 30-Day Sessions
-  - Authentication (Login, Register, Logout, User Status)
+  - Secure Authentication (Login, Register, Logout, User Status)
   - Seamless 5-Page User Portal Integration
   - Master Admin Panel Engine Integration (/api/admin & /admin)
 ================================================================================
@@ -284,21 +284,28 @@ def logout():
     resp.set_cookie('logged_in_uid', '', expires=0, path='/')
     return resp
 
+# ==================== بررسی وضعیت ورود کاربر (اصلاح شده و کاملاً ایمن) ====================
+
 @app.route('/api/user_status', methods=['GET'])
 def user_status():
     user_id = session.get('user_id')
+    cookie_uid = request.cookies.get('logged_in_uid')
     conn = None
+
     try:
         conn = get_db()
         with conn.cursor() as cursor:
-            if not user_id:
-                cursor.execute("SELECT id FROM users ORDER BY id ASC LIMIT 1")
-                first = cursor.fetchone()
-                if first:
-                    user_id = first['id']
+            # اگر سشن نبود، فقط در صورت وجود کوکی معتبر همان کاربر مشخص را پیدا کن
+            if not user_id and cookie_uid:
+                cursor.execute("SELECT id FROM users WHERE uid = %s", (cookie_uid,))
+                found_u = cursor.fetchone()
+                if found_u:
+                    user_id = found_u['id']
                     session['user_id'] = user_id
-                else:
-                    return jsonify({"status": "unauthenticated", "success": False}), 401
+
+            # اگر کاربر لاگین نبود، قطعی خطای 401 برگردانده شود (بدون لاگین خودکار ادمین)
+            if not user_id:
+                return jsonify({"status": "unauthenticated", "success": False}), 401
 
             cursor.execute("""
                 SELECT u.id, u.uid, u.username, u.email, u.phone, u.role, u.referral_code, u.kyc_status,
@@ -311,7 +318,10 @@ def user_status():
             user = cursor.fetchone()
 
             if not user:
-                return jsonify({"status": "error", "success": False, "message": "User not found"}), 404
+                session.clear()
+                resp = make_response(jsonify({"status": "unauthenticated", "success": False}), 401)
+                resp.set_cookie('logged_in_uid', '', expires=0, path='/')
+                return resp
 
             return jsonify({
                 "status": "success",
