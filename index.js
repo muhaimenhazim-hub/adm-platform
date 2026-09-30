@@ -85,11 +85,11 @@ const i18n = {
         dir: 'ltr',
         langName: 'Русский',
         loginTitle: 'Войти',
-        loginSubtitle: 'Введите эл. почту или телефон для входа.',
+        loginSubtitle: 'Введите эл. почту یا телефон для входа.',
         regTitle: 'Создать аккаунт',
         regSubtitle: 'Введите ваши данные для регистрации.',
         identLabel: 'Эл. почта / Номер телефона',
-        identPlaceholder: 'Эл. почта или телефон',
+        identPlaceholder: 'Эл. почта یا телефон',
         fullNameLabel: 'Полное имя',
         fullNamePlaceholder: 'Введите ваше имя',
         passwordLabel: 'Пароль',
@@ -109,7 +109,7 @@ const i18n = {
         homeInfo: 'Регистрация прошла успешно! Готово к созданию 5 страниц.',
         logoutBtn: 'Выйти',
         errRequired: 'Это поле обязательно для заполнения',
-        errInvalidIdent: 'Введите корректный email или номер телефона',
+        errInvalidIdent: 'Введите корректный email یا номер телефона',
         errPassLength: 'Пароль должен содержать минимум 8 символов',
         errPassMismatch: 'Пароли не совпадают',
         errInviteRequired: 'Реферальный код обязателен',
@@ -399,11 +399,7 @@ if (loginFormEl) {
                 localStorage.setItem('user_uid', userData.uid || '');
 
                 setTimeout(() => {
-                    if (userData.role === 'admin') {
-                        window.location.href = 'admin.html';
-                    } else {
-                        window.location.href = 'home.html';
-                    }
+                    window.location.href = 'home.html';
                 }, 600);
             } else {
                 showToast(result.message || i18n[activeLang].errServerConn, true);
@@ -505,11 +501,7 @@ if (regFormEl) {
                 localStorage.setItem('user_uid', userData.uid || '');
 
                 setTimeout(() => {
-                    if (userData.role === 'admin') {
-                        window.location.href = 'admin.html';
-                    } else {
-                        window.location.href = 'home.html';
-                    }
+                    window.location.href = 'home.html';
                 }, 600);
 
                 regFormEl.reset();
@@ -566,14 +558,9 @@ async function checkExistingAuth() {
                 localStorage.setItem('user_id', data.user.id || data.user.userId || '');
                 localStorage.setItem('user_uid', data.user.uid || '');
 
-                if (data.user.role === 'admin') {
-                    window.location.href = 'admin.html';
-                } else {
-                    window.location.href = 'home.html';
-                }
+                window.location.href = 'home.html';
             }
         } else {
-            // در صورت عدم احراز هویت، داده‌های محلی پاکسازی شوند تا هیچ ریدایرکت اشتباهی رخ ندهد
             sessionStorage.removeItem('current_user');
             localStorage.removeItem('current_user');
             localStorage.removeItem('user_role');
