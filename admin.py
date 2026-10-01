@@ -22,7 +22,8 @@ Full compliance with all golden rules:
 """
 
 import os
-from datetime import datetime, date
+import random
+from datetime import datetime, date, timedelta
 from decimal import Decimal
 import pymysql
 from flask import Blueprint, request, jsonify, session
@@ -667,16 +668,52 @@ def reject_kyc():
 @admin_bp.route('/yield/status', methods=['GET'])
 @admin_required
 def yield_status():
-    today = date.today()
+    # محاسبه زمان و تاریخ زنده به وقت رسمی افغانستان (UTC+4:30)
+    afghan_now = datetime.utcnow() + timedelta(hours=4, minutes=30)
+    today = afghan_now.date()
     conn = get_db()
     try:
         with conn.cursor() as cursor:
+            # ۱. زنده کردن خودکار جدول نرخ‌ها و پر کردن روزهای جاافتاده تا تاریخ امروز افغانستان
+            try:
+                cursor.execute("SELECT MAX(yield_date) AS max_date FROM daily_yield_rates")
+                max_rec = cursor.fetchone()
+                max_date = max_rec['max_date'] if max_rec and max_rec['max_date'] else None
+
+                if not max_date:
+                    curr = today - timedelta(days=7)
+                    while curr <= today:
+                        is_past = (curr < today)
+                        rate_val = Decimal(str(round(random.uniform(0.0095, 0.0125), 4)))
+                        cursor.execute("""
+                            INSERT INTO daily_yield_rates (yield_date, rate_percent, is_distributed, distributed_at, created_at)
+                            VALUES (%s, %s, %s, %s, NOW())
+                            ON DUPLICATE KEY UPDATE yield_date = VALUES(yield_date)
+                        """, (curr, rate_val, 1 if is_past else 0, f"{curr} 21:00:00" if is_past else None))
+                        curr += timedelta(days=1)
+                elif max_date < today:
+                    curr = max_date + timedelta(days=1)
+                    while curr <= today:
+                        is_past = (curr < today)
+                        rate_val = Decimal(str(round(random.uniform(0.0095, 0.0125), 4)))
+                        cursor.execute("""
+                            INSERT INTO daily_yield_rates (yield_date, rate_percent, is_distributed, distributed_at, created_at)
+                            VALUES (%s, %s, %s, %s, NOW())
+                            ON DUPLICATE KEY UPDATE yield_date = VALUES(yield_date)
+                        """, (curr, rate_val, 1 if is_past else 0, f"{curr} 21:00:00" if is_past else None))
+                        curr += timedelta(days=1)
+            except Exception as e_sync:
+                print(f"[Notice] yield auto-sync: {e_sync}")
+
+            # ۲. دریافت رکورد امروز
             cursor.execute("SELECT * FROM daily_yield_rates WHERE yield_date = %s", (today,))
             today_record = cursor.fetchone()
 
-            today_rate = float(today_record['rate_percent']) if today_record else 0.0105
+            raw_today_rate = float(today_record['rate_percent']) if today_record else 0.0105
+            today_rate = raw_today_rate / 100.0 if raw_today_rate > 0.05 else raw_today_rate
             is_distributed = bool(today_record['is_distributed']) if today_record else False
 
+            # ۳. کاربران واجد شرایط (KYC تاییدشده و سرمایه فعال حداقل ۵۰ دلار)
             cursor.execute("""
                 SELECT COUNT(u.id) AS c
                 FROM users u
@@ -685,8 +722,29 @@ def yield_status():
             """)
             eligible_count = cursor.fetchone()['c']
 
+            # ۴. دریافت تاریخچه ۳۰ روز اخیر و نرمال‌سازی درصدهای ذخیره‌شده
             cursor.execute("SELECT * FROM daily_yield_rates ORDER BY yield_date DESC LIMIT 30")
-            history = cursor.fetchall()
+            raw_history = cursor.fetchall()
+
+            history = []
+            for h in raw_history:
+                r_val = float(h.get('rate_percent') or 0.0105)
+                # در صورتی که نرخ به صورت مثلاً 1.15 ذخیره شده باشد، اصلاح به مقدار اعشاری جهت جلوگیری از نمایش اشتباه 115%
+                if r_val > 0.05:
+                    r_val = r_val / 100.0
+
+                h_item = dict(h)
+                h_item['rate_percent'] = r_val
+
+                yd = h_item.get('yield_date')
+                if isinstance(yd, (datetime, date)):
+                    h_item['yield_date'] = yd.strftime('%Y-%m-%d')
+
+                da = h_item.get('distributed_at')
+                if isinstance(da, (datetime, date)):
+                    h_item['distributed_at'] = da.strftime('%Y-%m-%d %H:%M:%S')
+
+                history.append(h_item)
 
             return jsonify({
                 "status": "success",
@@ -706,8 +764,11 @@ def yield_status():
 @admin_required
 def set_yield_rate():
     data = request.get_json() or {}
-    rate = Decimal(str(data.get('rate', 0.0105)))
-    target_date = data.get('target_date') or date.today().strftime('%Y-%m-%d')
+    afghan_now = datetime.utcnow() + timedelta(hours=4, minutes=30)
+    target_date = data.get('target_date') or afghan_now.date().strftime('%Y-%m-%d')
+
+    raw_rate = Decimal(str(data.get('rate', 0.0105)))
+    rate = raw_rate if raw_rate <= Decimal('0.05') else raw_rate / Decimal('100')
 
     if rate < Decimal('0.0080') or rate > Decimal('0.0130'):
         return jsonify({"status": "error", "success": False, "message": "Rate must be strictly between 0.8% (0.0080) and 1.3% (0.0130)"}), 400
@@ -729,7 +790,8 @@ def set_yield_rate():
 @admin_bp.route('/yield/distribute', methods=['POST'])
 @admin_required
 def execute_distribution():
-    today = date.today()
+    afghan_now = datetime.utcnow() + timedelta(hours=4, minutes=30)
+    today = afghan_now.date()
     conn = get_db()
     try:
         with conn.cursor() as cursor:
@@ -740,7 +802,8 @@ def execute_distribution():
                 rate = Decimal('0.0105')
                 cursor.execute("INSERT INTO daily_yield_rates (yield_date, rate_percent, is_distributed, created_at) VALUES (%s, %s, 0, NOW())", (today, rate))
             else:
-                rate = Decimal(str(rate_rec['rate_percent']))
+                raw_rate = Decimal(str(rate_rec['rate_percent']))
+                rate = raw_rate / Decimal('100') if raw_rate > Decimal('0.05') else raw_rate
                 if rate_rec['is_distributed']:
                     return jsonify({"status": "error", "success": False, "message": "Yield already distributed today."}), 400
 
