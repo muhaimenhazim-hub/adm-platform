@@ -63,6 +63,8 @@ const dashboardI18n = {
         errWithdraw: 'Error submitting withdrawal request.',
         errCompound: 'Error processing compound profit.',
         errConnection: 'Network connection error with backend server.',
+        errInvalidAmount: 'Please enter a valid amount.',
+        errInsufficientBalance: 'Amount exceeds available balance.',
         tiers: [
             { label: 'Under 10 days:', val: 'Disallowed (Error)', isErr: true },
             { label: 'Between 10 to 15 days:', val: '5% Fee' },
@@ -127,6 +129,8 @@ const dashboardI18n = {
         errWithdraw: 'Erreur lors de la transmission de la demande de retrait.',
         errCompound: "Erreur lors du traitement de l'intérêt composé.",
         errConnection: 'Erreur de connexion au serveur.',
+        errInvalidAmount: 'Veuillez saisir un montant valide.',
+        errInsufficientBalance: 'Le montant dépasse votre solde disponible.',
         tiers: [
             { label: 'Moins de 10 jours :', val: 'Interdit (Erreur)', isErr: true },
             { label: 'Entre 10 et 15 jours :', val: '5% Frais' },
@@ -191,12 +195,14 @@ const dashboardI18n = {
         errWithdraw: 'Ошибка при отправке заявки на вывод.',
         errCompound: 'Ошибка при обработке реинвестирования.',
         errConnection: 'Ошибка подключения к серверу.',
+        errInvalidAmount: 'Пожалуйста, введите корректную сумму.',
+        errInsufficientBalance: 'Сумма превышает доступный баланс.',
         tiers: [
             { label: 'Менее 10 дней:', val: 'Запрещено (Ошибка)', isErr: true },
             { label: 'От 10 до 15 дней:', val: '5% Комиссия' },
-            { label: 'От 15 до 24 дней:', val: '3% Комиссия' },
-            { label: 'От 25 до 34 дней:', val: '1% Комиссия' },
-            { label: 'От 35 до 49 дней:', val: '0% (Бесплатно)', isGreen: true },
+            { label: 'От 15 до 25 дней:', val: '3% Комиссия' },
+            { label: 'От 25 до 35 дней:', val: '1% Комиссия' },
+            { label: 'От 35 до 50 дней:', val: '0% (Бесплатно)', isGreen: true },
             { label: 'Более 50 дней:', val: '0% + 3% Бонус', isGreen: true }
         ]
     },
@@ -255,6 +261,8 @@ const dashboardI18n = {
         errWithdraw: 'خطأ في إرسال طلب السحب.',
         errCompound: 'خطأ في معالجة الفائدة المركبة.',
         errConnection: 'خطأ في الاتصال بالخادم.',
+        errInvalidAmount: 'يرجى إدخال مبلغ صحيح.',
+        errInsufficientBalance: 'المبلغ المدخل يتجاوز الرصيد المتاح.',
         tiers: [
             { label: 'أقل من 10 أيام:', val: 'غير مسموح (خطأ)', isErr: true },
             { label: 'بين 10 و 15 يوماً:', val: '5% عمولة' },
@@ -319,6 +327,8 @@ const dashboardI18n = {
         errWithdraw: 'خطا در ارسال درخواست برداشت.',
         errCompound: 'خطا در پردازش ترکیب سود.',
         errConnection: 'خطا در برقراری ارتباط با سرور.',
+        errInvalidAmount: 'لطفاً یک مبلغ معتبر وارد کنید.',
+        errInsufficientBalance: 'مبلغ وارد شده بیشتر از موجودی قابل برداشت است.',
         tiers: [
             { label: 'کمتر از ۱۰ روز:', val: 'غیرمجاز (خطا)', isErr: true },
             { label: 'بین ۱۰ تا ۱۵ روز:', val: '۵٪ کارمزد' },
@@ -330,9 +340,6 @@ const dashboardI18n = {
     }
 };
 
-/**
- * تابع ایمن دریافت آدرس از کانفیگ مرکزی
- */
 function resolveApiUrl(endpoint) {
     if (window.APP_CONFIG && typeof window.APP_CONFIG.getApiUrl === 'function') {
         return window.APP_CONFIG.getApiUrl(endpoint);
@@ -341,11 +348,9 @@ function resolveApiUrl(endpoint) {
 }
 
 const STORAGE_LANG_KEY = 'platform_lang';
-// زبان انتخابی سیستم با فال‌بک پیش‌فرض انگلیسی در صورت خالی بودن
 let currentLanguage = localStorage.getItem(STORAGE_LANG_KEY) || 'en';
 if (!dashboardI18n[currentLanguage]) currentLanguage = 'en';
 
-// وضعیت داده‌های زنده دریافتی از دیتابیس
 let platformUser = {
     role: 'user',
     activeCapital: 0.00,
@@ -356,10 +361,10 @@ let platformUser = {
     referralCode: 'ADM2026',
     dailyRate: 1.15,
     todayProfit: 0.00,
-    isReleased: false
+    isReleased: false,
+    hasInvestment: false
 };
 
-// دریافت عناصر کنترل صفحه
 const langDropdown = document.getElementById('langDropdown');
 const langTriggerBtn = document.getElementById('langTriggerBtn');
 const currentLangLabel = document.getElementById('currentLangLabel');
@@ -391,8 +396,16 @@ if (adminPanelBtn) {
     });
 }
 
+function showToast(message, isError = false) {
+    if (!toastNotification) return;
+    toastNotification.textContent = message;
+    toastNotification.className = isError ? 'toast-alert error show' : 'toast-alert show';
+    setTimeout(() => { if (toastNotification) toastNotification.className = 'toast-alert'; }, 3800);
+}
+window.showToast = showToast;
+
 /**
- * دریافت اطلاعات زنده از سرور پایتون و دیتابیس Aiven
+ * دریافت اطلاعات زنده داشبورد از سرور پایتون
  */
 async function fetchUserDashboardData() {
     let sessionUser = {};
@@ -429,11 +442,11 @@ async function fetchUserDashboardData() {
             platformUser.totalLifetimeEarnings = parseFloat(d.totalLifetimeProfit || d.total_lifetime_profit || 0.0);
             platformUser.todayProfit = parseFloat(d.todayProfit || d.today_profit || 0.0);
             platformUser.dailyRate = parseFloat(d.dailyRate || d.daily_rate || 1.15);
-            platformUser.isReleased = (d.isReleased !== undefined) ? d.isReleased : (d.is_released !== undefined ? d.is_released : false);
+            platformUser.isReleased = (d.isReleased !== undefined) ? Boolean(d.isReleased) : Boolean(d.is_released);
+            platformUser.hasInvestment = (d.hasInvestment !== undefined) ? Boolean(d.hasInvestment) : (platformUser.activeCapital >= 50.00);
             platformUser.daysSinceLastCompound = d.daysElapsed !== undefined ? d.daysElapsed : (d.days_since_last_compound || 0);
             platformUser.referralCode = d.referralCode || d.referral_code || 'ADM2026';
 
-            // بروزرسانی داینامیک کد و لینک دعوت با توجه به دامنه فعال
             const hostUrl = window.location.origin;
             const refCodeElem = document.getElementById('txtInviteCode');
             const refLinkElem = document.getElementById('txtInviteLink');
@@ -442,6 +455,8 @@ async function fetchUserDashboardData() {
 
             if (platformUser.role === 'admin' && adminPanelBtn) {
                 adminPanelBtn.classList.remove('hidden');
+            } else if (adminPanelBtn) {
+                adminPanelBtn.classList.add('hidden');
             }
 
             updateDashboardStats();
@@ -458,34 +473,24 @@ function updateDashboardStats() {
     const elWithdrawable = document.getElementById('statWithdrawableProfit');
     const elLifetime = document.getElementById('statTotalLifetime');
 
-    if (elCapital) elCapital.textContent = platformUser.activeCapital.toLocaleString('en-US', { minimumFractionDigits: 2 });
-    if (elWithdrawable) elWithdrawable.textContent = platformUser.withdrawableProfit.toLocaleString('en-US', { minimumFractionDigits: 2 });
-    if (elLifetime) elLifetime.textContent = platformUser.totalLifetimeEarnings.toLocaleString('en-US', { minimumFractionDigits: 2 });
+    if (elCapital) elCapital.textContent = platformUser.activeCapital.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (elWithdrawable) elWithdrawable.textContent = platformUser.withdrawableProfit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (elLifetime) elLifetime.textContent = platformUser.totalLifetimeEarnings.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
     const rateBadge = document.getElementById('statDailyRate');
     const todayProfitEl = document.getElementById('statTodayProfit');
 
-    const hasInvestment = platformUser.activeCapital >= 50.00;
-
-    if (!hasInvestment) {
+    if (!platformUser.hasInvestment) {
         if (rateBadge) rateBadge.textContent = '0.00%';
         if (todayProfitEl) todayProfitEl.textContent = '0.00';
     } else if (platformUser.isReleased) {
         if (rateBadge) rateBadge.textContent = `+${platformUser.dailyRate.toFixed(2)}%`;
-        if (todayProfitEl) todayProfitEl.textContent = platformUser.todayProfit.toLocaleString('en-US', { minimumFractionDigits: 2 });
+        if (todayProfitEl) todayProfitEl.textContent = platformUser.todayProfit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     } else {
         if (rateBadge) rateBadge.textContent = '---';
         if (todayProfitEl) todayProfitEl.textContent = '---';
     }
 }
-
-function showToast(message, isError = false) {
-    if (!toastNotification) return;
-    toastNotification.textContent = message;
-    toastNotification.className = isError ? 'toast-alert error show' : 'toast-alert show';
-    setTimeout(() => { if (toastNotification) toastNotification.className = 'toast-alert'; }, 3800);
-}
-window.showToast = showToast;
 
 function renderCompoundTiers() {
     const dict = dashboardI18n[currentLanguage] || dashboardI18n.en;
@@ -533,6 +538,7 @@ function setLanguage(lang) {
 
     if (langDropdown) langDropdown.classList.remove('open');
     renderCompoundTiers();
+    updateDashboardStats();
 }
 
 if (langTriggerBtn && langDropdown) {
@@ -554,9 +560,6 @@ if (langMenu) {
     });
 }
 
-/**
- * ناوبری تب‌های داخلی و صفحات جانبی
- */
 function switchNavTab(tab) {
     if (tab === 'home') {
         document.querySelectorAll('.spa-view').forEach(v => v.classList.remove('active'));
@@ -604,7 +607,6 @@ document.querySelectorAll('.bottom-nav .nav-item').forEach(button => {
     });
 });
 
-// باز و بسته کردن مودال‌ها
 function openDepositModal() { if (depositModal) depositModal.classList.remove('hidden'); }
 function closeDepositModal() { if (depositModal) depositModal.classList.add('hidden'); }
 window.openDepositModal = openDepositModal;
@@ -626,8 +628,8 @@ document.querySelectorAll('.network-card').forEach(card => {
 function openWithdrawModal() {
     const profitEl = document.getElementById('modalProfitBalance');
     const unlockedEl = document.getElementById('modalUnlockedBalance');
-    if (profitEl) profitEl.textContent = platformUser.withdrawableProfit.toLocaleString('en-US', { minimumFractionDigits: 2 });
-    if (unlockedEl) unlockedEl.textContent = platformUser.unlockedPrincipal.toLocaleString('en-US', { minimumFractionDigits: 2 });
+    if (profitEl) profitEl.textContent = platformUser.withdrawableProfit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (unlockedEl) unlockedEl.textContent = platformUser.unlockedPrincipal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     if (withdrawAmountInput) withdrawAmountInput.value = '';
     if (withdrawAddressInput) withdrawAddressInput.value = '';
     calculateWithdrawal();
@@ -675,9 +677,6 @@ if (setMaxAmountBtn && withdrawAmountInput) {
 if (withdrawAmountInput) withdrawAmountInput.addEventListener('input', calculateWithdrawal);
 if (withdrawAddressInput) withdrawAddressInput.addEventListener('input', calculateWithdrawal);
 
-/**
- * محاسبه پله‌ای کارمزد و قوانین برداشت
- */
 function calculateWithdrawal() {
     if (!withdrawAmountInput || !withdrawAddressInput) return;
     const amount = parseFloat(withdrawAmountInput.value) || 0;
@@ -719,13 +718,11 @@ function calculateWithdrawal() {
     if (confirmWithdrawBtn) confirmWithdrawBtn.disabled = !isValid;
 }
 
-/**
- * ثبت نهایی درخواست برداشت
- */
 if (confirmWithdrawBtn) {
     confirmWithdrawBtn.addEventListener('click', async () => {
         const amount = parseFloat(withdrawAmountInput.value);
         const address = withdrawAddressInput.value.trim();
+        const dict = dashboardI18n[currentLanguage] || dashboardI18n.en;
         let sessionUser = {};
         try {
             sessionUser = JSON.parse(sessionStorage.getItem('current_user') || localStorage.getItem('current_user') || '{}');
@@ -734,8 +731,18 @@ if (confirmWithdrawBtn) {
         }
         const currentUserId = sessionUser.userId || sessionUser.id || localStorage.getItem('user_id');
 
+        if (!amount || isNaN(amount) || amount <= 0) {
+            showToast(dict.errInvalidAmount, true);
+            return;
+        }
+
+        const maxAvailable = currentWithdrawType === 'profit' ? platformUser.withdrawableProfit : platformUser.unlockedPrincipal;
+        if (amount > maxAvailable) {
+            showToast(dict.errInsufficientBalance, true);
+            return;
+        }
+
         const withdrawApiUrl = resolveApiUrl('/api/home/withdraw');
-        const dict = dashboardI18n[currentLanguage] || dashboardI18n.en;
 
         try {
             const response = await fetch(withdrawApiUrl, {
@@ -797,9 +804,6 @@ if (actionCompoundBtn) {
     actionCompoundBtn.addEventListener('click', openCompoundModal);
 }
 
-/**
- * ارسال درخواست ترکیب سود
- */
 const confirmCompoundBtn = document.getElementById('confirmCompoundBtn');
 if (confirmCompoundBtn) {
     confirmCompoundBtn.addEventListener('click', async () => {
@@ -871,7 +875,6 @@ function initPlatformVideo() {
 }
 
 function initHomePage() {
-    // اعمال فوری زبان در ثانیه صفر
     setLanguage(currentLanguage);
 
     document.querySelectorAll('.spa-view').forEach(v => v.classList.remove('active'));
