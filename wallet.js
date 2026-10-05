@@ -7,7 +7,6 @@
  * ==============================================================================
  */
 
-// دیکشنری ۵ زبانه کامل پلتفرم همراه با کلیدهای اختصاصی پله‌های کارمزد و خطا
 const walletI18n = {
     en: {
         dir: 'ltr',
@@ -82,7 +81,9 @@ const walletI18n = {
         tierBlockedUnder10: 'Under 10 days (Disallowed)',
         tierFree: '0% (Free)',
         feeTierFixedPrincipal: '5% (Fixed Principal)',
-        errConnection: 'Network connection error with backend server.'
+        errConnection: 'Network connection error with backend server.',
+        errInvalidAmount: 'Please enter a valid amount.',
+        errInsufficientBalance: 'Entered amount exceeds your available balance.'
     },
     fr: {
         dir: 'ltr',
@@ -157,7 +158,9 @@ const walletI18n = {
         tierBlockedUnder10: 'Moins de 10 jours (Interdit)',
         tierFree: '0% (Gratuit)',
         feeTierFixedPrincipal: '5% (Capital libéré)',
-        errConnection: 'Erreur de connexion au serveur.'
+        errConnection: 'Erreur de connexion au serveur.',
+        errInvalidAmount: 'Veuillez saisir un montant valide.',
+        errInsufficientBalance: 'Le montant dépasse votre solde disponible.'
     },
     ru: {
         dir: 'ltr',
@@ -232,7 +235,9 @@ const walletI18n = {
         tierBlockedUnder10: 'Менее 10 дней (Запрещено)',
         tierFree: '0% (Бесплатно)',
         feeTierFixedPrincipal: '5% (Фикс. капитал)',
-        errConnection: 'Ошибка подключения к серверу.'
+        errConnection: 'Ошибка подключения к серверу.',
+        errInvalidAmount: 'Пожалуйста, введите корректную сумму.',
+        errInsufficientBalance: 'Сумма превышает доступный баланс.'
     },
     ar: {
         dir: 'rtl',
@@ -307,7 +312,9 @@ const walletI18n = {
         tierBlockedUnder10: 'أقل من 10 أيام (غير مسموح)',
         tierFree: '0% (مجاناً)',
         feeTierFixedPrincipal: '5% (رأس المال المحرر)',
-        errConnection: 'خطأ في الاتصال بالخادم.'
+        errConnection: 'خطأ في الاتصال بالخادم.',
+        errInvalidAmount: 'يرجى إدخال مبلغ صحيح.',
+        errInsufficientBalance: 'المبلغ المدخل يتجاوز الرصيد المتاح.'
     },
     fa: {
         dir: 'rtl',
@@ -382,13 +389,12 @@ const walletI18n = {
         tierBlockedUnder10: 'کمتر از ۱۰ روز (غیرمجاز)',
         tierFree: '۰٪ (رایگان)',
         feeTierFixedPrincipal: '۵٪ (ثابت اصل سرمایه)',
-        errConnection: 'خطا در برقراری ارتباط با سرور.'
+        errConnection: 'خطا در برقراری ارتباط با سرور.',
+        errInvalidAmount: 'لطفاً یک مبلغ معتبر وارد کنید.',
+        errInsufficientBalance: 'مبلغ وارد شده بیشتر از موجودی قابل برداشت است.'
     }
 };
 
-/**
- * تابع استاندارد دریافت اندپوینت از کانفیگ مرکزی
- */
 function resolveApiUrl(endpoint) {
     if (window.APP_CONFIG && typeof window.APP_CONFIG.getApiUrl === 'function') {
         return window.APP_CONFIG.getApiUrl(endpoint);
@@ -396,22 +402,19 @@ function resolveApiUrl(endpoint) {
     return endpoint;
 }
 
-// کلید مشترک ذخیره زبان بین تمام صفحات با فال‌بک پیش‌فرض انگلیسی
 const STORAGE_LANG_KEY = 'platform_lang';
 let currentLanguage = localStorage.getItem(STORAGE_LANG_KEY) || 'en';
 if (!walletI18n[currentLanguage]) currentLanguage = 'en';
 
-// داده‌های مالی کاربر
 let walletUser = {
     role: 'user',
     activeCapital: 0.00,
     lockedPrincipal: 0.00,
     unlockedPrincipal: 0.00,
     withdrawableProfit: 0.00,
-    daysSinceLastAction: 20
+    daysSinceLastAction: 0
 };
 
-// تراکنش‌های کیف‌پول
 let transactionData = [];
 
 let currentActiveTab = null;
@@ -421,7 +424,6 @@ let selectedFilterStatus = 'all';
 let currentPage = 1;
 const itemsPerPage = 5;
 
-// متغیرهای DOM
 const toastNotification = document.getElementById('toastNotification');
 const langDropdown = document.getElementById('langDropdown');
 const langTriggerBtn = document.getElementById('langTriggerBtn');
@@ -429,14 +431,12 @@ const currentLangLabel = document.getElementById('currentLangLabel');
 const langMenu = document.getElementById('langMenu');
 const adminPanelBtn = document.getElementById('adminPanelBtn');
 
-// تب‌ها و پنل‌های عملیاتی
 const tabSwitchDeposit = document.getElementById('tabSwitchDeposit');
 const tabSwitchWithdraw = document.getElementById('tabSwitchWithdraw');
 const panelPlaceholder = document.getElementById('panelPlaceholder');
 const panelDeposit = document.getElementById('panelDeposit');
 const panelWithdraw = document.getElementById('panelWithdraw');
 
-// فرم برداشت
 const withdrawModalProfit = document.getElementById('withdrawModalProfit');
 const withdrawModalUnlocked = document.getElementById('withdrawModalUnlocked');
 const tabWithdrawProfit = document.getElementById('tabWithdrawProfit');
@@ -450,7 +450,6 @@ const modalNetReceive = document.getElementById('modalNetReceive');
 const tenPercentRuleDot = document.getElementById('tenPercentRuleDot');
 const confirmWithdrawBtn = document.getElementById('confirmWithdrawBtn');
 
-// منوهای کشویی سفارشی فیلترها
 const filterTypeDropdown = document.getElementById('filterTypeDropdown');
 const filterTypeTriggerBtn = document.getElementById('filterTypeTriggerBtn');
 const selectedTypeLabel = document.getElementById('selectedTypeLabel');
@@ -468,7 +467,6 @@ const prevPageBtn = document.getElementById('prevPageBtn');
 const nextPageBtn = document.getElementById('nextPageBtn');
 const paginationInfo = document.getElementById('paginationInfo');
 
-// آدرس‌های پیش‌فرض شبکه‌ها
 const depositAddresses = {
     TRC20: 'T9yD14Nj9j7xAB4dbGeiX9h82kL90XmnZa',
     BEP20: '0x71C8fb8613375776419707255146614f2430b321'
@@ -484,9 +482,6 @@ function showToast(message, isError = false) {
 }
 window.showToast = showToast;
 
-/**
- * محاسبه کارمزد پلکانی برداشت سود بر اساس روزهای سپری‌شده با متون داینامیک ۵ زبانه
- */
 function getProfitWithdrawalFeeRate(days) {
     const dict = walletI18n[currentLanguage] || walletI18n.en;
     if (days < 10) {
@@ -508,13 +503,13 @@ function updateWalletBalances() {
     const statUnlocked = document.getElementById('statUnlockedPrincipal');
     const statProfit = document.getElementById('statWithdrawableProfit');
 
-    if (statActive) statActive.textContent = Number(walletUser.activeCapital).toLocaleString('en-US', { minimumFractionDigits: 2 });
-    if (statLocked) statLocked.textContent = `$${Number(walletUser.lockedPrincipal).toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
-    if (statUnlocked) statUnlocked.textContent = `$${Number(walletUser.unlockedPrincipal).toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
-    if (statProfit) statProfit.textContent = Number(walletUser.withdrawableProfit).toLocaleString('en-US', { minimumFractionDigits: 2 });
+    if (statActive) statActive.textContent = Number(walletUser.activeCapital).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (statLocked) statLocked.textContent = `$${Number(walletUser.lockedPrincipal).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    if (statUnlocked) statUnlocked.textContent = `$${Number(walletUser.unlockedPrincipal).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    if (statProfit) statProfit.textContent = Number(walletUser.withdrawableProfit).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-    if (withdrawModalProfit) withdrawModalProfit.textContent = Number(walletUser.withdrawableProfit).toLocaleString('en-US', { minimumFractionDigits: 2 });
-    if (withdrawModalUnlocked) withdrawModalUnlocked.textContent = Number(walletUser.unlockedPrincipal).toLocaleString('en-US', { minimumFractionDigits: 2 });
+    if (withdrawModalProfit) withdrawModalProfit.textContent = Number(walletUser.withdrawableProfit).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (withdrawModalUnlocked) withdrawModalUnlocked.textContent = Number(walletUser.unlockedPrincipal).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
     const dict = walletI18n[currentLanguage] || walletI18n.en;
     const isTenPercentMet = walletUser.activeCapital >= 50 && (walletUser.withdrawableProfit >= (walletUser.activeCapital * 0.10));
@@ -786,6 +781,18 @@ if (confirmWithdrawBtn) {
         const amount = parseFloat(withdrawAmountInput.value);
         const destAddr = withdrawAddressInput.value.trim();
         const net = destAddr.startsWith('0x') ? 'BEP20' : 'TRC20';
+        const dict = walletI18n[currentLanguage] || walletI18n.en;
+
+        if (!amount || isNaN(amount) || amount <= 0) {
+            showToast(dict.errInvalidAmount, true);
+            return;
+        }
+
+        const maxAvailable = currentWithdrawType === 'profit' ? walletUser.withdrawableProfit : walletUser.unlockedPrincipal;
+        if (amount > maxAvailable) {
+            showToast(dict.errInsufficientBalance, true);
+            return;
+        }
 
         let sessionUser = {};
         try {
@@ -796,7 +803,6 @@ if (confirmWithdrawBtn) {
         const currentUserId = sessionUser.userId || sessionUser.id || localStorage.getItem('user_id') || '';
 
         const withdrawApiUrl = resolveApiUrl('/api/wallet/withdraw');
-        const dict = walletI18n[currentLanguage] || walletI18n.en;
 
         try {
             const res = await fetch(withdrawApiUrl, {
@@ -814,8 +820,8 @@ if (confirmWithdrawBtn) {
 
             const data = await res.json();
 
-            if (data.status === 'success' || data.success) {
-                showToast(dict.withdrawSuccess, false);
+            if (res.ok && (data.status === 'success' || data.success)) {
+                showToast(data.message || dict.withdrawSuccess, false);
                 withdrawAmountInput.value = '';
                 withdrawAddressInput.value = '';
                 await fetchWalletOverview();
@@ -894,7 +900,7 @@ function renderTransactionsTable() {
                     </span>
                 </td>
                 <td><span class="tx-type-tag">${typeLabel}</span></td>
-                <td><span class="${amountClass}">${amountSign}$${Number(tx.amount).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span></td>
+                <td><span class="${amountClass}">${amountSign}$${Number(tx.amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span></td>
                 <td><span class="network-chip">${tx.network}</span></td>
                 <td><span class="status-badge ${tx.status}">${statusLabel}</span></td>
                 <td class="tx-date-cell">${tx.date}</td>
@@ -950,9 +956,6 @@ document.querySelectorAll('.bottom-nav .nav-item').forEach(link => {
     }, true);
 });
 
-/**
- * دریافت اطلاعات زنده کیف‌پول از سرور
- */
 async function fetchWalletOverview() {
     let sessionUser = {};
     try {
@@ -999,11 +1002,7 @@ async function fetchWalletOverview() {
     renderTransactionsTable();
 }
 
-/**
- * راه‌اندازی اولیه صفحه در ثانیه صفر
- */
 async function initWalletPage() {
-    // ۱. اعمال فوری زبان در همان لحظه بارگذاری بدون صبر برای شبکه
     setLanguage(currentLanguage);
 
     const urlParams = new URLSearchParams(window.location.search);
@@ -1021,7 +1020,6 @@ async function initWalletPage() {
         if (panelPlaceholder) panelPlaceholder.classList.remove('hidden');
     }
 
-    // ۲. بررسی سطح دسترسی ادمین
     try {
         const statusUrl = resolveApiUrl('/api/user_status');
         const userRes = await fetch(statusUrl, {
@@ -1045,7 +1043,6 @@ async function initWalletPage() {
         console.warn('Admin check notice:', e);
     }
 
-    // ۳. دریافت آمار زنده از دیتابیس
     await fetchWalletOverview();
 }
 
