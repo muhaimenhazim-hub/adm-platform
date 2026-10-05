@@ -21,7 +21,7 @@ wallet_bp = Blueprint('wallet_bp', __name__, url_prefix='/api/wallet')
 
 def get_profit_cycle_state():
     """
-    محاسبه دقیق وضعیت چرخه سود روزانه هماهنگ با سایر بخش‌های پلتفرم:
+    محاسبه دقیق وضعیت چرخه سود روزانه:
     - روز جهانی از ساعت 00:00 UTC آغاز می‌شود.
     - زمان آزادسازی سود روزانه ساعت 21:00 به وقت افغانستان (معادل 16:30 UTC) است.
     - بین 00:00 تا 16:30 UTC: سود در حالت در حال پردازش / در انتظار (Pending) قرار دارد.
@@ -175,9 +175,8 @@ def get_wallet_overview():
 
             today_profit = round((active_capital * daily_rate) / 100.0, 2) if has_investment else 0.00
 
-            # با آزادسازی در ساعت ۹ شب، سود روزانه به موجودی قابل برداشت اضافه می‌شود
+            # با رسیدن ساعت ۹ شب، سود روزانه به مجموع کل سودها اضافه می‌شود اما به سود قابل برداشت (تا گذشت ۱۰ روز) اضافه نمی‌شود
             if is_released and has_investment and not is_distributed_db:
-                withdrawable_profit = round(withdrawable_profit + today_profit, 2)
                 total_lifetime_profit = round(total_lifetime_profit + today_profit, 2)
 
             days_since = calculate_days_difference(balance.get('last_action'))

@@ -18,7 +18,7 @@ home_bp = Blueprint('home_bp', __name__, url_prefix='/api/home')
 
 def get_profit_cycle_state():
     """
-    محاسبه دقیق وضعیت چرخه سود روزانه هماهنگ با بخش سرمایه‌گذاری:
+    محاسبه دقیق وضعیت چرخه سود روزانه:
     - روز جهانی از ساعت 00:00 UTC آغاز می‌شود.
     - زمان آزادسازی سود روزانه ساعت 21:00 به وقت افغانستان (معادل 16:30 UTC) است.
     - بین 00:00 تا 16:30 UTC: سود در حالت در حال پردازش / در انتظار (Pending) قرار دارد.
@@ -67,7 +67,7 @@ def get_or_create_daily_rate(cursor, date_obj):
     return rate, False
 
 # ==============================================================================
-# ۱. دریافت آمار واقعی داشبورد با اعمال شرط حداقل ۵۰ دلار و زمان تسویه ۹ شب
+# ۱. دریافت آمار واقعی داشبورد با تفکیک سود ۱۰ روزه قابل برداشت و مجموع کل سودها
 # ==============================================================================
 @home_bp.route('/stats', methods=['POST'])
 def get_dashboard_stats():
@@ -112,12 +112,11 @@ def get_dashboard_stats():
             total_lifetime = float(user['total_lifetime_profit'] or 0.0)
             withdrawable = float(user['withdrawable_profit'] or 0.0)
 
-            # با رسیدن ساعت ۹ شب، سود روزانه به مجموع سودها و سود قابل برداشت کاربر اضافه می‌شود
+            # راس ساعت ۹ شب، سود روزانه به «مجموع کل سودها» اضافه می‌شود
+            # اما به «سود قابل برداشت» اضافه نمی‌شود تا دوره ۱۰ روزه آن سپری گردد
             if is_released and has_investment and not is_distributed_db:
                 total_lifetime = round(total_lifetime + today_profit, 2)
-                withdrawable = round(withdrawable + today_profit, 2)
 
-            # محاسبه تعداد روزهای سپری شده از آخرین اقدام جهت قانون ۱۰ روز نگهداری
             last_action_date = user['last_action']
             days_elapsed = 0
             if last_action_date:

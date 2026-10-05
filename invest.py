@@ -67,7 +67,7 @@ def get_or_create_daily_rate(cursor, date_obj):
     return rate, False
 
 # ==============================================================================
-# ۱. دریافت اطلاعات کامل صفحه سرمایه‌گذاری و سودها
+# ۱. دریافت اطلاعات کامل صفحه سرمایه‌گذاری و تفکیک موجودی سود ۱۰ روزه
 # ==============================================================================
 @invest_bp.route('/data', methods=['POST'])
 def get_investment_data():
@@ -112,10 +112,10 @@ def get_investment_data():
             accumulated_profit = float(user['total_lifetime_profit'] or 0.0)
             available_profit = float(user['withdrawable_profit'] or 0.0)
 
-            # با آزادسازی در ساعت ۹ شب، سود محاسبه‌شده به مجموع سودها و موجودی سود اضافه می‌گردد
+            # با آزادسازی در ساعت ۹ شب، سود روزانه به «مجموع سودهای انباشته» اضافه می‌شود
+            # اما موجودی سود فعلی (قابل برداشت/ترکیب) تنها شامل سودهای بالغ ۱۰ روزه است
             if is_released and has_investment and not is_distributed_db:
                 accumulated_profit = round(accumulated_profit + today_profit, 2)
-                available_profit = round(available_profit + today_profit, 2)
 
             last_action_date = user['last_action']
             days_held = 0
@@ -129,7 +129,7 @@ def get_investment_data():
                 except Exception:
                     days_held = 0
 
-            # واکشی لات‌های سرمایه‌گذاری با فرمت تاریخ کاملاً عددی
+            # واکشی لات‌های سرمایه‌گذاری با تاریخ عددی
             sql_lots = """
                 SELECT id, amount, source, 
                        DATE_FORMAT(start_date, '%%Y-%%m-%%d') as reg_date,
@@ -143,7 +143,7 @@ def get_investment_data():
             cursor.execute(sql_lots, (user_id,))
             lots = cursor.fetchall()
 
-            # ساخت سوابق سودهای روزانه اخیر با تاریخ‌های کاملاً عددی و یکسان با نمودار
+            # ساخت سوابق سودهای روزانه با فرمت عددی استاندارد (۱۰ روز اخیر)
             profit_history = []
             for i in range(10):
                 d = current_date - timedelta(days=i)
@@ -192,7 +192,7 @@ def get_investment_data():
             conn.close()
 
 # ==============================================================================
-# ۲. دریافت داده‌های نمودار بازدهی (کاملاً یکسان با جدول سوابق)
+# ۲. دریافت داده‌های نمودار بازدهی
 # ==============================================================================
 @invest_bp.route('/chart', methods=['POST'])
 def get_chart_data():
@@ -243,7 +243,7 @@ def get_chart_data():
             conn.close()
 
 # ==============================================================================
-# ۳. ثبت سود مرکب به اصل سرمایه
+# ۳. ثبت ترکیب سود به اصل سرمایه
 # ==============================================================================
 @invest_bp.route('/compound', methods=['POST'])
 def execute_compound():
