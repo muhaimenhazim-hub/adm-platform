@@ -8,20 +8,66 @@ Database: Configured centrally via config.py (Unified Connection Hub)
 ==============================================================================
 """
 
-from flask import Blueprint, request, jsonify, session
-import pymysql
 import math
 from datetime import datetime, timezone, timedelta
+from flask import Blueprint, request, jsonify, session
+import pymysql
 from config import get_db
 
 invest_bp = Blueprint('invest_bp', __name__, url_prefix='/api/invest')
 
-def get_afghanistan_time():
-    afghan_tz = timezone(timedelta(hours=4, minutes=30))
-    return datetime.now(afghan_tz)
+def get_profit_cycle_state():
+    """
+    محاسبه دقیق وضعیت چرخه سود روزانه:
+    - روز جهانی از ساعت 00:00 UTC آغاز می‌شود.
+    - زمان آزادسازی سود روزانه ساعت 21:00 به وقت افغانستان (معادل 16:30 UTC) است.
+    - بین 00:00 تا 16:30 UTC: سود در حالت در حال پردازش / در انتظار (Pending) قرار دارد.
+    - از 16:30 تا 23:59:59 UTC (ساعت 21:00 تا 04:30 صبح افغانستان): سود آزاد (Released) است.
+    - با ورود به روز جدید جهانی (00:00 UTC)، چرخه مجدداً برای روز جاری به حالت در انتظار می‌رود.
+    """
+    utc_now = datetime.now(timezone.utc)
+    current_utc_date = utc_now.date()
+    release_threshold_utc = datetime(
+        current_utc_date.year, current_utc_date.month, current_utc_date.day,
+        16, 30, 0, tzinfo=timezone.utc
+    )
+    is_released = utc_now >= release_threshold_utc
+    return current_utc_date, is_released, utc_now
+
+def get_deterministic_daily_rate(date_obj):
+    """
+    تولید نرخ قطعی و ثابت روزانه بین ۰.۸۰٪ تا ۱.۳۰٪ بر اساس تاریخ
+    """
+    seed = date_obj.year * 10000 + date_obj.month * 100 + date_obj.day
+    val = (math.sin(seed * 12.9898) * 43758.5453) % 1.0
+    return round(0.80 + (abs(val) * 0.50), 2)
+
+def get_or_create_daily_rate(cursor, date_obj):
+    """
+    واکشی یا ثبت نرخ روزانه در دیتابیس جهت یکسان بودن قطعی در تمام صفحات
+    """
+    date_str = date_obj.strftime('%Y-%m-%d')
+    cursor.execute("SELECT rate_percent, is_distributed FROM daily_yield_rates WHERE yield_date = %s", (date_str,))
+    row = cursor.fetchone()
+    if row:
+        return float(row['rate_percent']), bool(row['is_distributed'])
+    
+    rate = get_deterministic_daily_rate(date_obj)
+    try:
+        cursor.execute(
+            """
+            INSERT INTO daily_yield_rates (yield_date, rate_percent, is_distributed, created_at)
+            VALUES (%s, %s, 0, NOW())
+            ON DUPLICATE KEY UPDATE rate_percent = rate_percent
+            """,
+            (date_str, rate)
+        )
+    except Exception:
+        pass
+    return rate, False
 
 # ==============================================================================
-# ۱. دریافت اطلاعات کامل صفحه سرمایه‌گذاری و سودها به صورت زنده از دیتابیس
+# ۱. دریافت اطلاعات کامل صفحه سرمایه‌گذاری و سودها
 # ==============================================================================
 @invest_bp.route('/data', methods=['POST'])
 def get_investment_data():
@@ -35,7 +81,9 @@ def get_investment_data():
     try:
         conn = get_db()
         with conn.cursor() as cursor:
-            # واکشی اطلاعات حساب و موجودی‌های زنده از پایگاه داده
+            current_date, is_released, _ = get_profit_cycle_state()
+            daily_rate, is_distributed_db = get_or_create_daily_rate(cursor, current_date)
+
             sql_user = """
                 SELECT u.id, u.role, u.kyc_status,
                        COALESCE(b.active_capital, 0.00) AS active_capital,
@@ -54,26 +102,20 @@ def get_investment_data():
             if not user:
                 return jsonify({'success': False, 'message': 'کاربر یافت نشد.'}), 404
 
-            cursor.execute("SELECT rate_percent FROM daily_yield_rates WHERE yield_date = CURDATE()")
-            rate_row = cursor.fetchone()
-            daily_rate = float(rate_row['rate_percent']) if rate_row else 1.1500
-
             active_cap = float(user['active_capital'] or 0.0)
             kyc_status = user['kyc_status']
-
-            now_afghan = get_afghanistan_time()
-            is_after_9pm = now_afghan.hour >= 21
-
             has_investment = (active_cap >= 50.00 and kyc_status == 'verified')
 
-            if has_investment:
-                today_profit = round((active_cap * daily_rate) / 100.0, 4)
-                display_rate = daily_rate
-                is_released = is_after_9pm
-            else:
-                today_profit = 0.00
-                display_rate = 0.00
-                is_released = False
+            today_profit = round((active_cap * daily_rate) / 100.0, 2) if has_investment else 0.00
+            display_rate = daily_rate if has_investment else 0.00
+
+            accumulated_profit = float(user['total_lifetime_profit'] or 0.0)
+            available_profit = float(user['withdrawable_profit'] or 0.0)
+
+            # با آزادسازی در ساعت ۹ شب، سود محاسبه‌شده به مجموع سودها و موجودی سود اضافه می‌گردد
+            if is_released and has_investment and not is_distributed_db:
+                accumulated_profit = round(accumulated_profit + today_profit, 2)
+                available_profit = round(available_profit + today_profit, 2)
 
             last_action_date = user['last_action']
             days_held = 0
@@ -87,10 +129,10 @@ def get_investment_data():
                 except Exception:
                     days_held = 0
 
-            # واکشی لات‌های سرمایه‌گذاری زنده
+            # واکشی لات‌های سرمایه‌گذاری با فرمت تاریخ کاملاً عددی
             sql_lots = """
                 SELECT id, amount, source, 
-                       DATE_FORMAT(start_date, '%%Y/%%m/%%d') as reg_date,
+                       DATE_FORMAT(start_date, '%%Y-%%m-%%d') as reg_date,
                        DATEDIFF(NOW(), start_date) as days_passed,
                        GREATEST(0, DATEDIFF(unlock_date, NOW())) as days_left,
                        status
@@ -101,35 +143,36 @@ def get_investment_data():
             cursor.execute(sql_lots, (user_id,))
             lots = cursor.fetchall()
 
-            # سوابق سودهای روزانه سیستم
-            sql_history = """
-                SELECT DATE_FORMAT(yield_date, '%%Y/%%m/%%d') as record_date,
-                       rate_percent, is_distributed
-                FROM daily_yield_rates
-                ORDER BY yield_date DESC
-                LIMIT 10
-            """
-            cursor.execute(sql_history)
-            history_rows = cursor.fetchall()
-
+            # ساخت سوابق سودهای روزانه اخیر با تاریخ‌های کاملاً عددی و یکسان با نمودار
             profit_history = []
-            for h in history_rows:
-                rate = float(h['rate_percent'])
-                user_day_amount = round((active_cap * rate) / 100.0, 2) if has_investment else 0.00
-                profit_history.append({
-                    'date': h['record_date'],
-                    'rate': rate,
-                    'amount': user_day_amount,
-                    'credited': bool(h['is_distributed'])
-                })
+            for i in range(10):
+                d = current_date - timedelta(days=i)
+                d_str = d.strftime('%Y-%m-%d')
+                r, _ = get_or_create_daily_rate(cursor, d)
+                day_amt = round((active_cap * r) / 100.0, 2) if has_investment else 0.00
+                
+                if i == 0:
+                    profit_history.append({
+                        'date': d_str,
+                        'rate': r,
+                        'amount': day_amt,
+                        'credited': is_released
+                    })
+                else:
+                    profit_history.append({
+                        'date': d_str,
+                        'rate': r,
+                        'amount': day_amt,
+                        'credited': True
+                    })
 
             return jsonify({
                 'success': True,
                 'data': {
                     'role': user['role'],
                     'hasInvestment': has_investment,
-                    'accumulatedProfit': float(user['total_lifetime_profit'] or 0.0),
-                    'availableProfit': float(user['withdrawable_profit'] or 0.0),
+                    'accumulatedProfit': accumulated_profit,
+                    'availableProfit': available_profit,
                     'totalCapital': active_cap,
                     'lockedCapital': float(user['locked_principal'] or 0.0),
                     'unlockedCapital': float(user['unlocked_principal'] or 0.0),
@@ -149,85 +192,58 @@ def get_investment_data():
             conn.close()
 
 # ==============================================================================
-# ۲. دریافت داده‌های نمودار بازدهی
+# ۲. دریافت داده‌های نمودار بازدهی (کاملاً یکسان با جدول سوابق)
 # ==============================================================================
 @invest_bp.route('/chart', methods=['POST'])
 def get_chart_data():
     data = request.get_json() or {}
     range_type = data.get('range', '30')
-    today = datetime.now().date()
+    current_date, is_released, _ = get_profit_cycle_state()
 
     conn = None
-    real_db_rates = {}
     try:
         conn = get_db()
         with conn.cursor() as cursor:
-            cursor.execute("SELECT yield_date, rate_percent FROM daily_yield_rates")
-            for r in cursor.fetchall():
-                real_db_rates[str(r['yield_date'])] = float(r['rate_percent'])
-    except Exception:
-        real_db_rates = {}
+            if range_type == 'today':
+                today_rate, _ = get_or_create_daily_rate(cursor, current_date)
+                points = []
+                for h in range(24):
+                    hour_label = f"{h:02d}:00"
+                    seed = current_date.year * 1000 + current_date.day * 50 + h
+                    wave = (math.sin(seed * 0.6) + math.cos(seed * 1.2)) * 0.08
+                    hourly_rate = max(0.80, min(1.30, today_rate + wave))
+                    points.append({
+                        'date': hour_label,
+                        'rate': round(hourly_rate, 2)
+                    })
+                return jsonify({'success': True, 'points': points}), 200
+
+            if range_type == '7':
+                days_count = 7
+            elif range_type == '30':
+                days_count = 30
+            else:
+                days_count = 180
+
+            points = []
+            for i in range(days_count - 1, -1, -1):
+                d = current_date - timedelta(days=i)
+                d_str = d.strftime('%Y-%m-%d')
+                r, _ = get_or_create_daily_rate(cursor, d)
+                points.append({
+                    'date': d_str,
+                    'rate': round(r, 2)
+                })
+
+            return jsonify({'success': True, 'points': points}), 200
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
     finally:
         if conn:
             conn.close()
 
-    points = []
-
-    # الف) نوسانات ۲۴ ساعته امروز
-    if range_type == 'today':
-        today_base_rate = real_db_rates.get(today.strftime('%Y-%m-%d'), 1.15)
-        for h in range(24):
-            hour_label = f"{h:02d}:00"
-            seed = today.year * 1000 + today.day * 50 + h
-            wave = (math.sin(seed * 0.6) + math.cos(seed * 1.2)) * 0.10
-            hourly_rate = max(0.80, min(1.30, today_base_rate + wave))
-            points.append({
-                'date': hour_label,
-                'rate': round(hourly_rate, 2)
-            })
-        return jsonify({'success': True, 'points': points}), 200
-
-    # ب) بازه‌های تاریخی (۷ روز، ۳۰ روز و همه)
-    if range_type == '7':
-        start_date = today - timedelta(days=6)
-        step_days = 1
-    elif range_type == '30':
-        start_date = today - timedelta(days=29)
-        step_days = 1
-    else:
-        start_date = datetime(2023, 1, 1).date()
-        diff_total = (today - start_date).days
-        step_days = max(1, diff_total // 180)
-
-    current_d = start_date
-    while current_d <= today:
-        d_str = current_d.strftime('%Y-%m-%d')
-        if d_str in real_db_rates:
-            rate = real_db_rates[d_str]
-        else:
-            seed = current_d.year * 412 + current_d.month * 37 + current_d.day
-            wave = (math.sin(seed * 0.85) + math.cos(seed * 1.45)) / 2.0
-            rate = 1.05 + (wave * 0.22)
-            rate = max(0.80, min(1.30, rate))
-
-        points.append({
-            'date': d_str,
-            'rate': round(rate, 2)
-        })
-        current_d += timedelta(days=step_days)
-
-    today_str = today.strftime('%Y-%m-%d')
-    if points and points[-1]['date'] != today_str:
-        today_rate = real_db_rates.get(today_str, 1.15)
-        points.append({
-            'date': today_str,
-            'rate': round(today_rate, 2)
-        })
-
-    return jsonify({'success': True, 'points': points}), 200
-
 # ==============================================================================
-# ۳. ثبت ترکیب سود به اصل سرمایه
+# ۳. ثبت سود مرکب به اصل سرمایه
 # ==============================================================================
 @invest_bp.route('/compound', methods=['POST'])
 def execute_compound():

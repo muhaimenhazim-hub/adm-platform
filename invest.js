@@ -69,6 +69,7 @@ const dashboardI18n = {
         compoundSuccess: 'Successfully compounded! Added to principal with a new 90-day lot.',
         errBelow10Days: 'Cannot compound yet! Minimum 10 days of holding required.',
         errExceedBalance: 'Entered amount exceeds available profit balance.',
+        errInvalidAmount: 'Please enter a valid amount.',
         daysUnit: 'Days',
         errFetchInvest: 'Error fetching investment data from server.',
         errCompound: 'Error processing compound profit request.',
@@ -142,6 +143,7 @@ const dashboardI18n = {
         compoundSuccess: 'Composition réussie ! Nouveau lot de 90 jours créé.',
         errBelow10Days: 'Composition impossible ! Rétention minimale de 10 jours requise.',
         errExceedBalance: 'Le montant dépasse votre solde de profit.',
+        errInvalidAmount: 'Veuillez saisir un montant valide.',
         daysUnit: 'Jours',
         errFetchInvest: "Erreur lors de la récupération des données d'investissement.",
         errCompound: "Erreur lors du traitement de l'intérêt composé.",
@@ -215,15 +217,16 @@ const dashboardI18n = {
         compoundSuccess: 'Успешно реинвестировано с новым 90-дневным лотом.',
         errBelow10Days: 'Реинвест недоступен! Требуется минимум 10 дней удержания.',
         errExceedBalance: 'Сумма превышает доступный баланс.',
+        errInvalidAmount: 'Пожалуйста, введите корректную сумму.',
         daysUnit: 'Дней',
         errFetchInvest: 'Ошибка при получении данных об инвестициях.',
         errCompound: 'Ошибка при обработке сложного процента.',
         tiers: [
             { label: 'Менее 10 дней:', val: 'Запрещено (Ошибка)', isErr: true },
             { label: 'От 10 до 15 дней:', val: '5% Комиссия' },
-            { label: 'От 15 до 24 дней:', val: '3% Комиссия' },
-            { label: 'От 25 до 34 дней:', val: '1% Комиссия' },
-            { label: 'От 35 до 49 дней:', val: '0% (Бесплатно)', isGreen: true },
+            { label: 'От 15 до 25 дней:', val: '3% Комиссия' },
+            { label: 'От 25 до 35 дней:', val: '1% Комиссия' },
+            { label: 'От 35 до 50 дней:', val: '0% (Бесплатно)', isGreen: true },
             { label: 'Более 50 дней:', val: '0% + 3% Бонус', isGreen: true }
         ]
     },
@@ -288,6 +291,7 @@ const dashboardI18n = {
         compoundSuccess: 'تمت إضافة الأرباح بنجاح مع تفعيل دفعة قفل جديدة لمدة 90 يوماً.',
         errBelow10Days: 'لا يمكن إضافة الأرباح الآن! يجب الاحتفاظ بها لمدة 10 أيام على الأقل.',
         errExceedBalance: 'المبلغ المدخل يتجاوز رصيد الأرباح المتاح.',
+        errInvalidAmount: 'يرجى إدخال مبلغ صحيح.',
         daysUnit: 'يوم',
         errFetchInvest: 'خطأ في استرداد بيانات الاستثمار.',
         errCompound: 'خطأ في معالجة الفائدة المركبة.',
@@ -361,6 +365,7 @@ const dashboardI18n = {
         compoundSuccess: 'سود با موفقیت مرکب شد و با دوره قفل ۹۰‌روزه جدید به اصل سرمایه پیوست.',
         errBelow10Days: 'شما در حال حاضر مجاز به ترکیب سود نیستید! حداقل ۱۰ روز نگهداری الزامی است.',
         errExceedBalance: 'مبلغ وارد شده از موجودی سود شما بیشتر است.',
+        errInvalidAmount: 'لطفاً یک مبلغ معتبر وارد کنید.',
         daysUnit: 'روز',
         errFetchInvest: 'خطا در دریافت اطلاعات سرمایه‌گذاری از سرور.',
         errCompound: 'خطا در پردازش ترکیب سود.',
@@ -375,9 +380,6 @@ const dashboardI18n = {
     }
 };
 
-/**
- * تابع مرکزی اتصال امن اندپوینت‌ها به config.js
- */
 function resolveApiUrl(endpoint) {
     if (window.APP_CONFIG && typeof window.APP_CONFIG.getApiUrl === 'function') {
         return window.APP_CONFIG.getApiUrl(endpoint);
@@ -386,7 +388,6 @@ function resolveApiUrl(endpoint) {
 }
 
 const STORAGE_LANG_KEY = 'platform_lang';
-// زبان انتخابی سیستم با فال‌بک پیش‌فرض انگلیسی در صورت خالی بودن
 let currentLanguage = localStorage.getItem(STORAGE_LANG_KEY) || 'en';
 if (!dashboardI18n[currentLanguage]) currentLanguage = 'en';
 
@@ -504,11 +505,11 @@ function updateSummaryCards() {
     const statUnlockedCap = document.getElementById('statUnlockedCapital');
     const txtCurProfit = document.getElementById('txtCurrentProfit');
 
-    if (statAccProfit) statAccProfit.textContent = investState.accumulatedProfit.toLocaleString('en-US', { minimumFractionDigits: 2 });
-    if (statTotalCap) statTotalCap.textContent = investState.totalCapital.toLocaleString('en-US', { minimumFractionDigits: 2 });
-    if (statLockedCap) statLockedCap.textContent = `$${investState.lockedCapital.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
-    if (statUnlockedCap) statUnlockedCap.textContent = `$${investState.unlockedCapital.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
-    if (txtCurProfit) txtCurProfit.textContent = investState.availableProfit.toLocaleString('en-US', { minimumFractionDigits: 2 });
+    if (statAccProfit) statAccProfit.textContent = investState.accumulatedProfit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (statTotalCap) statTotalCap.textContent = investState.totalCapital.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (statLockedCap) statLockedCap.textContent = `$${investState.lockedCapital.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    if (statUnlockedCap) statUnlockedCap.textContent = `$${investState.unlockedCapital.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    if (txtCurProfit) txtCurProfit.textContent = investState.availableProfit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
     const rateBadge = document.getElementById('statDailyRate');
     const todayProfitEl = document.getElementById('statTodayProfit');
@@ -524,14 +525,14 @@ function updateSummaryCards() {
         if (dot) dot.style.display = 'inline-block';
         if (investState.isReleased) {
             if (rateBadge) rateBadge.textContent = `+${investState.dailyRate.toFixed(2)}%`;
-            if (todayProfitEl) todayProfitEl.textContent = investState.todayProfit.toLocaleString('en-US', { minimumFractionDigits: 2 });
+            if (todayProfitEl) todayProfitEl.textContent = investState.todayProfit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
             dot.className = 'status-pulse-dot released';
-            txt.textContent = dict.profitReleased;
+            if (txt) txt.textContent = dict.profitReleased;
         } else {
             if (rateBadge) rateBadge.textContent = '---';
             if (todayProfitEl) todayProfitEl.textContent = '---';
             dot.className = 'status-pulse-dot';
-            txt.textContent = dict.pendingRelease;
+            if (txt) txt.textContent = dict.pendingRelease;
         }
     }
 }
@@ -549,14 +550,15 @@ function renderDailyProfitsTable() {
 
     investState.profitHistory.forEach(rec => {
         const tr = document.createElement('tr');
-        const statusClass = rec.credited ? 'credited' : 'pending';
-        const statusLabel = rec.credited ? dict.statusCredited : dict.statusPending;
-        const rateTxt = rec.credited ? `+${rec.rate.toFixed(2)}%` : '---';
-        const amountTxt = rec.credited ? `+$${rec.amount.toFixed(2)}` : '---';
+        const isCredited = Boolean(rec.credited);
+        const statusClass = isCredited ? 'credited' : 'pending';
+        const statusLabel = isCredited ? dict.statusCredited : dict.statusPending;
+        const rateTxt = isCredited ? `+${rec.rate.toFixed(2)}%` : '---';
+        const amountTxt = isCredited ? `+$${parseFloat(rec.amount || 0).toFixed(2)}` : '---';
 
         tr.innerHTML = `
             <td>${rec.date}</td>
-            <td class="text-green">${rateTxt}</td>
+            <td class="${isCredited ? 'text-green' : ''}">${rateTxt}</td>
             <td><strong>${amountTxt}</strong></td>
             <td><span class="status-badge ${statusClass}">${statusLabel}</span></td>
         `;
@@ -591,7 +593,7 @@ function renderLotsTable() {
         tr.innerHTML = `
             <td><strong>#LOT-${lot.id}</strong></td>
             <td>${lot.reg_date}</td>
-            <td>$${parseFloat(lot.amount).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
+            <td>$${parseFloat(lot.amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
             <td>${sourceTxt}</td>
             <td>
                 <div class="days-progress-wrapper">
@@ -645,9 +647,6 @@ async function loadChartData() {
     } catch (e) {}
 }
 
-/**
- * رسم دیوار ثابت و چسبان فیصدی در سمت چپ
- */
 function drawStickyYAxis(paddingTop, chartHeight, minVal, maxVal) {
     if (!yAxisCanvas || !yCtx) return;
 
@@ -674,9 +673,6 @@ function drawStickyYAxis(paddingTop, chartHeight, minVal, maxVal) {
     });
 }
 
-/**
- * رسم نمودار نئونی با ابعاد پایدار
- */
 function drawProfitChart() {
     if (!canvas || !ctx || !chartPoints || chartPoints.length === 0) return;
     const wrapper = document.getElementById('canvasScrollWrapper');
@@ -880,6 +876,11 @@ if (btnExecuteCompound) {
         }
         const currentUserId = sessionUser.userId || sessionUser.id || localStorage.getItem('user_id');
 
+        if (!amount || isNaN(amount) || amount <= 0) {
+            showToast(dict.errInvalidAmount, true);
+            return;
+        }
+
         if (investState.daysHeld < 10) {
             showToast(dict.errBelow10Days, true);
             return;
@@ -1014,7 +1015,6 @@ function bindBulletproofNav() {
 }
 
 function initInvestPage() {
-    // اعمال فوری زبان در ثانیه صفر جهت حذف چشمک زدن اولیه
     setLanguage(currentLanguage);
     bindBulletproofNav();
     fetchInvestData();
