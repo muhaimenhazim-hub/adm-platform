@@ -15,12 +15,63 @@ Golden Business Rules:
 ================================================================================
 """
 
-import pymysql
+import math
+from datetime import datetime, date, timezone, timedelta
 from flask import Blueprint, jsonify, request, session
-from datetime import datetime, date
+import pymysql
 from config import get_db
 
 team_bp = Blueprint('team_bp', __name__, url_prefix='/api/team')
+
+def get_profit_cycle_state():
+    """
+    محاسبه دقیق وضعیت چرخه سود روزانه هماهنگ با بخش‌های سرمایه‌گذاری و هوم:
+    - روز جهانی از ساعت 00:00 UTC آغاز می‌شود.
+    - زمان آزادسازی سود روزانه ساعت 21:00 به وقت افغانستان (معادل 16:30 UTC) است.
+    - بین 00:00 تا 16:30 UTC: سود در حالت در حال پردازش / در انتظار (Pending) قرار دارد.
+    - از 16:30 تا 23:59:59 UTC (ساعت 21:00 تا 04:30 صبح افغانستان): سود آزاد (Released) است.
+    - با ورود به روز جدید جهانی (00:00 UTC)، چرخه مجدداً برای روز جاری به حالت در انتظار می‌رود.
+    """
+    utc_now = datetime.now(timezone.utc)
+    current_utc_date = utc_now.date()
+    release_threshold_utc = datetime(
+        current_utc_date.year, current_utc_date.month, current_utc_date.day,
+        16, 30, 0, tzinfo=timezone.utc
+    )
+    is_released = utc_now >= release_threshold_utc
+    return current_utc_date, is_released, utc_now
+
+def get_deterministic_daily_rate(date_obj):
+    """
+    تولید نرخ قطعی و ثابت روزانه بین ۰.۸۰٪ تا ۱.۳۰٪ بر اساس تاریخ
+    """
+    seed = date_obj.year * 10000 + date_obj.month * 100 + date_obj.day
+    val = (math.sin(seed * 12.9898) * 43758.5453) % 1.0
+    return round(0.80 + (abs(val) * 0.50), 2)
+
+def get_or_create_daily_rate(cursor, date_obj):
+    """
+    واکشی یا ثبت نرخ روزانه در دیتابیس جهت یکسان بودن قطعی در تمام صفحات
+    """
+    date_str = date_obj.strftime('%Y-%m-%d')
+    cursor.execute("SELECT rate_percent, is_distributed FROM daily_yield_rates WHERE yield_date = %s", (date_str,))
+    row = cursor.fetchone()
+    if row:
+        return float(row['rate_percent']), bool(row['is_distributed'])
+    
+    rate = get_deterministic_daily_rate(date_obj)
+    try:
+        cursor.execute(
+            """
+            INSERT INTO daily_yield_rates (yield_date, rate_percent, is_distributed, created_at)
+            VALUES (%s, %s, 0, NOW())
+            ON DUPLICATE KEY UPDATE rate_percent = rate_percent
+            """,
+            (date_str, rate)
+        )
+    except Exception:
+        pass
+    return rate, False
 
 def get_current_user_id():
     """تشخیص دقیق شناسه کاربر لاگین‌شده از پارامتر، هدر امن یا نشست"""
@@ -39,7 +90,6 @@ def get_current_user_id():
 def get_team_overview():
     """
     دریافت کلیه اطلاعات آماری، تفکیک ۵ نسل و تاریخچه تراکنش‌های واقعی تیم کاربر
-    کاملاً ایمن و متصل به دیتابیس مرکزی Aiven از طریق config.py
     """
     conn = None
     try:
@@ -47,13 +97,15 @@ def get_team_overview():
         conn = get_db()
 
         with conn.cursor() as cursor:
-            # اگر هیچ شناسه‌ای نبود، اولین کاربر دیتابیس را بردار
             if not current_uid:
                 cursor.execute("SELECT id FROM users ORDER BY id ASC LIMIT 1")
                 first_u = cursor.fetchone()
                 current_uid = first_u['id'] if first_u else 1
 
-            # ۱. دریافت اطلاعات دقیق لیدر از جدول users و user_balances
+            current_utc_date, is_released, _ = get_profit_cycle_state()
+            daily_rate, _ = get_or_create_daily_rate(cursor, current_utc_date)
+
+            # ۱. دریافت اطلاعات لیدر
             cursor.execute("""
                 SELECT u.id, u.uid, u.username, u.email, u.phone, u.role, 
                        u.referral_code, u.referred_by, u.kyc_status,
@@ -73,7 +125,6 @@ def get_team_overview():
             is_kyc_verified = (leader['kyc_status'] == 'verified')
             is_eligible = (leader_capital >= 50.00 and is_kyc_verified)
 
-            # خواندن دقیق و مستقیم کد رفرال کاربر لاگین‌شده
             referral_code = leader['referral_code'] or f"ADM-{leader['id']}"
             base_url = request.host_url.rstrip('/')
             referral_link = f"{base_url}/?ref={referral_code}"
@@ -120,10 +171,10 @@ def get_team_overview():
                                 next_codes.append(child['referral_code'])
                 current_codes = next_codes
 
-            # ۳. استخراج کاملاً ایمن تراکنش‌ها
+            # ۳. استخراج تراکنش‌ها و درآمد روزانه
             total_network_earnings = 0.00
             today_referral_income = 0.00
-            today_date = date.today()
+            today_date_str = current_utc_date.strftime('%Y-%m-%d')
             tx_list = []
 
             try:
@@ -139,22 +190,31 @@ def get_team_overview():
                 for tx in raw_txs:
                     amt = float(tx.get('amount') or 0.0)
                     created_at = tx.get('created_at')
-                    tx_date = created_at.date() if isinstance(created_at, datetime) else None
+                    tx_date_str = created_at.strftime('%Y-%m-%d') if isinstance(created_at, datetime) else str(created_at or '')[:10]
+                    tx_type = str(tx.get('type') or '').upper()
 
                     if is_eligible:
-                        total_network_earnings += amt
-                        if tx_date == today_date:
-                            today_referral_income += amt
+                        # اگر کمیسیون روزانه امروز است، تنها در صورتی که بعد از ۹ شب آزاد شده باشد به کل اضافه می‌شود
+                        if tx_type == 'DAILY' and tx_date_str == today_date_str:
+                            if is_released:
+                                total_network_earnings += amt
+                                today_referral_income += amt
+                        else:
+                            total_network_earnings += amt
+                            if tx_date_str == today_date_str:
+                                today_referral_income += amt
 
                         gen_val = str(tx.get('generation') or 'L1').upper()
                         gen_key = gen_val if gen_val.startswith('L') else f"L{gen_val}"
 
                         if gen_key in generations:
-                            tx_type = str(tx.get('type') or '').upper()
                             if tx_type == 'DIRECT':
                                 generations[gen_key]['directBonus'] += amt
                             elif tx_type == 'DAILY':
                                 generations[gen_key]['dailyComm'] += amt
+
+                    # نمایش دقیق تاریخ و ساعت به صورت عددی
+                    time_str = created_at.strftime("%Y-%m-%d %H:%M") if isinstance(created_at, datetime) else str(created_at or '')
 
                     tx_list.append({
                         "userId": tx.get('uid') or f"usr...{str(tx.get('member_id', ''))[:4]}",
@@ -164,11 +224,11 @@ def get_team_overview():
                         "gen": str(tx.get('generation') or 'L1'),
                         "type": tx.get('type') or 'DIRECT',
                         "memberCapital": float(tx.get('member_capital') or 0.0),
-                        "memberDailyProfit": round(float(tx.get('member_capital') or 0.0) * 0.01, 2) if tx.get('type') == 'DAILY' else 0.00,
+                        "memberDailyProfit": round(float(tx.get('member_capital') or 0.0) * (daily_rate / 100.0), 2) if tx_type == 'DAILY' else 0.00,
                         "appliedRate": f"{float(tx.get('applied_rate') or 0.0):.1f}%",
                         "amount": amt if is_eligible else 0.00,
                         "isCapped": bool(tx.get('is_capped', False)),
-                        "timestamp": created_at.strftime("%Y-%m-%d %H:%M") if isinstance(created_at, datetime) else str(created_at or '')
+                        "timestamp": time_str
                     })
             except Exception as sql_err:
                 print(f"[Notice] referral_commissions read: {sql_err}")
@@ -199,6 +259,9 @@ def get_team_overview():
                     "total_team_members": total_team_members,
                     "leader_active_capital": round(leader_capital, 2),
                     "is_eligible": is_eligible,
+                    "is_released": is_released,
+                    "isReleased": is_released,
+                    "daily_rate": daily_rate,
                     "members_per_gen": {f"L{i}": generations[f"L{i}"]['members'] for i in range(1, 6)},
                     "trend_pct": "+14.8%"
                 },
@@ -304,19 +367,14 @@ def process_direct_bonus():
 @team_bp.route('/process_daily_commissions', methods=['POST'])
 def process_daily_commissions():
     """
-    پردازش کمیسیون سود روزانه از اعضای تیم (L1: 10%, L2: 5%, L3: 3%, L4: 2%, L5: 1%)
+    پردازش کمیسیون سود روزانه از اعضای تیم رأس ساعت ۲۱:۰۰ به وقت افغانستان (L1: 10%, L2: 5%, L3: 3%, L4: 2%, L5: 1%)
     """
     conn = None
     try:
         conn = get_db()
         with conn.cursor() as cursor:
-            cursor.execute("""
-                SELECT rate_percent FROM daily_yield_rates 
-                WHERE yield_date = CURDATE() AND is_distributed = 1
-                ORDER BY id DESC LIMIT 1
-            """)
-            rate_row = cursor.fetchone()
-            daily_rate = float(rate_row['rate_percent']) if rate_row else 1.0
+            current_utc_date, _, _ = get_profit_cycle_state()
+            daily_rate, _ = get_or_create_daily_rate(cursor, current_utc_date)
 
             cursor.execute("""
                 SELECT u.id, u.referred_by, b.active_capital

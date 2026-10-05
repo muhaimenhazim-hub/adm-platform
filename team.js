@@ -8,7 +8,6 @@
 (function () {
   'use strict';
 
-  // تابع استاندارد دریافت اندپوینت از کانفیگ مرکزی
   function resolveApiUrl(endpoint) {
     if (window.APP_CONFIG && typeof window.APP_CONFIG.getApiUrl === 'function') {
       return window.APP_CONFIG.getApiUrl(endpoint);
@@ -16,7 +15,6 @@
     return endpoint;
   }
 
-  // دیکشنری جامع ۵ زبانه استاندارد پلتفرم همراه با کلیدهای اختصاصی خطا
   const translations = {
     fa: {
       admin_panel: "پنل ادمین",
@@ -27,7 +25,7 @@
       referral_link_label: "لینک ثبت‌نام مستقیم",
       copy: "کپی",
       copy_link: "کپی لینک",
-      copied_toast: "در کلیپ‌بورد کپی شد!",
+      copied_toast: "در حافظه کپی شد!",
       share: "اشتراک‌گذاری",
       total_network_earnings: "مجموع درآمد کل شبکه",
       from_last_month: "نسبت به ماه قبل",
@@ -408,8 +406,8 @@
   let serverTransactionsData = [];
   let currentLeaderCapital = 0.00;
   let isLeaderEligible = true;
+  let isReleasedToday = false;
 
-  // خواندن زبان ذخیره‌شده یا انگلیسی به عنوان پیش‌فرض در صورت نبود
   let currentLang = localStorage.getItem('platform_lang') || 'en';
   if (!translations[currentLang]) currentLang = 'en';
 
@@ -476,9 +474,9 @@
     const genDailyComm = document.getElementById('genDailyComm');
 
     if (genMembersCount) genMembersCount.textContent = data.members;
-    if (genTotalCapital) genTotalCapital.textContent = data.totalCapital.toLocaleString('en-US', { minimumFractionDigits: 2 });
-    if (genDirectBonus) genDirectBonus.textContent = data.directBonus.toLocaleString('en-US', { minimumFractionDigits: 2 });
-    if (genDailyComm) genDailyComm.textContent = data.dailyComm.toLocaleString('en-US', { minimumFractionDigits: 2 });
+    if (genTotalCapital) genTotalCapital.textContent = data.totalCapital.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (genDirectBonus) genDirectBonus.textContent = data.directBonus.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (genDailyComm) genDailyComm.textContent = data.dailyComm.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   }
 
   function renderTable() {
@@ -524,8 +522,8 @@
         : '';
 
       const capitalDisplay = isDirect 
-        ? `${tx.memberCapital.toLocaleString('en-US', { minimumFractionDigits: 2 })} USDT` 
-        : `${t.profit_prefix} ${tx.memberDailyProfit.toLocaleString('en-US', { minimumFractionDigits: 2 })} USDT`;
+        ? `${tx.memberCapital.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USDT` 
+        : `${t.profit_prefix} ${tx.memberDailyProfit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USDT`;
 
       tr.innerHTML = `
         <td>
@@ -593,7 +591,7 @@
         if (capStatusPill) capStatusPill.classList.add('ineligible');
       } else {
         const maxPrefix = t.cap_max_prefix || (lang === 'fa' ? 'حداکثر' : 'Max');
-        capStatusText.textContent = `${t.cap_rule_status} (${maxPrefix} ${currentLeaderCapital.toLocaleString('en-US', { minimumFractionDigits: 2 })} USDT)`;
+        capStatusText.textContent = `${t.cap_rule_status} (${maxPrefix} ${currentLeaderCapital.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USDT)`;
         if (capStatusPill) capStatusPill.classList.remove('ineligible');
       }
     }
@@ -636,9 +634,6 @@
     };
   }
 
-  /**
-   * دریافت داده‌های زنده از پایگاه‌داده
-   */
   async function fetchTeamData() {
     let sessionUser = {};
     try {
@@ -670,7 +665,6 @@
       if (json.status === 'success' && json.data) {
         const d = json.data;
 
-        // نقش ادمین
         const role = (d.user && d.user.role) ? d.user.role : (localStorage.getItem('user_role') || 'user');
         localStorage.setItem('user_role', role);
         const adminBadgeBtn = document.getElementById('adminBadgeBtn');
@@ -679,7 +673,6 @@
           else adminBadgeBtn.classList.add('hidden');
         }
 
-        // جایگذاری کد و لینک دعوت
         const referralCodeInput = document.getElementById('referralCodeInput');
         const referralLinkInput = document.getElementById('referralLinkInput');
 
@@ -693,16 +686,12 @@
 
         const myLink = `${window.location.origin}/index.html?ref=${myCode}`;
 
-        if (referralCodeInput) {
-          referralCodeInput.value = myCode;
-        }
-        if (referralLinkInput) {
-          referralLinkInput.value = myLink;
-        }
+        if (referralCodeInput) referralCodeInput.value = myCode;
+        if (referralLinkInput) referralLinkInput.value = myLink;
 
-        // بروزرسانی آمارها
         if (d.stats) {
           isLeaderEligible = Boolean(d.stats.is_eligible);
+          isReleasedToday = Boolean(d.stats.is_released !== undefined ? d.stats.is_released : d.stats.isReleased);
           currentLeaderCapital = Number(d.stats.leader_active_capital) || 0.00;
 
           const totalNetworkEarnings = document.getElementById('totalNetworkEarnings');
@@ -710,10 +699,23 @@
           const totalTeamMembers = document.getElementById('totalTeamMembers');
           const leaderActiveCapital = document.getElementById('leaderActiveCapital');
 
-          if (totalNetworkEarnings) totalNetworkEarnings.textContent = (Number(d.stats.total_network_earnings) || 0).toLocaleString('en-US', { minimumFractionDigits: 2 });
-          if (todayReferralIncome) todayReferralIncome.textContent = `+${(Number(d.stats.today_referral_income) || 0).toFixed(2)}`;
+          if (totalNetworkEarnings) {
+            totalNetworkEarnings.textContent = (Number(d.stats.total_network_earnings) || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+          }
+
+          if (todayReferralIncome) {
+            const todayInc = Number(d.stats.today_referral_income) || 0;
+            if (!isLeaderEligible) {
+              todayReferralIncome.textContent = '+0.00';
+            } else if (isReleasedToday || todayInc > 0) {
+              todayReferralIncome.textContent = `+${todayInc.toFixed(2)}`;
+            } else {
+              todayReferralIncome.textContent = '---';
+            }
+          }
+
           if (totalTeamMembers) totalTeamMembers.textContent = d.stats.total_team_members || 0;
-          if (leaderActiveCapital) leaderActiveCapital.textContent = currentLeaderCapital.toLocaleString('en-US', { minimumFractionDigits: 2 });
+          if (leaderActiveCapital) leaderActiveCapital.textContent = currentLeaderCapital.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
           if (d.stats.members_per_gen) {
             for (let i = 1; i <= 5; i++) {
@@ -782,7 +784,7 @@
 
         if (navigator.share) {
           navigator.share({
-            title: 'ADM Binance Platform',
+            title: 'ADM Investment Platform',
             text: sharePayload,
             url: refLink
           }).catch(() => {});
@@ -803,7 +805,6 @@
       });
     }
 
-    // دراپ‌داون نسل‌ها
     const btnDropdownGen = document.getElementById('btnDropdownGen');
     const menuDropdownGen = document.getElementById('menuDropdownGen');
     const dropdownGenWrapper = document.getElementById('dropdownGenWrapper');
@@ -831,7 +832,6 @@
       });
     }
 
-    // دراپ‌داون نوع پاداش
     const btnDropdownType = document.getElementById('btnDropdownType');
     const menuDropdownType = document.getElementById('menuDropdownType');
     const dropdownTypeWrapper = document.getElementById('dropdownTypeWrapper');
@@ -866,7 +866,6 @@
       memberSearchInput.oninput = renderTable;
     }
 
-    // ناوبری ۵ گزینه‌ای نوار پایین
     document.querySelectorAll('.bottom-nav .nav-item').forEach(navItem => {
       navItem.onclick = function (e) {
         const targetHref = this.getAttribute('href');
@@ -879,13 +878,11 @@
   }
 
   function initTeamPage() {
-    // اعمال فوری زبان در ثانیه صفر جهت حذف کامل چشمک زدن متن‌ها
     applyLanguage(currentLang);
     bindInteractiveEvents();
     fetchTeamData();
   }
 
-  // اجرای بلافاصله بدون تاخیر
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initTeamPage);
   } else {
