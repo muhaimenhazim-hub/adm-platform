@@ -18,12 +18,14 @@ Full compliance with all golden rules:
   - 5-Tier Referral commissions with Leader Capital Cap: min(user_cap, leader_cap)
   - 90-Day Lot creation on deposit approvals
   - Automatic refund on withdrawal rejections
+  - Strict adherence to 10-day holding rule on withdrawable profit
 ================================================================================
 """
 
 import os
+import math
 import random
-from datetime import datetime, date, timedelta
+from datetime import datetime, date, timezone, timedelta
 from decimal import Decimal
 import pymysql
 from flask import Blueprint, request, jsonify, session
@@ -31,12 +33,15 @@ from config import get_db
 
 admin_bp = Blueprint('admin_bp', __name__)
 
+def get_afghanistan_datetime():
+    afghan_tz = timezone(timedelta(hours=4, minutes=30))
+    return datetime.now(afghan_tz)
+
 def admin_required(func):
     def wrapper(*args, **kwargs):
         user_role = session.get('role')
         user_id = session.get('user_id')
 
-        # سیستم احراز هویت دوگانه جهت جلوگیری از انقضای سشن در سرورهای ابری
         if not user_id or user_role != 'admin':
             header_uid = request.headers.get('X-User-Id')
             cookie_uid = request.cookies.get('logged_in_uid')
@@ -74,19 +79,15 @@ def get_overview():
     conn = get_db()
     try:
         with conn.cursor() as cursor:
-            # ۱. کل سرمایه فعال در گردش پلتفرم
             cursor.execute("SELECT COALESCE(SUM(active_capital), 0.0000) AS total_cap FROM user_balances")
             total_cap = float(cursor.fetchone()['total_cap'])
 
-            # ۲. کل سود واریزشده تا کنون
             cursor.execute("SELECT COALESCE(SUM(total_lifetime_profit), 0.0000) AS total_profit FROM user_balances")
             total_profit = float(cursor.fetchone()['total_profit'])
 
-            # ۳. تعداد کل کاربران ثبت‌نامی
             cursor.execute("SELECT COUNT(*) AS total_users FROM users")
             total_users = cursor.fetchone()['total_users']
 
-            # ۴. کاربران تاییدشده با حداقل ۵۰ دلار سرمایه فعال
             cursor.execute("""
                 SELECT COUNT(u.id) AS active_verified
                 FROM users u
@@ -95,7 +96,6 @@ def get_overview():
             """)
             active_verified = cursor.fetchone()['active_verified']
 
-            # ۵. شمارنده برداشت‌ها و مدارک معلق
             cursor.execute("SELECT COUNT(*) AS c FROM transactions WHERE type IN ('withdraw_profit', 'withdraw_principal') AND status = 'pending'")
             pending_withdrawals = cursor.fetchone()['c']
 
@@ -166,7 +166,14 @@ def get_live_transactions():
                 ORDER BY t.created_at DESC
                 LIMIT 20
             """)
-            txs = cursor.fetchall()
+            raw_txs = cursor.fetchall()
+            txs = []
+            for tx in raw_txs:
+                tx_item = dict(tx)
+                if isinstance(tx_item.get('created_at'), datetime):
+                    tx_item['created_at'] = tx_item['created_at'].strftime('%Y-%m-%d %H:%M')
+                txs.append(tx_item)
+
             return jsonify({"status": "success", "success": True, "transactions": txs}), 200
     except Exception as e:
         return jsonify({"status": "error", "success": False, "message": str(e)}), 500
@@ -214,7 +221,13 @@ def list_users():
 
             sql += " ORDER BY u.id DESC LIMIT 100"
             cursor.execute(sql, tuple(params))
-            users = cursor.fetchall()
+            raw_users = cursor.fetchall()
+            users = []
+            for u in raw_users:
+                u_dict = dict(u)
+                if isinstance(u_dict.get('created_at'), datetime):
+                    u_dict['created_at'] = u_dict['created_at'].strftime('%Y-%m-%d %H:%M')
+                users.append(u_dict)
 
             return jsonify({"status": "success", "success": True, "users": users}), 200
     except Exception as e:
@@ -341,7 +354,14 @@ def pending_withdrawals():
                 WHERE t.type IN ('withdraw_profit', 'withdraw_principal') AND t.status = 'pending'
                 ORDER BY t.created_at ASC
             """)
-            withdrawals = cursor.fetchall()
+            raw_w = cursor.fetchall()
+            withdrawals = []
+            for w in raw_w:
+                w_dict = dict(w)
+                if isinstance(w_dict.get('created_at'), datetime):
+                    w_dict['created_at'] = w_dict['created_at'].strftime('%Y-%m-%d %H:%M')
+                withdrawals.append(w_dict)
+
             return jsonify({"status": "success", "success": True, "withdrawals": withdrawals}), 200
     except Exception as e:
         return jsonify({"status": "error", "success": False, "message": str(e)}), 500
@@ -440,7 +460,14 @@ def pending_deposits():
                 WHERE t.type = 'deposit' AND t.status = 'pending'
                 ORDER BY t.created_at ASC
             """)
-            deposits = cursor.fetchall()
+            raw_d = cursor.fetchall()
+            deposits = []
+            for d in raw_d:
+                d_dict = dict(d)
+                if isinstance(d_dict.get('created_at'), datetime):
+                    d_dict['created_at'] = d_dict['created_at'].strftime('%Y-%m-%d %H:%M')
+                deposits.append(d_dict)
+
             return jsonify({"status": "success", "success": True, "deposits": deposits}), 200
     except Exception as e:
         return jsonify({"status": "error", "success": False, "message": str(e)}), 500
@@ -568,7 +595,16 @@ def finance_history():
                 ORDER BY t.updated_at DESC
                 LIMIT 100
             """)
-            history = cursor.fetchall()
+            raw_h = cursor.fetchall()
+            history = []
+            for h in raw_h:
+                h_dict = dict(h)
+                if isinstance(h_dict.get('created_at'), datetime):
+                    h_dict['created_at'] = h_dict['created_at'].strftime('%Y-%m-%d %H:%M')
+                if isinstance(h_dict.get('updated_at'), datetime):
+                    h_dict['updated_at'] = h_dict['updated_at'].strftime('%Y-%m-%d %H:%M')
+                history.append(h_dict)
+
             return jsonify({"status": "success", "success": True, "history": history}), 200
     except Exception as e:
         return jsonify({"status": "error", "success": False, "message": str(e)}), 500
@@ -592,7 +628,14 @@ def pending_kyc():
                 WHERE k.status = 'pending'
                 ORDER BY k.submitted_at ASC
             """)
-            kyc_records = cursor.fetchall()
+            raw_k = cursor.fetchall()
+            kyc_records = []
+            for k in raw_k:
+                k_dict = dict(k)
+                if isinstance(k_dict.get('submitted_at'), datetime):
+                    k_dict['submitted_at'] = k_dict['submitted_at'].strftime('%Y-%m-%d %H:%M')
+                kyc_records.append(k_dict)
+
             return jsonify({"status": "success", "success": True, "kyc_records": kyc_records}), 200
     except Exception as e:
         return jsonify({"status": "error", "success": False, "message": str(e)}), 500
@@ -668,63 +711,29 @@ def reject_kyc():
 @admin_bp.route('/yield/status', methods=['GET'])
 @admin_required
 def yield_status():
-    # محاسبه زمان و تاریخ زنده به وقت رسمی افغانستان (UTC+4:30)
-    afghan_now = datetime.utcnow() + timedelta(hours=4, minutes=30)
+    afghan_now = get_afghanistan_datetime()
     today = afghan_now.date()
     conn = get_db()
     try:
         with conn.cursor() as cursor:
-            # ۱. اصلاح فوری سطرهای قبلی که با 0.01 اشتباه درج شده بودند و تبدیل آنها به معیار استاندارد پلتفرم (بین 0.8 تا 1.3)
-            try:
-                cursor.execute("UPDATE daily_yield_rates SET rate_percent = rate_percent * 100 WHERE rate_percent < 0.5 AND rate_percent > 0")
-                cursor.execute("""
-                    UPDATE daily_yield_rates 
-                    SET is_distributed = 1, distributed_at = CONCAT(yield_date, ' 21:00:00')
-                    WHERE yield_date < %s AND is_distributed = 0
-                """, (today,))
-            except Exception as e_fix:
-                print(f"[Notice] fix rates: {e_fix}")
-
-            # ۲. پر کردن خودکار روزهای جاافتاده تا تاریخ امروز افغانستان با معیار دقیق بین 0.80 تا 1.30
-            try:
-                cursor.execute("SELECT MAX(yield_date) AS max_date FROM daily_yield_rates")
-                max_rec = cursor.fetchone()
-                max_date = max_rec['max_date'] if max_rec and max_rec['max_date'] else None
-
-                if not max_date:
-                    curr = today - timedelta(days=7)
-                    while curr <= today:
-                        is_past = (curr < today)
-                        rate_val = Decimal(str(round(random.uniform(0.95, 1.25), 4)))
-                        cursor.execute("""
-                            INSERT INTO daily_yield_rates (yield_date, rate_percent, is_distributed, distributed_at, created_at)
-                            VALUES (%s, %s, %s, %s, NOW())
-                            ON DUPLICATE KEY UPDATE yield_date = VALUES(yield_date)
-                        """, (curr, rate_val, 1 if is_past else 0, f"{curr} 21:00:00" if is_past else None))
-                        curr += timedelta(days=1)
-                elif max_date < today:
-                    curr = max_date + timedelta(days=1)
-                    while curr <= today:
-                        is_past = (curr < today)
-                        rate_val = Decimal(str(round(random.uniform(0.95, 1.25), 4)))
-                        cursor.execute("""
-                            INSERT INTO daily_yield_rates (yield_date, rate_percent, is_distributed, distributed_at, created_at)
-                            VALUES (%s, %s, %s, %s, NOW())
-                            ON DUPLICATE KEY UPDATE yield_date = VALUES(yield_date)
-                        """, (curr, rate_val, 1 if is_past else 0, f"{curr} 21:00:00" if is_past else None))
-                        curr += timedelta(days=1)
-            except Exception as e_sync:
-                print(f"[Notice] yield auto-sync: {e_sync}")
-
-            # ۳. دریافت رکورد امروز
             cursor.execute("SELECT * FROM daily_yield_rates WHERE yield_date = %s", (today,))
             today_record = cursor.fetchone()
 
-            raw_today_rate = float(today_record['rate_percent']) if today_record else 1.0500
-            today_rate_api = raw_today_rate / 100.0 if raw_today_rate >= 0.5 else raw_today_rate
-            is_distributed = bool(today_record['is_distributed']) if today_record else False
+            if not today_record:
+                seed = today.year * 10000 + today.month * 100 + today.day
+                val = (math.sin(seed * 12.9898) * 43758.5453) % 1.0
+                gen_rate = round(0.80 + (abs(val) * 0.50), 2)
+                cursor.execute("""
+                    INSERT INTO daily_yield_rates (yield_date, rate_percent, is_distributed, created_at)
+                    VALUES (%s, %s, 0, NOW())
+                    ON DUPLICATE KEY UPDATE rate_percent = rate_percent
+                """, (today, gen_rate))
+                raw_today_rate = gen_rate
+                is_distributed = False
+            else:
+                raw_today_rate = float(today_record['rate_percent'])
+                is_distributed = bool(today_record['is_distributed'])
 
-            # ۴. شمارش کاربران واجد شرایط (KYC تاییدشده و سرمایه فعال حداقل ۵۰ دلار)
             cursor.execute("""
                 SELECT COUNT(u.id) AS c
                 FROM users u
@@ -733,18 +742,14 @@ def yield_status():
             """)
             eligible_count = cursor.fetchone()['c']
 
-            # ۵. دریافت سوابق ۳۰ روز اخیر برای پنل ادمین
             cursor.execute("SELECT * FROM daily_yield_rates ORDER BY yield_date DESC LIMIT 30")
             raw_history = cursor.fetchall()
 
             history = []
             for h in raw_history:
-                r_val = float(h.get('rate_percent') or 1.0500)
-                # نرمال‌سازی مقدار جهت هماهنگی با admin.js
-                r_val_api = r_val / 100.0 if r_val >= 0.5 else r_val
-
+                r_val = float(h.get('rate_percent') or 1.05)
                 h_item = dict(h)
-                h_item['rate_percent'] = r_val_api
+                h_item['rate_percent'] = r_val
 
                 yd = h_item.get('yield_date')
                 if isinstance(yd, (datetime, date)):
@@ -752,7 +757,7 @@ def yield_status():
 
                 da = h_item.get('distributed_at')
                 if isinstance(da, (datetime, date)):
-                    h_item['distributed_at'] = da.strftime('%Y-%m-%d %H:%M:%S')
+                    h_item['distributed_at'] = da.strftime('%Y-%m-%d %H:%M')
 
                 history.append(h_item)
 
@@ -760,7 +765,7 @@ def yield_status():
                 "status": "success",
                 "success": True,
                 "today_date": today.strftime('%Y-%m-%d'),
-                "today_rate": today_rate_api,
+                "today_rate": raw_today_rate,
                 "is_distributed": is_distributed,
                 "eligible_users_count": eligible_count,
                 "history": history
@@ -774,13 +779,15 @@ def yield_status():
 @admin_required
 def set_yield_rate():
     data = request.get_json() or {}
-    afghan_now = datetime.utcnow() + timedelta(hours=4, minutes=30)
+    afghan_now = get_afghanistan_datetime()
     target_date = data.get('target_date') or afghan_now.date().strftime('%Y-%m-%d')
 
-    raw_rate = Decimal(str(data.get('rate', 1.05)))
-    rate_percent = raw_rate * Decimal('100') if raw_rate < Decimal('0.5') else raw_rate
+    try:
+        rate_val = Decimal(str(data.get('rate', 1.05)))
+    except Exception:
+        return jsonify({"status": "error", "success": False, "message": "Invalid rate value"}), 400
 
-    if rate_percent < Decimal('0.8000') or rate_percent > Decimal('1.3000'):
+    if rate_val < Decimal('0.8000') or rate_val > Decimal('1.3000'):
         return jsonify({"status": "error", "success": False, "message": "Rate must be strictly between 0.8% and 1.3%"}), 400
 
     conn = get_db()
@@ -790,8 +797,8 @@ def set_yield_rate():
                 INSERT INTO daily_yield_rates (yield_date, rate_percent, is_distributed, created_at)
                 VALUES (%s, %s, 0, NOW())
                 ON DUPLICATE KEY UPDATE rate_percent = VALUES(rate_percent)
-            """, (target_date, rate_percent))
-            return jsonify({"status": "success", "success": True, "message": f"Daily rate {float(rate_percent):.4f}% saved successfully"}), 200
+            """, (target_date, rate_val))
+            return jsonify({"status": "success", "success": True, "message": f"Daily rate {float(rate_val):.2f}% saved successfully"}), 200
     except Exception as e:
         return jsonify({"status": "error", "success": False, "message": str(e)}), 500
     finally:
@@ -800,7 +807,7 @@ def set_yield_rate():
 @admin_bp.route('/yield/distribute', methods=['POST'])
 @admin_required
 def execute_distribution():
-    afghan_now = datetime.utcnow() + timedelta(hours=4, minutes=30)
+    afghan_now = get_afghanistan_datetime()
     today = afghan_now.date()
     conn = get_db()
     try:
@@ -809,15 +816,13 @@ def execute_distribution():
             rate_rec = cursor.fetchone()
 
             if not rate_rec:
-                rate_percent = Decimal('1.0500')
+                rate_percent = Decimal('1.1500')
                 cursor.execute("INSERT INTO daily_yield_rates (yield_date, rate_percent, is_distributed, created_at) VALUES (%s, %s, 0, NOW())", (today, rate_percent))
             else:
-                raw_rate = Decimal(str(rate_rec['rate_percent']))
-                rate_percent = raw_rate if raw_rate >= Decimal('0.5') else raw_rate * Decimal('100')
+                rate_percent = Decimal(str(rate_rec['rate_percent']))
                 if rate_rec['is_distributed']:
                     return jsonify({"status": "error", "success": False, "message": "Yield already distributed today."}), 400
 
-            # ضریب واقعی سود روزانه بر مبنای درصد ذخیره شده
             rate_multiplier = rate_percent / Decimal('100')
 
             cursor.execute("""
@@ -839,14 +844,13 @@ def execute_distribution():
             for user in eligible_users:
                 u_id = user['id']
                 u_cap = Decimal(str(user['active_capital']))
-                daily_profit = u_cap * rate_multiplier
+                daily_profit = round(u_cap * rate_multiplier, 2)
 
                 cursor.execute("""
                     UPDATE user_balances
-                    SET withdrawable_profit = withdrawable_profit + %s,
-                        total_lifetime_profit = total_lifetime_profit + %s
+                    SET total_lifetime_profit = total_lifetime_profit + %s
                     WHERE user_id = %s
-                """, (daily_profit, daily_profit, u_id))
+                """, (daily_profit, u_id))
 
                 curr_downline = u_id
                 for gen in range(1, 6):
@@ -869,19 +873,18 @@ def execute_distribution():
                     if leader['kyc_status'] == 'verified' and l_cap >= Decimal('50.0000'):
                         capped_basis = min(u_cap, l_cap)
                         leader_rate = mlm_rates[gen]
-                        comm = (capped_basis * rate_multiplier) * leader_rate
+                        comm = round((capped_basis * rate_multiplier) * leader_rate, 4)
 
                         if comm > Decimal('0.0000'):
                             cursor.execute("""
                                 UPDATE user_balances
-                                SET withdrawable_profit = withdrawable_profit + %s,
-                                    total_lifetime_profit = total_lifetime_profit + %s
+                                SET total_lifetime_profit = total_lifetime_profit + %s
                                 WHERE user_id = %s
-                            """, (comm, comm, l_id))
+                            """, (comm, l_id))
 
                             cursor.execute("""
                                 INSERT INTO referral_commissions (leader_id, downline_user_id, member_id, user_id, generation_level, generation, type, base_amount, member_capital, leader_active_cap, capped_amount, commission_rate, applied_rate, commission_amount, amount, is_capped, created_at)
-                                VALUES (%s, %s, %s, %s, %s, %s, 'daily_yield', %s, %s, %s, %s, %s, %s, %s, %s, 0, NOW())
+                                VALUES (%s, %s, %s, %s, %s, %s, 'DAILY', %s, %s, %s, %s, %s, %s, %s, %s, 0, NOW())
                             """, (l_id, u_id, u_id, l_id, gen, f"L{gen}", daily_profit, u_cap, l_cap, capped_basis, leader_rate, float(leader_rate*100), comm, comm))
 
                     curr_downline = l_id
@@ -925,7 +928,14 @@ def list_tickets():
 
             sql += " ORDER BY t.created_at DESC"
             cursor.execute(sql, tuple(params))
-            tickets = cursor.fetchall()
+            raw_t = cursor.fetchall()
+            tickets = []
+            for tk in raw_t:
+                tk_dict = dict(tk)
+                if isinstance(tk_dict.get('created_at'), datetime):
+                    tk_dict['created_at'] = tk_dict['created_at'].strftime('%Y-%m-%d %H:%M')
+                tickets.append(tk_dict)
+
             return jsonify({"status": "success", "success": True, "tickets": tickets}), 200
     except Exception as e:
         return jsonify({"status": "error", "success": False, "message": str(e)}), 500
@@ -955,7 +965,13 @@ def get_ticket(ticket_id):
                 WHERE ticket_id = %s
                 ORDER BY created_at ASC
             """, (ticket_id,))
-            replies = cursor.fetchall()
+            raw_r = cursor.fetchall()
+            replies = []
+            for r in raw_r:
+                r_dict = dict(r)
+                if isinstance(r_dict.get('created_at'), datetime):
+                    r_dict['created_at'] = r_dict['created_at'].strftime('%Y-%m-%d %H:%M')
+                replies.append(r_dict)
 
             return jsonify({
                 "status": "success",

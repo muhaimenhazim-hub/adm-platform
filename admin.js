@@ -10,7 +10,6 @@
 (function () {
     "use strict";
 
-    // تابع استاندارد دریافت اندپوینت از کانفیگ مرکزی
     function resolveApiUrl(endpoint) {
         if (typeof window !== "undefined" && window.APP_CONFIG && typeof window.APP_CONFIG.getApiUrl === "function") {
             return window.APP_CONFIG.getApiUrl(endpoint);
@@ -18,9 +17,6 @@
         return endpoint;
     }
 
-    // -------------------------------------------------------------------------
-    // 1. Two-Language Dictionary (English & Persian)
-    // -------------------------------------------------------------------------
     const i18n = {
         en: {
             menu_main: "MAIN NAVIGATION",
@@ -262,24 +258,18 @@
             .trim();
     }
 
-    // -------------------------------------------------------------------------
-    // 2. Initialization and Language Management
-    // -------------------------------------------------------------------------
-    // تزریق استایل‌های استاندارد جهت تضمین باز شدن کامل منوی ۳ خط در هر دو جهت راست‌به‌چپ (فارسی) و چپ‌به‌راست (انگلیسی)
     (function injectRtlSidebarFix() {
         const styleId = "adm-admin-sidebar-rtl-fix";
         if (document.getElementById(styleId)) return;
         const style = document.createElement("style");
         style.id = styleId;
         style.textContent = `
-            /* موقعیت سایدبار در حالت بسته برای زبان فارسی (راست‌به‌چپ) */
             [dir="rtl"] #adminSidebar,
             body[dir="rtl"] #adminSidebar {
                 right: -290px !important;
                 left: auto !important;
                 transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s ease !important;
             }
-            /* موقعیت سایدبار در حالت باز برای زبان فارسی (راست‌به‌چپ) */
             [dir="rtl"] #adminSidebar.mobile-open,
             body[dir="rtl"] #adminSidebar.mobile-open {
                 right: 0 !important;
@@ -291,7 +281,6 @@
                 z-index: 999999 !important;
                 box-shadow: -5px 0 25px rgba(0, 0, 0, 0.75) !important;
             }
-            /* موقعیت سایدبار در حالت باز برای زبان انگلیسی (چپ‌به‌راست) */
             [dir="ltr"] #adminSidebar.mobile-open,
             body[dir="ltr"] #adminSidebar.mobile-open {
                 left: 0 !important;
@@ -303,7 +292,6 @@
                 z-index: 999999 !important;
                 box-shadow: 5px 0 25px rgba(0, 0, 0, 0.75) !important;
             }
-            /* دکمه ۳ خط منوی همبرگری و دکمه بستن */
             #mobileSidebarToggle {
                 position: relative !important;
                 z-index: 10005 !important;
@@ -394,9 +382,6 @@
         return (i18n[currentLang] && i18n[currentLang][key]) ? i18n[currentLang][key] : key;
     }
 
-    // -------------------------------------------------------------------------
-    // 3. Navigation & Tab Management
-    // -------------------------------------------------------------------------
     function initNavigation() {
         const menuItems = document.querySelectorAll(".sidebar-menu .menu-item");
         menuItems.forEach(item => {
@@ -436,7 +421,6 @@
             closeBtn.addEventListener("touchstart", handleClose, { passive: false });
         }
 
-        // بستن سایدبار موبایل هنگام کلیک در فضای بیرون از آن
         document.addEventListener("click", function (e) {
             if (sidebar && sidebar.classList.contains("mobile-open")) {
                 if (!sidebar.contains(e.target) && toggleBtn && !toggleBtn.contains(e.target)) {
@@ -503,16 +487,13 @@
         }, 1000);
     }
 
-    // -------------------------------------------------------------------------
-    // 5. Overview Metrics & Live Transactions
-    // -------------------------------------------------------------------------
     async function loadOverviewMetrics() {
         try {
             const res = await fetch(resolveApiUrl("/api/admin/overview"), { credentials: "include" });
             const data = await res.json();
             if (data.success) {
-                document.getElementById("statTotalCapital").textContent = `$${parseFloat(data.stats.total_circulating_capital || 0).toFixed(4)}`;
-                document.getElementById("statTotalProfit").textContent = `$${parseFloat(data.stats.total_profit_distributed || 0).toFixed(4)}`;
+                document.getElementById("statTotalCapital").textContent = `$${parseFloat(data.stats.total_circulating_capital || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                document.getElementById("statTotalProfit").textContent = `$${parseFloat(data.stats.total_profit_distributed || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
                 document.getElementById("statTotalUsers").textContent = data.stats.total_users || 0;
                 document.getElementById("statActiveUsers").textContent = `${data.stats.active_verified_investors || 0} ${currentLang === 'fa' ? 'سرمایه‌گذار تاییدشده' : 'Verified Investors'}`;
                 
@@ -537,7 +518,7 @@
                         <td><span class="font-bold text-gold">${escapeHtml(tx.tx_id)}</span></td>
                         <td>${escapeHtml(tx.username || '')} <small class="text-muted">(${escapeHtml(tx.uid || '')})</small></td>
                         <td>${renderTxTypeBadge(tx.type)}</td>
-                        <td class="font-bold">$${parseFloat(tx.amount).toFixed(4)}</td>
+                        <td class="font-bold">$${parseFloat(tx.amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                         <td>${renderNetworkBadge(tx.network)}</td>
                         <td>${renderStatusBadge(tx.status)}</td>
                         <td>${formatDate(tx.created_at)}</td>
@@ -575,9 +556,6 @@
         }
     }
 
-    // -------------------------------------------------------------------------
-    // 6. User Management
-    // -------------------------------------------------------------------------
     async function loadUsers() {
         const tbody = document.getElementById("usersTableBody");
         const query = document.getElementById("userSearchInput") ? document.getElementById("userSearchInput").value.trim() : "";
@@ -593,9 +571,9 @@
 
             if (data.success && data.users && data.users.length > 0) {
                 tbody.innerHTML = data.users.map(u => {
-                    const locked = parseFloat(u.locked_principal || 0).toFixed(2);
-                    const unlocked = parseFloat(u.unlocked_principal || 0).toFixed(2);
-                    const totalCap = parseFloat(u.active_capital || 0).toFixed(4);
+                    const locked = parseFloat(u.locked_principal || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                    const unlocked = parseFloat(u.unlocked_principal || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                    const totalCap = parseFloat(u.active_capital || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
                     return `
                     <tr>
@@ -606,9 +584,9 @@
                         </td>
                         <td>
                             <div class="font-bold">$${totalCap}</div>
-                            <small class="text-muted" style="font-size:10.5px;">قفل: $${locked} | آزاد: $${unlocked}</small>
+                            <small class="text-muted" style="font-size:10.5px;">${currentLang === 'fa' ? 'قفل' : 'Locked'}: $${locked} | ${currentLang === 'fa' ? 'آزاد' : 'Unlocked'}: $${unlocked}</small>
                         </td>
-                        <td class="font-bold text-success">$${parseFloat(u.withdrawable_profit || 0).toFixed(4)}</td>
+                        <td class="font-bold text-success">$${parseFloat(u.withdrawable_profit || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                         <td>${renderKycBadge(u.kyc_status)}</td>
                         <td>${renderUserStatusBadge(u.status)}</td>
                         <td>${formatDate(u.created_at)}</td>
@@ -630,9 +608,6 @@
         }
     }
 
-    // -------------------------------------------------------------------------
-    // 7. Finance & Approvals
-    // -------------------------------------------------------------------------
     async function loadPendingWithdrawals() {
         const tbody = document.getElementById("pendingWithdrawalsBody");
         tbody.innerHTML = `<tr><td colspan="9" class="text-center py-4 text-muted">${t('loading_data')}</td></tr>`;
@@ -664,14 +639,14 @@
                                     </button>
                                 </div>
                             </td>
-                            <td class="font-bold">$${parseFloat(w.amount).toFixed(4)}</td>
+                            <td class="font-bold">$${parseFloat(w.amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                             <td>
                                 <div class="fee-tier-pill">
                                     <span class="fee-tier-badge ${tierInfo.cssClass}">${tierInfo.label}</span>
                                     <span class="cooldown-days-label">${days} ${currentLang === 'fa' ? 'روز گذشته' : 'days elapsed'}</span>
                                 </div>
                             </td>
-                            <td class="font-bold text-success">$${parseFloat(w.net_amount).toFixed(4)}</td>
+                            <td class="font-bold text-success">$${parseFloat(w.net_amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                             <td>
                                 <div class="card-actions">
                                     <button class="adm-btn btn-success btn-sm" onclick="window.AdminApp.approveWithdrawal('${w.tx_id}')">Approve</button>
@@ -718,7 +693,7 @@
                     <tr>
                         <td><span class="font-bold text-gold">${escapeHtml(d.tx_id)}</span></td>
                         <td>${escapeHtml(d.username)} <small class="text-muted">(${escapeHtml(d.uid)})</small></td>
-                        <td class="font-bold text-success">$${parseFloat(d.amount).toFixed(4)}</td>
+                        <td class="font-bold text-success">$${parseFloat(d.amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                         <td>${renderNetworkBadge(d.network)}</td>
                         <td>
                             <div class="address-chip" title="${escapeHtml(d.tx_hash || 'N/A')}">
@@ -761,9 +736,9 @@
                         <td class="font-bold text-gold">${escapeHtml(h.tx_id)}</td>
                         <td>${escapeHtml(h.username)} <small class="text-muted">(${escapeHtml(h.uid)})</small></td>
                         <td>${renderTxTypeBadge(h.type)}</td>
-                        <td class="font-bold">$${parseFloat(h.amount).toFixed(4)}</td>
-                        <td class="text-danger">$${parseFloat(h.fee || 0).toFixed(4)}</td>
-                        <td class="font-bold text-success">$${parseFloat(h.net_amount).toFixed(4)}</td>
+                        <td class="font-bold">$${parseFloat(h.amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                        <td class="text-danger">$${parseFloat(h.fee || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                        <td class="font-bold text-success">$${parseFloat(h.net_amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                         <td>${renderNetworkBadge(h.network)}</td>
                         <td>${renderStatusBadge(h.status)}</td>
                         <td><small class="text-muted">${escapeHtml(h.admin_note || '---')}</small></td>
@@ -778,9 +753,6 @@
         }
     }
 
-    // -------------------------------------------------------------------------
-    // 8. KYC Verifications
-    // -------------------------------------------------------------------------
     async function loadPendingKYC() {
         const tbody = document.getElementById("kycTableBody");
         tbody.innerHTML = `<tr><td colspan="8" class="text-center py-4 text-muted">${t('loading_data')}</td></tr>`;
@@ -821,27 +793,24 @@
         }
     }
 
-    // -------------------------------------------------------------------------
-    // 9. Daily Yield Engine
-    // -------------------------------------------------------------------------
     async function loadYieldEngineData() {
         try {
             const res = await fetch(resolveApiUrl("/api/admin/yield/status"), { credentials: "include" });
             const data = await res.json();
 
             if (data.success) {
-                const todayRate = parseFloat(data.today_rate || 0);
+                const todayRate = parseFloat(data.today_rate || 1.15);
                 const rateInput = document.getElementById("yieldInputRate");
                 const dateInput = document.getElementById("yieldTargetDate");
 
                 if (rateInput && !rateInput.value && todayRate > 0) {
-                    rateInput.value = (todayRate * 100).toFixed(4);
+                    rateInput.value = todayRate.toFixed(2);
                 }
                 if (dateInput) {
                     dateInput.value = data.today_date || new Date().toISOString().split('T')[0];
                 }
 
-                document.getElementById("monitorTodayRate").textContent = `${(todayRate * 100).toFixed(4)}%`;
+                document.getElementById("monitorTodayRate").textContent = `${todayRate.toFixed(2)}%`;
                 const distStatus = document.getElementById("monitorTodayStatus");
                 if (distStatus) {
                     distStatus.textContent = data.is_distributed ? (currentLang === 'fa' ? 'بله، واریز شد' : 'YES, COMPLETED') : (currentLang === 'fa' ? 'خیر، در انتظار ساعت ۲۱:۰۰' : 'NO, PENDING');
@@ -856,7 +825,7 @@
                         <tr>
                             <td>${i + 1}</td>
                             <td>${formatDate(h.yield_date, true)}</td>
-                            <td class="font-bold text-gold">${(parseFloat(h.rate_percent) * 100).toFixed(4)}%</td>
+                            <td class="font-bold text-gold">${parseFloat(h.rate_percent).toFixed(2)}%</td>
                             <td>${h.is_distributed ? '<span class="badge-status badge-success">YES</span>' : '<span class="badge-status badge-warning">PENDING</span>'}</td>
                             <td>${h.distributed_at ? formatDate(h.distributed_at) : '---'}</td>
                         </tr>
@@ -870,9 +839,6 @@
         }
     }
 
-    // -------------------------------------------------------------------------
-    // 10. Support Desk
-    // -------------------------------------------------------------------------
     async function loadTickets() {
         const container = document.getElementById("ticketsContainer");
         const filterStatus = document.getElementById("filterTicketStatus") ? document.getElementById("filterTicketStatus").value : "";
@@ -941,9 +907,6 @@
         }
     }
 
-    // -------------------------------------------------------------------------
-    // 11. Modal Logic & Form Submissions
-    // -------------------------------------------------------------------------
     function bindGlobalEvents() {
         document.querySelectorAll("[data-close]").forEach(btn => {
             btn.addEventListener("click", function () {
@@ -1061,7 +1024,7 @@
         if (formYield) {
             formYield.addEventListener("submit", async function (e) {
                 e.preventDefault();
-                const rate = parseFloat(document.getElementById("yieldInputRate").value) / 100;
+                const rate = parseFloat(document.getElementById("yieldInputRate").value);
                 const targetDate = document.getElementById("yieldTargetDate").value;
 
                 try {
@@ -1159,6 +1122,8 @@
                         loadTickets();
                         document.getElementById("ticketActiveState").classList.add("hidden");
                         document.getElementById("ticketEmptyState").classList.remove("hidden");
+                    } else {
+                        showToast(d.message || "Error closing ticket", "error");
                     }
                 } catch (err) {
                     showToast("Error closing ticket", "error");
@@ -1197,9 +1162,6 @@
         }
     }
 
-    // -------------------------------------------------------------------------
-    // 12. Helper & Rendering Utilities
-    // -------------------------------------------------------------------------
     function openModal(modalId) {
         const m = document.getElementById(modalId);
         if (m) m.classList.add("active");
@@ -1249,7 +1211,7 @@
         if (dateOnly) {
             return d.toISOString().split("T")[0];
         }
-        return d.toISOString().replace("T", " ").substring(0, 19);
+        return d.toISOString().replace("T", " ").substring(0, 16);
     }
 
     function renderNetworkBadge(network) {
@@ -1300,9 +1262,6 @@
         return '<span class="badge-status badge-muted">Closed</span>';
     }
 
-    // -------------------------------------------------------------------------
-    // 13. Public AdminApp Namespace for Global Callbacks
-    // -------------------------------------------------------------------------
     window.AdminApp = {
         openBalanceModal: function (userId, username, uid) {
             document.getElementById("adjustUserId").value = userId;
@@ -1420,6 +1379,8 @@
                 if (d.success) {
                     showToast("Role updated", "success");
                     loadUsers();
+                } else {
+                    showToast(d.message || "Failed to update role", "error");
                 }
             } catch (err) {
                 showToast("Failed to update role", "error");
@@ -1440,6 +1401,8 @@
                 if (d.success) {
                     showToast("User status updated", "success");
                     loadUsers();
+                } else {
+                    showToast(d.message || "Status toggle failed", "error");
                 }
             } catch (err) {
                 showToast("Status toggle failed", "error");
