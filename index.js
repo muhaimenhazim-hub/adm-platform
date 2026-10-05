@@ -159,7 +159,7 @@ const i18n = {
         loginTitle: 'ورود به حساب',
         loginSubtitle: 'برای ادامه، ایمیل یا شماره موبایل خود را وارد کنید.',
         regTitle: 'ساخت اکانت جدید',
-        regSubtitle: 'جهت ثبت‌نام، مشخصات خود را وارد کنید.',
+        regSubtitle: 'جهت ثبتنام، مشخصات خود را وارد کنید.',
         identLabel: 'ایمیل / شماره موبایل',
         identPlaceholder: 'ایمیل یا شماره موبایل',
         fullNameLabel: 'نام و نام خانوادگی',
@@ -170,15 +170,15 @@ const i18n = {
         confirmPassPlaceholder: 'تکرار رمز عبور',
         inviteLabel: 'کد دعوت *',
         invitePlaceholder: 'کد معرف را وارد کنید',
-        termsLabel: 'من تمامی شرایط و قوانین و حریم خصوصی پلتفرم را می‌پذیرم.',
+        termsLabel: 'من تمامی شرایط و قوانین و حریم خصوصی پلتفرم را میپذیرم.',
         loginBtn: 'ورود',
-        registerBtn: 'ثبت‌نام',
+        registerBtn: 'ثبتنام',
         noAccountText: 'حساب کاربری ندارید؟',
-        registerNowLink: 'ثبت‌نام کنید',
-        alreadyRegisteredText: 'قبلاً ثبت‌نام کرده‌اید؟',
+        registerNowLink: 'ثبتنام کنید',
+        alreadyRegisteredText: 'قبلاً ثبتنام کردهاید؟',
         loginNowLink: 'ورود',
         homeTitle: 'داشبورد کاربری',
-        homeInfo: 'ثبت‌نام موفقیت‌آمیز بود! آماده پیاده‌سازی ۵ صفحه بعدی پلتفرم.',
+        homeInfo: 'ثبتنام موفقیتآمیز بود! آماده پیادهسازی ۵ صفحه بعدی پلتفرم.',
         logoutBtn: 'خروج از حساب',
         errRequired: 'این فیلد اجباری است',
         errInvalidIdent: 'لطفاً یک ایمیل یا شماره موبایل معتبر وارد کنید',
@@ -186,8 +186,8 @@ const i18n = {
         errPassMismatch: 'رمز عبور و تکرار آن مطابقت ندارند',
         errInviteRequired: 'کد معرف اجباری است',
         errServerConn: 'خطا در اتصال به سرور پایتون. آیا سرور در حال اجراست؟',
-        successRegister: 'ثبت‌نام موفقیت‌آمیز بود',
-        successLogin: 'ورود موفقیت‌آمیز بود'
+        successRegister: 'ثبتنام موفقیتآمیز بود',
+        successLogin: 'ورود موفقیتآمیز بود'
     }
 };
 
@@ -197,7 +197,7 @@ let activeLang = localStorage.getItem(STORAGE_LANG_KEY) || 'en';
 if (!i18n[activeLang]) activeLang = 'en';
 
 /**
- * تابع ایمن برای دریافت آدرس اندپوینت‌ها از کانفیگ مرکزی
+ * تابع ایمن برای دریافت آدرس اندپوینتها از کانفیگ مرکزی
  */
 function resolveApiUrl(endpoint) {
     if (window.APP_CONFIG && typeof window.APP_CONFIG.getApiUrl === 'function') {
@@ -206,7 +206,7 @@ function resolveApiUrl(endpoint) {
     return endpoint;
 }
 
-// المان‌های صفحه
+// المانهای صفحه
 const langDropdown = document.getElementById('langDropdown');
 const langTriggerBtn = document.getElementById('langTriggerBtn');
 const currentLangLabel = document.getElementById('currentLangLabel');
@@ -257,7 +257,7 @@ function showToast(message, isError = false) {
 }
 
 /**
- * به‌روزرسانی زبان، چیدمان (RTL/LTR) و ذخیره قطعی در حافظه مشترک پلتفرم
+ * بهروزرسانی زبان، چیدمان (RTL/LTR) و ذخیره قطعی در حافظه مشترک پلتفرم
  */
 function updateLanguage(lang) {
     if (!i18n[lang]) lang = 'en';
@@ -340,7 +340,7 @@ function clearAllErrors() {
 }
 
 /**
- * ارسال فرم ورود به بک‌اند
+ * ارسال فرم ورود به بکاند
  */
 const loginFormEl = document.getElementById('loginForm');
 if (loginFormEl) {
@@ -411,7 +411,7 @@ if (loginFormEl) {
 }
 
 /**
- * ارسال فرم ثبت‌نام به بک‌اند
+ * ارسال فرم ثبتنام به بکاند
  */
 const regFormEl = document.getElementById('registerForm');
 if (regFormEl) {
@@ -540,39 +540,6 @@ if (logoutBtn) {
 }
 
 /**
- * بررسی وضعیت لاگین فعلی کاربر هنگام بارگذاری صفحه
- */
-async function checkExistingAuth() {
-    try {
-        const response = await fetch(resolveApiUrl('/api/user_status'), {
-            method: 'GET',
-            credentials: 'include'
-        });
-
-        if (response.ok) {
-            const data = await response.json();
-            if (data.success && data.user) {
-                sessionStorage.setItem('current_user', JSON.stringify(data.user));
-                localStorage.setItem('current_user', JSON.stringify(data.user));
-                localStorage.setItem('user_role', data.user.role || 'user');
-                localStorage.setItem('user_id', data.user.id || data.user.userId || '');
-                localStorage.setItem('user_uid', data.user.uid || '');
-
-                window.location.href = 'home.html';
-            }
-        } else {
-            sessionStorage.removeItem('current_user');
-            localStorage.removeItem('current_user');
-            localStorage.removeItem('user_role');
-            localStorage.removeItem('user_id');
-            localStorage.removeItem('user_uid');
-        }
-    } catch (e) {
-        // در صورت عدم برقراری اتصال یا عدم لاگین، صفحه ورود باقی می‌ماند
-    }
-}
-
-/**
  * شناسایی خودکار کد معرف از طریق لینک (مانند ?ref=ADM123)
  */
 function handleReferralLinkDetection() {
@@ -596,9 +563,8 @@ function handleReferralLinkDetection() {
 // ۱. اعمال قطعی و فوری زبان در ثانیه صفر
 updateLanguage(activeLang);
 
-// ۲. پردازش لینک دعوت و بررسی ورود کاربر
+// ۲. پردازش لینک دعوت بدون بررسی و ریدایرکت خودکار
 handleReferralLinkDetection();
-checkExistingAuth();
 
 window.addEventListener('pageshow', () => {
     updateLanguage(activeLang);
