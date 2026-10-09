@@ -2,7 +2,7 @@
 <html lang="en" dir="ltr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ADM - Dashboard & Operations</title>
     <meta name="description" content="ADM Dashboard & Operational Management">
 
@@ -332,7 +332,7 @@
         </div>
     </div>
 
-    <!-- ================= ۴. مودال دعوت از دوستان با بارکد واقعی ================= -->
+    <!-- ================= ۴. مودال دعوت از دوستان ================= -->
     <div id="inviteModal" class="full-modal-overlay hidden">
         <div class="full-modal-card">
             <div class="full-modal-header">
@@ -345,9 +345,8 @@
             </div>
 
             <div class="full-modal-content invite-body">
-                <!-- نمایش بارکد واقعی اختصاصی -->
                 <div class="qr-mockup">
-                    <img id="inviteQrImg" class="qr-real-img" alt="QR Code" src="" style="width: 146px; height: 146px; border-radius: 12px; background: #ffffff; padding: 6px; object-fit: contain; display: block; margin: 0 auto; box-shadow: 0 4px 18px rgba(0,0,0,0.45);">
+                    <img id="inviteQrImg" class="qr-real-img" alt="QR Code" src="" style="width: 140px; height: 140px; border-radius: 10px; background: #ffffff; padding: 6px; object-fit: contain; display: block; margin: 0 auto; box-shadow: 0 4px 15px rgba(0,0,0,0.4);">
                 </div>
                 <div class="invite-field">
                     <label data-i18n="myInviteCode">کد دعوت اختصاصی:</label>
@@ -367,8 +366,8 @@
         </div>
     </div>
 
-    <!-- نوار ناوبری ۵ گزینه‌ای پایین صفحه -->
-    <nav class="bottom-nav">
+    <!-- نوار ناوبری ۵ گزینه‌ای پایین صفحه (تثبیت قطعی در پایین صفحه بدون نیاز به اسکرول در تمام دستگاه‌ها) -->
+    <nav class="bottom-nav" style="position: fixed !important; bottom: 0 !important; left: 0 !important; right: 0 !important; width: 100% !important; z-index: 9999 !important;">
         <button type="button" class="nav-item active" data-target="home"><div class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div><span class="nav-label" data-i18n="navHome">داشبورد</span></button>
         <button type="button" class="nav-item" data-target="invest"><div class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg></div><span class="nav-label" data-i18n="navInvest">شاخص‌ها</span></button>
         <button type="button" class="nav-item" data-target="team"><div class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></div><span class="nav-label" data-i18n="navTeam">تیم و شبکه</span></button>

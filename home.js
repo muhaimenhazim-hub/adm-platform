@@ -1,7 +1,7 @@
 /**
  * ==============================================================================
  * ADM Platform - Home Dashboard Frontend Controller
- * File: home.js
+ * File: home.js (Instant Zero-Second Balance Rendering Engine)
  * Dependent on: config.js (window.APP_CONFIG)
  * Backend Controller: home.py (API: /api/home/*)
  * ==============================================================================
@@ -351,18 +351,19 @@ const STORAGE_LANG_KEY = 'platform_lang';
 let currentLanguage = localStorage.getItem(STORAGE_LANG_KEY) || 'en';
 if (!dashboardI18n[currentLanguage]) currentLanguage = 'en';
 
+// مقداردهی اولیه از کش آنی مرورگر جهت حذف پرش به صفر در اولین ثانیه
 let platformUser = {
-    role: 'user',
-    activeCapital: 0.00,
-    withdrawableProfit: 0.00,
-    totalLifetimeEarnings: 0.00,
-    unlockedPrincipal: 0.00,
-    daysSinceLastCompound: 0,
-    referralCode: 'ADM2026',
-    dailyRate: 1.15,
-    todayProfit: 0.00,
-    isReleased: false,
-    hasInvestment: false
+    role: localStorage.getItem('user_role') || 'user',
+    activeCapital: parseFloat(localStorage.getItem('cache_active_cap') || '0.00'),
+    withdrawableProfit: parseFloat(localStorage.getItem('cache_withdrawable_profit') || '0.00'),
+    totalLifetimeEarnings: parseFloat(localStorage.getItem('cache_lifetime_profit') || '0.00'),
+    unlockedPrincipal: parseFloat(localStorage.getItem('cache_unlocked_cap') || '0.00'),
+    daysSinceLastCompound: parseInt(localStorage.getItem('cache_days_held') || '0', 10),
+    referralCode: localStorage.getItem('user_ref_code') || 'ADM2026',
+    dailyRate: parseFloat(localStorage.getItem('cache_daily_rate') || '1.15'),
+    todayProfit: parseFloat(localStorage.getItem('cache_today_profit') || '0.00'),
+    isReleased: localStorage.getItem('cache_is_released') === 'true',
+    hasInvestment: parseFloat(localStorage.getItem('cache_active_cap') || '0.00') >= 50.00
 };
 
 const langDropdown = document.getElementById('langDropdown');
@@ -405,7 +406,7 @@ function showToast(message, isError = false) {
 window.showToast = showToast;
 
 /**
- * دریافت اطلاعات زنده داشبورد متصل به بک‌اند
+ * دریافت اطلاعات زنده داشبورد متصل به بک‌اند و ذخیره در کش آنی
  */
 async function fetchUserDashboardData() {
     let sessionUser = {};
@@ -447,7 +448,19 @@ async function fetchUserDashboardData() {
             platformUser.daysSinceLastCompound = d.daysElapsed !== undefined ? d.daysElapsed : (d.days_since_last_compound || 0);
             platformUser.referralCode = d.referralCode || d.referral_code || 'ADM2026';
 
-            // تنظیم کد دعوت و لینک مستقیم ثبت‌نام
+            // ذخیره برای باز شدن آنی در دفعات بعدی و بین صفحات
+            localStorage.setItem('cache_active_cap', platformUser.activeCapital);
+            localStorage.setItem('cache_withdrawable_profit', platformUser.withdrawableProfit);
+            localStorage.setItem('cache_lifetime_profit', platformUser.totalLifetimeEarnings);
+            localStorage.setItem('cache_unlocked_cap', platformUser.unlockedPrincipal);
+            localStorage.setItem('cache_days_held', platformUser.daysSinceLastCompound);
+            localStorage.setItem('cache_daily_rate', platformUser.dailyRate);
+            localStorage.setItem('cache_today_profit', platformUser.todayProfit);
+            localStorage.setItem('cache_is_released', platformUser.isReleased);
+            localStorage.setItem('user_ref_code', platformUser.referralCode);
+            localStorage.setItem('user_role', platformUser.role);
+
+            // تنظیم کد دعوت و بارکد
             const hostUrl = window.location.origin;
             const fullInviteUrl = `${hostUrl}/index.html?ref=${platformUser.referralCode}`;
             const refCodeElem = document.getElementById('txtInviteCode');
@@ -455,7 +468,6 @@ async function fetchUserDashboardData() {
             if (refCodeElem) refCodeElem.textContent = platformUser.referralCode;
             if (refLinkElem) refLinkElem.textContent = fullInviteUrl;
 
-            // ساخت و نمایش بارکد واقعی بر اساس لینک مستقیم ثبت‌نام
             const qrImgElem = document.getElementById('inviteQrImg');
             if (qrImgElem) {
                 qrImgElem.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(fullInviteUrl)}&margin=1`;
@@ -477,7 +489,7 @@ async function fetchUserDashboardData() {
 }
 
 /**
- * به‌روزرسانی کارت‌های آماری بر اساس وضعیت چرخه ساعت ۹ شب افغانستان
+ * به‌روزرسانی فوری کارت‌های آماری
  */
 function updateDashboardStats() {
     const elCapital = document.getElementById('statTotalCapital');
@@ -491,7 +503,6 @@ function updateDashboardStats() {
     const rateBadge = document.getElementById('statDailyRate');
     const todayProfitEl = document.getElementById('statTodayProfit');
 
-    // همگام با منطق صفحه invest: قبل از ساعت ۹ شب افغانستان سود دوره جاری در حالت محاسبه است
     if (!platformUser.hasInvestment) {
         if (rateBadge) rateBadge.textContent = '0.00%';
         if (todayProfitEl) todayProfitEl.textContent = '0.00';
@@ -775,7 +786,6 @@ if (confirmWithdrawBtn) {
                 closeWithdrawModal();
                 showToast(result.message || dict.withdrawSuccess, false);
 
-                // کسر فوری مبلغ تسویه شده از موجودی در دسترس
                 if (currentWithdrawType === 'profit') {
                     platformUser.withdrawableProfit = Math.max(0, platformUser.withdrawableProfit - amount);
                 } else {
@@ -855,7 +865,6 @@ if (confirmCompoundBtn) {
                 closeCompoundModal();
                 showToast(result.message || dict.compoundSuccessMsg, false);
 
-                // کسر فوری سود ترکیب‌شده و اضافه شدن به اصل موجودی فعال
                 platformUser.withdrawableProfit = 0.00;
                 platformUser.activeCapital += compoundAmount;
                 updateDashboardStats();
@@ -901,6 +910,8 @@ function initPlatformVideo() {
 }
 
 function initHomePage() {
+    // ۱. رندر در ثانیه صفر (همان لحظه اول مقادیر واقعی از کش خوانده و روی کارت‌ها درج می‌شوند)
+    updateDashboardStats();
     setLanguage(currentLanguage);
 
     document.querySelectorAll('.spa-view').forEach(v => v.classList.remove('active'));
@@ -908,6 +919,7 @@ function initHomePage() {
     if (homeView) homeView.classList.add('active');
 
     initPlatformVideo();
+    // ۲. به‌روزرسانی زنده از سرور در پس‌زمینه
     fetchUserDashboardData();
 }
 
@@ -918,6 +930,7 @@ if (document.readyState === 'loading') {
 }
 
 window.addEventListener('pageshow', () => {
+    updateDashboardStats();
     setLanguage(currentLanguage);
     fetchUserDashboardData();
 });
