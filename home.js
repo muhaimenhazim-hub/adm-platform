@@ -257,7 +257,7 @@ const dashboardI18n = {
         compoundErrUnder10: 'لا يمكن إعادة التخصيص الآن! يجب الانتظار {days} يوم/أيام إضافية.',
         compoundSuccessMsg: 'الشروط مستوفاة. سيتم تطبيق جدول الرسوم المتدرج.',
         comingSoon: 'سيتوفر هذا القسم قريباً.',
-        errFetchDashboard: 'خطأ في استرداد البيانات.',
+        errFetchInvest: 'خطأ في استرداد البيانات.',
         errWithdraw: 'خطأ في إرسال طلب التسوية.',
         errCompound: 'خطأ في معالجة إعادة التخصيص.',
         errConnection: 'خطأ في الاتصال بالخادم.',
@@ -405,7 +405,7 @@ function showToast(message, isError = false) {
 window.showToast = showToast;
 
 /**
- * دریافت اطلاعات زنده داشبورد از سرور پایتون
+ * دریافت اطلاعات زنده داشبورد متصل به بک‌اند
  */
 async function fetchUserDashboardData() {
     let sessionUser = {};
@@ -447,11 +447,19 @@ async function fetchUserDashboardData() {
             platformUser.daysSinceLastCompound = d.daysElapsed !== undefined ? d.daysElapsed : (d.days_since_last_compound || 0);
             platformUser.referralCode = d.referralCode || d.referral_code || 'ADM2026';
 
+            // تنظیم کد دعوت و لینک مستقیم ثبت‌نام
             const hostUrl = window.location.origin;
+            const fullInviteUrl = `${hostUrl}/index.html?ref=${platformUser.referralCode}`;
             const refCodeElem = document.getElementById('txtInviteCode');
             const refLinkElem = document.getElementById('txtInviteLink');
             if (refCodeElem) refCodeElem.textContent = platformUser.referralCode;
-            if (refLinkElem) refLinkElem.textContent = `${hostUrl}/?ref=${platformUser.referralCode}`;
+            if (refLinkElem) refLinkElem.textContent = fullInviteUrl;
+
+            // ساخت و نمایش بارکد واقعی بر اساس لینک مستقیم ثبت‌نام
+            const qrImgElem = document.getElementById('inviteQrImg');
+            if (qrImgElem) {
+                qrImgElem.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(fullInviteUrl)}&margin=1`;
+            }
 
             if (platformUser.role === 'admin' && adminPanelBtn) {
                 adminPanelBtn.classList.remove('hidden');
@@ -468,6 +476,9 @@ async function fetchUserDashboardData() {
     }
 }
 
+/**
+ * به‌روزرسانی کارت‌های آماری بر اساس وضعیت چرخه ساعت ۹ شب افغانستان
+ */
 function updateDashboardStats() {
     const elCapital = document.getElementById('statTotalCapital');
     const elWithdrawable = document.getElementById('statWithdrawableProfit');
@@ -480,6 +491,7 @@ function updateDashboardStats() {
     const rateBadge = document.getElementById('statDailyRate');
     const todayProfitEl = document.getElementById('statTodayProfit');
 
+    // همگام با منطق صفحه invest: قبل از ساعت ۹ شب افغانستان سود دوره جاری در حالت محاسبه است
     if (!platformUser.hasInvestment) {
         if (rateBadge) rateBadge.textContent = '0.00%';
         if (todayProfitEl) todayProfitEl.textContent = '0.00';
@@ -762,6 +774,14 @@ if (confirmWithdrawBtn) {
             if (response.ok && (result.success || result.status === 'success')) {
                 closeWithdrawModal();
                 showToast(result.message || dict.withdrawSuccess, false);
+
+                // کسر فوری مبلغ تسویه شده از موجودی در دسترس
+                if (currentWithdrawType === 'profit') {
+                    platformUser.withdrawableProfit = Math.max(0, platformUser.withdrawableProfit - amount);
+                } else {
+                    platformUser.unlockedPrincipal = Math.max(0, platformUser.unlockedPrincipal - amount);
+                }
+                updateDashboardStats();
                 fetchUserDashboardData();
             } else {
                 showToast(result.message || dict.errWithdraw, true);
@@ -817,6 +837,7 @@ if (confirmCompoundBtn) {
 
         const compoundApiUrl = resolveApiUrl('/api/home/compound');
         const dict = dashboardI18n[currentLanguage] || dashboardI18n.en;
+        const compoundAmount = platformUser.withdrawableProfit;
 
         try {
             const response = await fetch(compoundApiUrl, {
@@ -825,7 +846,7 @@ if (confirmCompoundBtn) {
                 credentials: 'include',
                 body: JSON.stringify({
                     userId: currentUserId,
-                    amount: platformUser.withdrawableProfit
+                    amount: compoundAmount
                 })
             });
 
@@ -833,6 +854,11 @@ if (confirmCompoundBtn) {
             if (response.ok && (result.success || result.status === 'success')) {
                 closeCompoundModal();
                 showToast(result.message || dict.compoundSuccessMsg, false);
+
+                // کسر فوری سود ترکیب‌شده و اضافه شدن به اصل موجودی فعال
+                platformUser.withdrawableProfit = 0.00;
+                platformUser.activeCapital += compoundAmount;
+                updateDashboardStats();
                 fetchUserDashboardData();
             } else {
                 showToast(result.message || dict.errCompound, true);
@@ -856,7 +882,7 @@ if (actionInviteBtn) {
 function copyText(txt) {
     const dict = dashboardI18n[currentLanguage] || dashboardI18n.en;
     const refCode = platformUser.referralCode || 'ADM2026';
-    const textToCopy = (txt && txt.includes('http')) ? `${window.location.origin}/?ref=${refCode}` : refCode;
+    const textToCopy = (txt && txt.includes('http')) ? `${window.location.origin}/index.html?ref=${refCode}` : (txt || refCode);
     navigator.clipboard.writeText(textToCopy).then(() => {
         showToast(dict.copiedNotice, false);
     });

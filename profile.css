@@ -331,27 +331,98 @@ input, select, textarea {
 }
 
 /* ==========================================================================
-   بخش ۱: کارت هویت و مشخصات کاربر
+   بخش ۱: کارت هویت و مشخصات کاربر (دیزاین کشیده، حرفه‌ای و لوکس بایننس)
    ========================================================================== */
-.user-identity-card {
-    background: linear-gradient(135deg, #181A20 0%, #15181D 100%);
-    border: 1px solid var(--border-color);
-    border-radius: 16px;
-    padding: 22px;
+.pro-card-enhanced {
+    background: linear-gradient(145deg, #181A20 0%, #14161B 50%, #0F1115 100%);
+    border: 1px solid #2B313A;
+    border-radius: 18px;
+    padding: 26px 24px;
+    margin-bottom: 24px;
+    box-shadow: 0 14px 36px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(240, 185, 11, 0.12);
+    position: relative;
+    overflow: hidden;
+    transition: var(--transition-fast);
+}
+
+.pro-card-enhanced::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--brand-yellow), transparent);
+}
+
+/* نوار مشخصات بالایی کارت */
+.identity-top-badge-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     margin-bottom: 20px;
-    box-shadow: var(--shadow-card);
+    padding-bottom: 14px;
+    border-bottom: 1px dashed rgba(40, 44, 53, 0.8);
+    gap: 12px;
+}
+
+.vip-level-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(240, 185, 11, 0.12);
+    border: 1px solid rgba(240, 185, 11, 0.35);
+    color: var(--brand-yellow);
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 6px;
+    letter-spacing: 0.3px;
+}
+
+.vip-level-chip svg {
+    width: 14px;
+    height: 14px;
+    stroke: var(--brand-yellow);
+}
+
+.system-status-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--text-secondary);
+}
+
+.status-live-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background-color: var(--profit-green);
+    box-shadow: 0 0 8px rgba(14, 203, 129, 0.7);
+    animation: pulseDot 2s infinite ease-in-out;
+}
+
+@keyframes pulseDot {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.85); }
+}
+
+.status-live-text {
+    font-weight: 600;
+    color: var(--profit-green);
 }
 
 .identity-flex-wrap {
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: 24px;
 }
 
 .avatar-container {
     position: relative;
-    width: 82px;
-    height: 82px;
+    width: 86px;
+    height: 86px;
     flex-shrink: 0;
 }
 
@@ -361,12 +432,12 @@ input, select, textarea {
     border-radius: 50%;
     background: linear-gradient(135deg, #F0B90B 0%, #D49B00 100%);
     color: #000000;
-    font-size: 26px;
+    font-size: 28px;
     font-weight: 700;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 4px 16px rgba(240, 185, 11, 0.35);
+    box-shadow: 0 6px 20px rgba(240, 185, 11, 0.4);
     overflow: hidden;
 }
 
@@ -481,12 +552,12 @@ input, select, textarea {
     display: flex;
     align-items: center;
     gap: 12px;
-    margin-bottom: 12px;
+    margin-bottom: 14px;
     flex-wrap: wrap;
 }
 
 .user-username {
-    font-size: 19px;
+    font-size: 20px;
     font-weight: 700;
     color: var(--text-primary);
     word-break: break-word;
@@ -496,7 +567,7 @@ input, select, textarea {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    padding: 3px 10px;
+    padding: 3px 12px;
     border-radius: 20px;
     font-size: 11px;
     font-weight: 600;
@@ -539,6 +610,7 @@ input, select, textarea {
     stroke: var(--danger-red);
 }
 
+/* شبکه ستون‌های شکیل اطلاعات کاربر */
 .user-meta-grid {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -546,10 +618,20 @@ input, select, textarea {
 }
 
 .meta-item {
+    background: rgba(18, 20, 24, 0.65);
+    border: 1px solid rgba(40, 44, 53, 0.65);
+    border-radius: 10px;
+    padding: 10px 14px;
     display: flex;
     flex-direction: column;
-    gap: 3px;
+    gap: 4px;
     min-width: 0;
+    transition: var(--transition-fast);
+}
+
+.meta-item:hover {
+    border-color: rgba(240, 185, 11, 0.3);
+    background: rgba(24, 26, 32, 0.85);
 }
 
 .meta-label {
@@ -743,6 +825,11 @@ input, select, textarea {
     transition: var(--transition-fast);
 }
 
+/* هماهنگی کادر تقویم با تم تاریک بایننس */
+input[type="date"].binance-form-input {
+    color-scheme: dark;
+}
+
 .pass-input-wrap input:focus,
 .binance-form-input:focus,
 .binance-textarea:focus {
@@ -811,93 +898,6 @@ input, select, textarea {
 .btn-primary-binance:hover {
     background: var(--brand-yellow-hover);
     box-shadow: 0 4px 15px rgba(240, 185, 11, 0.35);
-}
-
-/* ================= 2FA ================= */
-.twofa-content-grid {
-    display: flex;
-    gap: 24px;
-    align-items: center;
-}
-
-.qr-canvas-mockup {
-    width: 130px;
-    height: 130px;
-    background: #FFFFFF;
-    border-radius: 10px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    color: #000;
-    font-size: 10px;
-    font-weight: 600;
-    text-align: center;
-    gap: 6px;
-    padding: 10px;
-    flex-shrink: 0;
-}
-
-.qr-canvas-mockup svg {
-    width: 50px;
-    height: 50px;
-    stroke: #000000;
-}
-
-.twofa-details-area {
-    flex: 1;
-}
-
-.secret-key-box {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background: var(--input-bg);
-    border: 1px solid var(--border-color);
-    padding: 8px 14px;
-    border-radius: 8px;
-    margin-top: 6px;
-}
-
-.secret-text {
-    font-family: 'Inter', monospace;
-    font-size: 13px;
-    color: var(--brand-yellow);
-    font-weight: 600;
-}
-
-.copy-action-btn {
-    background: var(--card-surface);
-    border: 1px solid var(--border-light);
-    color: var(--text-primary);
-    padding: 5px 12px;
-    border-radius: 6px;
-    font-size: 11px;
-    font-weight: 500;
-    transition: var(--transition-fast);
-}
-
-.copy-action-btn:hover {
-    border-color: var(--brand-yellow);
-    color: var(--brand-yellow);
-}
-
-.verify-code-row {
-    display: flex;
-    gap: 12px;
-}
-
-.input-code {
-    width: 140px;
-    background: var(--input-bg);
-    border: 1px solid var(--border-color);
-    color: var(--text-primary);
-    padding: 10px 14px;
-    border-radius: 8px;
-    font-size: 16px;
-    font-family: 'Inter', monospace;
-    letter-spacing: 3px;
-    text-align: center;
 }
 
 /* ================= نشست‌های فعال ================= */
@@ -1340,21 +1340,12 @@ input, select, textarea {
 }
 
 /* ==========================================================================
-   طراحی واکنش‌گرا (Responsive) - بهینه‌سازی شده برای تمامی زبان‌ها
+   طراحی واکنش‌گرا (Responsive)
    ========================================================================== */
 @media (max-width: 900px) {
     .user-meta-grid {
         grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: 10px;
-    }
-
-    .twofa-content-grid {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    .qr-canvas-mockup {
-        margin: 0 auto;
     }
 }
 
@@ -1363,10 +1354,15 @@ input, select, textarea {
         padding: 14px 10px 85px;
     }
 
-    .user-identity-card {
-        padding: 16px 12px;
+    .pro-card-enhanced {
+        padding: 18px 14px;
         border-radius: 14px;
+        margin-bottom: 16px;
+    }
+
+    .identity-top-badge-row {
         margin-bottom: 14px;
+        padding-bottom: 10px;
     }
 
     .identity-flex-wrap {
@@ -1392,10 +1388,14 @@ input, select, textarea {
         padding: 2px 7px;
     }
 
-    /* ۳ ستون اطلاعات کاربر در موبایل به صورت متوازن ۲ ستونه یا خلاصه */
+    /* متوازن‌سازی ستون‌های اطلاعات کاربر در موبایل */
     .user-meta-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 10px;
+        gap: 8px;
+    }
+
+    .meta-item {
+        padding: 8px 10px;
     }
 
     .meta-item:last-child {
@@ -1410,7 +1410,7 @@ input, select, textarea {
         font-size: 11.5px;
     }
 
-    /* تب‌های سه‌گانه در یک ردیف افقی کامل همراه با چیدمان آیکون بالای متن */
+    /* تب‌های سه‌گانه در یک ردیف افقی کامل */
     .profile-tabs-nav {
         grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: 6px;

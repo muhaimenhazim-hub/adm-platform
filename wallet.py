@@ -7,6 +7,14 @@ Blueprint: wallet_bp
 Prefix: /api/wallet
 Database: Configured centrally via config.py (Unified Connection Hub)
 ================================================================================
+Golden Business Rules:
+1. Daily Cycle: Releases at 21:00 AF Time (16:30 UTC).
+2. Total Lifetime Profit: Aggregates personal daily yields, team commissions, 
+   and direct referral bonuses.
+3. 10-Day Retention Rule: ALL earnings (personal yields, team commissions, 
+   direct referral bonuses) mature into withdrawable_profit ONLY after 10 full days.
+4. Withdrawable Profit: Immediately deducted upon withdrawal.
+================================================================================
 """
 
 import math
@@ -19,23 +27,24 @@ from config import get_db
 
 wallet_bp = Blueprint('wallet_bp', __name__, url_prefix='/api/wallet')
 
+# تعریف دقیق منطقه زمانی رسمی افغانستان (UTC + 4:30)
+AFT_TZ = timezone(timedelta(hours=4, minutes=30))
+
 def get_profit_cycle_state():
     """
-    محاسبه دقیق وضعیت چرخه سود روزانه:
-    - روز جهانی از ساعت 00:00 UTC آغاز می‌شود.
-    - زمان آزادسازی سود روزانه ساعت 21:00 به وقت افغانستان (معادل 16:30 UTC) است.
-    - بین 00:00 تا 16:30 UTC: سود در حالت در حال پردازش / در انتظار (Pending) قرار دارد.
-    - از 16:30 تا 23:59:59 UTC (ساعت 21:00 تا 04:30 صبح افغانستان): سود آزاد (Released) است.
-    - با ورود به روز جدید جهانی (00:00 UTC)، چرخه مجدداً برای روز جاری به حالت در انتظار می‌رود.
+    محاسبه وضعیت چرخه سود روزانه بر اساس ساعت رسمی افغانستان (UTC+4:30):
+    - ساعت آزادسازی و واریز سود روزانه رأس ساعت ۲۱:۰۰ به وقت افغانستان (معادل ۱۶:۳۰ UTC) است.
+    - بین 00:00 تا 20:59:59 افغانستان: سود در حالت در حال پردازش / تسویه دوره‌ای (Pending).
+    - از ساعت ۲۱:۰۰ تا ۲۳:۵۹:۵۹ افغانستان: سود روز جاری آزاد، واریز و فعال (Released).
     """
-    utc_now = datetime.now(timezone.utc)
-    current_utc_date = utc_now.date()
-    release_threshold_utc = datetime(
-        current_utc_date.year, current_utc_date.month, current_utc_date.day,
-        16, 30, 0, tzinfo=timezone.utc
+    aft_now = datetime.now(AFT_TZ)
+    current_aft_date = aft_now.date()
+    release_threshold_aft = datetime(
+        current_aft_date.year, current_aft_date.month, current_aft_date.day,
+        21, 0, 0, tzinfo=AFT_TZ
     )
-    is_released = utc_now >= release_threshold_utc
-    return current_utc_date, is_released, utc_now
+    is_released = (aft_now >= release_threshold_aft)
+    return current_aft_date, is_released, aft_now
 
 def get_deterministic_daily_rate(date_obj):
     """
@@ -47,7 +56,7 @@ def get_deterministic_daily_rate(date_obj):
 
 def get_or_create_daily_rate(cursor, date_obj):
     """
-    واکشی یا ثبت نرخ روزانه در دیتابیس جهت یکسان بودن قطعی در تمام صفحات
+    واکشی یا ثبت نرخ روزانه در دیتابیس جهت تطابق ۱۰۰٪ بین تمام صفحات
     """
     date_str = date_obj.strftime('%Y-%m-%d')
     cursor.execute("SELECT rate_percent, is_distributed FROM daily_yield_rates WHERE yield_date = %s", (date_str,))
@@ -85,7 +94,8 @@ def calculate_days_difference(last_action_date):
         except Exception:
             return 0
             
-    diff = (datetime.now(timezone.utc).date() - last_date).days
+    aft_today = datetime.now(AFT_TZ).date()
+    diff = (aft_today - last_date).days
     return max(0, diff)
 
 def get_profit_fee_tier(days):
@@ -110,6 +120,119 @@ def get_current_user_id():
     except Exception:
         return None
 
+def settle_daily_yields(cursor, conn, current_date, is_released):
+    """
+    موتور تسویه روزانه و اعمال قانون بلوغ ۱۰ روزه برای کلیه درآمدها در صفحه کیف‌پول:
+    ۱. واریز سودهای روزانه و کمیسیون‌های تیمی رأس ساعت ۲۱:۰۰ افغانستان به مجموع کل بازدهی (total_lifetime_profit)
+    ۲. انتقال سودهای روزانه سپری شده بیش از ۱۰ روز به سود قابل برداشت (withdrawable_profit)
+    ۳. انتقال کمیسیون‌های تیمی و پاداش‌های رفرال سپری شده بیش از ۱۰ روز به سود قابل برداشت (withdrawable_profit)
+    """
+    try:
+        cursor.execute("ALTER TABLE daily_yield_rates ADD COLUMN is_matured TINYINT(1) DEFAULT 0")
+        if conn: conn.commit()
+    except Exception:
+        pass
+
+    try:
+        cursor.execute("ALTER TABLE referral_commissions ADD COLUMN is_matured TINYINT(1) DEFAULT 0")
+        if conn: conn.commit()
+    except Exception:
+        pass
+
+    latest_released_date = current_date if is_released else (current_date - timedelta(days=1))
+    check_start_date = current_date - timedelta(days=45)
+    has_changes = False
+
+    # ۱. تسویه سود روزانه و کمیسیون تیمی به مجموع بازدهی کل
+    curr = check_start_date
+    while curr <= latest_released_date:
+        d_str = curr.strftime('%Y-%m-%d')
+        rate, is_distributed = get_or_create_daily_rate(cursor, curr)
+
+        if not is_distributed:
+            cursor.execute("""
+                UPDATE user_balances b
+                JOIN users u ON u.id = b.user_id
+                SET b.total_lifetime_profit = b.total_lifetime_profit + ROUND((b.active_capital * %s) / 100.0, 2)
+                WHERE b.active_capital >= 50.00
+                  AND u.kyc_status = 'verified'
+                  AND DATE(u.created_at) <= %s
+            """, (rate, d_str))
+
+            try:
+                cursor.execute("""
+                    UPDATE user_balances parent_bal
+                    JOIN (
+                        SELECT parent.id AS parent_id,
+                               ROUND(SUM((child_bal.active_capital * %s / 100.0) * 0.10), 2) AS team_comm
+                        FROM users child
+                        JOIN users parent ON child.referred_by = parent.referral_code
+                        JOIN user_balances child_bal ON child.id = child_bal.user_id
+                        WHERE child_bal.active_capital >= 50.00
+                          AND child.kyc_status = 'verified'
+                          AND DATE(child.created_at) <= %s
+                        GROUP BY parent.id
+                    ) team_calc ON parent_bal.user_id = team_calc.parent_id
+                    SET parent_bal.total_lifetime_profit = parent_bal.total_lifetime_profit + team_calc.team_comm
+                """, (rate, d_str))
+            except Exception:
+                pass
+
+            cursor.execute("UPDATE daily_yield_rates SET is_distributed = 1 WHERE yield_date = %s", (d_str,))
+            has_changes = True
+
+        curr += timedelta(days=1)
+
+    # ۲. انتقال سودهای روزانه با قدمت ۱۰ روز یا بیشتر به سود قابل برداشت
+    matured_cutoff = current_date - timedelta(days=10)
+    curr_m = check_start_date
+
+    while curr_m <= matured_cutoff:
+        d_str = curr_m.strftime('%Y-%m-%d')
+        try:
+            cursor.execute("SELECT rate_percent, is_matured FROM daily_yield_rates WHERE yield_date = %s", (d_str,))
+            row = cursor.fetchone()
+            if row and not row.get('is_matured'):
+                rate = float(row['rate_percent'])
+                cursor.execute("""
+                    UPDATE user_balances b
+                    JOIN users u ON u.id = b.user_id
+                    SET b.withdrawable_profit = b.withdrawable_profit + ROUND((b.active_capital * %s) / 100.0, 2)
+                    WHERE b.active_capital >= 50.00
+                      AND u.kyc_status = 'verified'
+                      AND DATE(u.created_at) <= %s
+                """, (rate, d_str))
+
+                cursor.execute("UPDATE daily_yield_rates SET is_matured = 1 WHERE yield_date = %s", (d_str,))
+                has_changes = True
+        except Exception:
+            pass
+
+        curr_m += timedelta(days=1)
+
+    # ۳. انتقال کمیسیون‌های تیمی و پاداش‌های رفرال با قدمت ۱۰ روز یا بیشتر به سود قابل برداشت
+    try:
+        cursor.execute("""
+            SELECT id, leader_id, amount
+            FROM referral_commissions
+            WHERE is_matured = 0 AND DATEDIFF(NOW(), created_at) >= 10
+        """)
+        matured_comms = cursor.fetchall()
+        for comm in matured_comms:
+            cursor.execute("""
+                UPDATE user_balances
+                SET withdrawable_profit = withdrawable_profit + %s
+                WHERE user_id = %s
+            """, (comm['amount'], comm['leader_id']))
+
+            cursor.execute("UPDATE referral_commissions SET is_matured = 1 WHERE id = %s", (comm['id'],))
+            has_changes = True
+    except Exception:
+        pass
+
+    if has_changes and conn:
+        conn.commit()
+
 @wallet_bp.route('/overview', methods=['GET'])
 def get_wallet_overview():
     user_id = get_current_user_id()
@@ -126,8 +249,12 @@ def get_wallet_overview():
                 else:
                     return jsonify({"status": "unauthenticated", "success": False}), 401
 
-            current_utc_date, is_released, _ = get_profit_cycle_state()
-            daily_rate, is_distributed_db = get_or_create_daily_rate(cursor, current_utc_date)
+            current_aft_date, is_released, _ = get_profit_cycle_state()
+
+            # اجرای تسویه خودکار و بلوغ ۱۰ روزه درآمدها
+            settle_daily_yields(cursor, conn, current_aft_date, is_released)
+
+            daily_rate, _ = get_or_create_daily_rate(cursor, current_aft_date)
 
             # آزادسازی خودکار لات‌های ۹۰ روزه منقضی‌شده
             cursor.execute("""
@@ -174,10 +301,6 @@ def get_wallet_overview():
             has_investment = (active_capital >= 50.00 and kyc_status == 'verified')
 
             today_profit = round((active_capital * daily_rate) / 100.0, 2) if has_investment else 0.00
-
-            # با رسیدن ساعت ۹ شب، سود روزانه به مجموع کل سودها اضافه می‌شود اما به سود قابل برداشت (تا گذشت ۱۰ روز) اضافه نمی‌شود
-            if is_released and has_investment and not is_distributed_db:
-                total_lifetime_profit = round(total_lifetime_profit + today_profit, 2)
 
             days_since = calculate_days_difference(balance.get('last_action'))
 
@@ -280,6 +403,7 @@ def process_withdrawal():
                 fee = amount * fee_tier["fee_rate"]
                 net_amount = amount - fee
 
+                # کسر قطعی از سود قابل برداشت و به‌روزرسانی تاریخ آخرین تراکنش
                 cursor.execute("""
                     UPDATE user_balances
                     SET withdrawable_profit = withdrawable_profit - %s,
@@ -310,6 +434,8 @@ def process_withdrawal():
                     INSERT INTO transactions (tx_id, user_id, type, amount, fee, net_amount, network, status, created_at)
                     VALUES (%s, %s, 'withdraw_principal', %s, %s, %s, %s, 'pending', %s)
                 """, (tx_id, user_id, amount, fee, net_amount, network, now))
+
+            conn.commit()
 
             return jsonify({
                 "status": "success",

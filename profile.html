@@ -53,7 +53,7 @@
                     <svg class="globe-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <circle cx="12" cy="12" r="10"></circle>
                         <line x1="2" y1="12" x2="22" y2="12"></line>
-                        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
                     </svg>
                     <span id="currentLangLabel">Language</span>
                     <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -76,8 +76,21 @@
     <main class="profile-main-wrapper">
         <div class="profile-container">
 
-            <!-- ================= بخش ۱: کارت هویت و خلاصه حساب کاربر ================= -->
-            <section class="user-identity-card">
+            <!-- ================= بخش ۱: کارت هویت و خلاصه حساب کاربر (طراحی کشیده، مجلل و حرفه‌ای) ================= -->
+            <section class="user-identity-card pro-card-enhanced">
+                
+                <!-- نوار سربرگ لوکس کارت -->
+                <div class="identity-top-badge-row">
+                    <div class="vip-level-chip">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                        <span>ADM Verified Account</span>
+                    </div>
+                    <div class="system-status-indicator">
+                        <span class="status-live-dot"></span>
+                        <span class="status-live-text">Active Session</span>
+                    </div>
+                </div>
+
                 <div class="identity-flex-wrap">
                     
                     <!-- آواتار با قابلیت گزینه‌های اختصاصی (گالری، دوربین، حذف) -->
@@ -126,7 +139,7 @@
                             </span>
                         </div>
 
-                        <!-- ۳ ستون اصلی هماهنگ: ۱. ایمیل/شماره  ۲. کد معرف اختصاصی  ۳. تاریخ عضویت -->
+                        <!-- شبکه‌بندی مدرن و کشیده اطلاعات کاربر -->
                         <div class="user-meta-grid">
                             
                             <!-- ستون ۱: ایمیل یا شماره تماس -->
@@ -177,7 +190,7 @@
                 </button>
             </div>
 
-            <!-- ================= تب ۱: مرکز امنیت و ورود ================= -->
+            <!-- ================= تب ۱: مرکز امنیت و ورود (بدون گزینه 2FA) ================= -->
             <section id="tab-security" class="profile-tab-content">
                 
                 <!-- تغییر رمز عبور -->
@@ -239,47 +252,6 @@
                     </form>
                 </div>
 
-                <!-- تایید دو مرحله‌ای -->
-                <div class="settings-card">
-                    <div class="card-head-title">
-                        <div class="head-icon-box">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
-                        </div>
-                        <div>
-                            <h3 data-i18n="twoFaTitle">تایید دو مرحله‌ای (Google Authenticator 2FA)</h3>
-                            <p class="section-desc" data-i18n="twoFaSub">محافظت دوچندان از درخواست‌های برداشت و ورود به پلتفرم</p>
-                        </div>
-                    </div>
-
-                    <div class="twofa-content-grid">
-                        <div class="qr-canvas-mockup">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                                <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
-                                <rect x="14" y="3" width="7" height="7" rx="1.5"></rect>
-                                <rect x="14" y="14" width="7" height="7" rx="1.5"></rect>
-                                <rect x="3" y="14" width="7" height="7" rx="1.5"></rect>
-                            </svg>
-                            <span data-i18n="scanQrGoogle">اسکن بارکد در اپلیکیشن</span>
-                        </div>
-
-                        <div class="twofa-details-area">
-                            <label data-i18n="twoFaSecretLabel">کلید مخفی اختصاصی (Secret Key):</label>
-                            <div class="secret-key-box">
-                                <span class="secret-text" id="secretKeyDisplay">BNCP-9812-QZWK-4402</span>
-                                <button type="button" class="copy-action-btn" id="copySecretBtn" data-i18n="copyBtn">کپی</button>
-                            </div>
-
-                            <div class="form-group" style="margin-top: 14px;">
-                                <label data-i18n="verifyCodeLabel">کد ۶ رقمی اپلیکیشن جهت فعال‌سازی:</label>
-                                <div class="verify-code-row">
-                                    <input type="text" id="twoFaCodeInput" maxlength="6" placeholder="000000" class="input-code">
-                                    <button type="button" class="btn-primary-binance" id="btnEnableTwoFa" data-i18n="enableTwoFaBtn">فعال‌سازی 2FA</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
                 <!-- نشست‌های فعال -->
                 <div class="settings-card">
                     <div class="card-head-between">
@@ -326,7 +298,7 @@
 
             </section>
 
-            <!-- ================= تب ۲: مدیریت احراز هویت (KYC) ================= -->
+            <!-- ================= تب ۲: مدیریت احراز هویت (KYC - همراه با نام، نام خانوادگی و تاریخ تولد) ================= -->
             <section id="tab-kyc" class="profile-tab-content">
                 <div class="settings-card">
                     <div class="card-head-title">
@@ -340,6 +312,21 @@
                     </div>
 
                     <form id="kycSubmitForm" class="kyc-form-wrap">
+                        
+                        <!-- ردیف اول: نام و نام خانوادگی + تاریخ تولد -->
+                        <div class="form-row-grid">
+                            <div class="form-group">
+                                <label data-i18n="fullNameLabel">نام و نام خانوادگی:</label>
+                                <input type="text" id="kycFullNameInput" class="binance-form-input" placeholder="نام و نام خانوادگی کامل..." data-i18n-ph="fullNamePlaceholder" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label data-i18n="birthDateLabel">تاریخ تولد:</label>
+                                <input type="date" id="kycBirthDateInput" class="binance-form-input" required>
+                            </div>
+                        </div>
+
+                        <!-- ردیف دوم: نوع مدرک و شماره مدرک -->
                         <div class="form-row-grid">
                             
                             <!-- انتخاب مدرک -->
@@ -438,7 +425,7 @@
                                             <span class="check-mark">✓</span>
                                         </div>
                                         <div class="dropdown-menu-item" data-value="security">
-                                            <span data-i18n="catSecurity">امنیت حساب و 2FA</span>
+                                            <span data-i18n="catSecurity">امنیت حساب و تنظیمات</span>
                                             <span class="check-mark">✓</span>
                                         </div>
                                         <div class="dropdown-menu-item" data-value="kyc">
@@ -572,7 +559,7 @@
                     <line x1="6" y1="20" x2="6" y2="14"></line>
                 </svg>
             </div>
-            <span class="nav-label" data-i18n="navInvest">سرمایه‌گذاری</span>
+            <span class="nav-label" data-i18n="navInvest">شاخص‌ها</span>
         </a>
 
         <a href="team.html" class="nav-item" data-target="team">

@@ -12,6 +12,8 @@ Golden Business Rules:
 2. Direct deposit bonus (First deposit only): L1: 8%, L2: 2%, L3: 1%.
 3. Daily team profit commission (Nightly 21:00 AF Time): L1: 10%, L2: 5%, L3: 3%, L4: 2%, L5: 1%.
 4. Leader Capital Cap: Basis = min(member_capital, leader_active_capital).
+5. 10-Day Retention Rule: All earnings (daily profit, team commissions, referral bonus) 
+   mature into withdrawable_profit only after 10 full days.
 ================================================================================
 """
 
@@ -23,23 +25,24 @@ from config import get_db
 
 team_bp = Blueprint('team_bp', __name__, url_prefix='/api/team')
 
+# تعریف دقیق منطقه زمانی رسمی افغانستان (UTC + 4:30)
+AFT_TZ = timezone(timedelta(hours=4, minutes=30))
+
 def get_profit_cycle_state():
     """
-    محاسبه دقیق وضعیت چرخه سود روزانه هماهنگ با بخش‌های سرمایه‌گذاری و هوم:
-    - روز جهانی از ساعت 00:00 UTC آغاز می‌شود.
-    - زمان آزادسازی سود روزانه ساعت 21:00 به وقت افغانستان (معادل 16:30 UTC) است.
-    - بین 00:00 تا 16:30 UTC: سود در حالت در حال پردازش / در انتظار (Pending) قرار دارد.
-    - از 16:30 تا 23:59:59 UTC (ساعت 21:00 تا 04:30 صبح افغانستان): سود آزاد (Released) است.
-    - با ورود به روز جدید جهانی (00:00 UTC)، چرخه مجدداً برای روز جاری به حالت در انتظار می‌رود.
+    محاسبه وضعیت چرخه سود روزانه بر اساس ساعت رسمی افغانستان (UTC+4:30):
+    - ساعت آزادسازی و واریز سود روزانه رأس ساعت ۲۱:۰۰ به وقت افغانستان (معادل ۱۶:۳۰ UTC) است.
+    - بین 00:00 تا 20:59:59 افغانستان: سود در حالت در حال پردازش / تسویه دوره‌ای (Pending).
+    - از ساعت ۲۱:۰۰ تا ۲۳:۵۹:۵۹ افغانستان: سود روز جاری آزاد، واریز و فعال (Released).
     """
-    utc_now = datetime.now(timezone.utc)
-    current_utc_date = utc_now.date()
-    release_threshold_utc = datetime(
-        current_utc_date.year, current_utc_date.month, current_utc_date.day,
-        16, 30, 0, tzinfo=timezone.utc
+    aft_now = datetime.now(AFT_TZ)
+    current_aft_date = aft_now.date()
+    release_threshold_aft = datetime(
+        current_aft_date.year, current_aft_date.month, current_aft_date.day,
+        21, 0, 0, tzinfo=AFT_TZ
     )
-    is_released = utc_now >= release_threshold_utc
-    return current_utc_date, is_released, utc_now
+    is_released = (aft_now >= release_threshold_aft)
+    return current_aft_date, is_released, aft_now
 
 def get_deterministic_daily_rate(date_obj):
     """
@@ -51,7 +54,7 @@ def get_deterministic_daily_rate(date_obj):
 
 def get_or_create_daily_rate(cursor, date_obj):
     """
-    واکشی یا ثبت نرخ روزانه در دیتابیس جهت یکسان بودن قطعی در تمام صفحات
+    واکشی یا ثبت نرخ روزانه در دیتابیس جهت تطابق ۱۰۰٪ بین تمام صفحات
     """
     date_str = date_obj.strftime('%Y-%m-%d')
     cursor.execute("SELECT rate_percent, is_distributed FROM daily_yield_rates WHERE yield_date = %s", (date_str,))
@@ -86,6 +89,121 @@ def get_current_user_id():
     except Exception:
         return None
 
+def settle_team_commissions_and_maturation(cursor, conn, current_date, is_released):
+    """
+    موتور خودکار محاسبه کمیسیون ۵ سطح شبکه و اعمال قانون بلوغ ۱۰ روزه:
+    ۱. محاسبه کمیسیون روزانه عملکرد تیم رأس ساعت ۲۱:۰۰ افغانستان و افزودن به مجموع کل سودها (total_lifetime_profit)
+    ۲. انتقال کلیه پاداش‌ها (سود روزانه، کمیسیون تیمی و پاداش رفرال) پس از سپری شدن ۱۰ روز به موجودی قابل برداشت (withdrawable_profit)
+    """
+    # افزودن ستون is_matured به جدول referral_commissions در صورت عدم وجود
+    try:
+        cursor.execute("ALTER TABLE referral_commissions ADD COLUMN is_matured TINYINT(1) DEFAULT 0")
+        if conn:
+            conn.commit()
+    except Exception:
+        pass
+
+    latest_released_date = current_date if is_released else (current_date - timedelta(days=1))
+    check_start_date = current_date - timedelta(days=45)
+    commission_rates = {1: 10.0, 2: 5.0, 3: 3.0, 4: 2.0, 5: 1.0}
+    has_changes = False
+
+    # ۱. بررسی و ثبت کمیسیون‌های روزانه برای روزهای تسویه شده که هنوز ثبت نشده‌اند
+    curr = check_start_date
+    while curr <= latest_released_date:
+        d_str = curr.strftime('%Y-%m-%d')
+        daily_rate, _ = get_or_create_daily_rate(cursor, curr)
+
+        # بررسی آیا برای این تاریخ کمیسیون تیمی روزانه ثبت شده است یا خیر
+        cursor.execute("SELECT COUNT(*) as cnt FROM referral_commissions WHERE type = 'DAILY' AND DATE(created_at) = %s", (d_str,))
+        already_processed = cursor.fetchone()['cnt'] > 0
+
+        if not already_processed:
+            cursor.execute("""
+                SELECT u.id, u.referred_by, b.active_capital
+                FROM users u
+                JOIN user_balances b ON u.id = b.user_id
+                WHERE b.active_capital >= 50.00 
+                  AND u.kyc_status = 'verified'
+                  AND DATE(u.created_at) <= %s
+            """, (d_str,))
+            members = cursor.fetchall()
+
+            record_dt = datetime(curr.year, curr.month, curr.day, 21, 0, 0)
+
+            for member in members:
+                m_id = member['id']
+                m_cap = float(member['active_capital'])
+                curr_ref = member['referred_by']
+
+                for level in range(1, 6):
+                    if not curr_ref:
+                        break
+
+                    cursor.execute("""
+                        SELECT u.id, u.referred_by, u.kyc_status, b.active_capital
+                        FROM users u
+                        LEFT JOIN user_balances b ON u.id = b.user_id
+                        WHERE u.referral_code = %s
+                    """, (curr_ref,))
+                    leader = cursor.fetchone()
+                    if not leader:
+                        break
+
+                    l_id = leader['id']
+                    l_cap = float(leader['active_capital'] or 0.0)
+                    l_kyc = leader['kyc_status']
+
+                    if l_kyc == 'verified' and l_cap >= 50.00:
+                        is_capped = 1 if m_cap > l_cap else 0
+                        calc_cap = min(m_cap, l_cap)
+                        capped_profit = calc_cap * (daily_rate / 100.0)
+
+                        rate_pct = commission_rates[level]
+                        comm_amount = round(capped_profit * (rate_pct / 100.0), 2)
+
+                        if comm_amount > 0:
+                            cursor.execute("""
+                                INSERT INTO referral_commissions 
+                                (leader_id, member_id, generation, type, member_capital, applied_rate, amount, is_capped, is_matured, created_at)
+                                VALUES (%s, %s, %s, 'DAILY', %s, %s, %s, %s, 0, %s)
+                            """, (l_id, m_id, f"L{level}", m_cap, rate_pct, comm_amount, is_capped, record_dt))
+
+                            # افزایش مجموع بازدهی کل (total_lifetime_profit) در دیتابیس
+                            cursor.execute("""
+                                UPDATE user_balances 
+                                SET total_lifetime_profit = total_lifetime_profit + %s
+                                WHERE user_id = %s
+                            """, (comm_amount, l_id))
+                            has_changes = True
+
+                    curr_ref = leader['referred_by']
+
+        curr += timedelta(days=1)
+
+    # ۲. بررسی بلوغ ۱۰ روزه کلیه کمیسیون‌ها و پاداش‌ها جهت انتقال به سود قابل برداشت (withdrawable_profit)
+    try:
+        cursor.execute("""
+            SELECT id, leader_id, amount
+            FROM referral_commissions
+            WHERE is_matured = 0 AND DATEDIFF(NOW(), created_at) >= 10
+        """)
+        matured_records = cursor.fetchall()
+        for rec in matured_records:
+            cursor.execute("""
+                UPDATE user_balances
+                SET withdrawable_profit = withdrawable_profit + %s
+                WHERE user_id = %s
+            """, (rec['amount'], rec['leader_id']))
+
+            cursor.execute("UPDATE referral_commissions SET is_matured = 1 WHERE id = %s", (rec['id'],))
+            has_changes = True
+    except Exception:
+        pass
+
+    if has_changes and conn:
+        conn.commit()
+
 @team_bp.route('/data', methods=['GET', 'POST'])
 def get_team_overview():
     """
@@ -102,8 +220,12 @@ def get_team_overview():
                 first_u = cursor.fetchone()
                 current_uid = first_u['id'] if first_u else 1
 
-            current_utc_date, is_released, _ = get_profit_cycle_state()
-            daily_rate, _ = get_or_create_daily_rate(cursor, current_utc_date)
+            current_aft_date, is_released, _ = get_profit_cycle_state()
+            
+            # اجرای موتور تسویه خودکار کمیسیون‌ها و اعمال قانون بلوغ ۱۰ روزه
+            settle_team_commissions_and_maturation(cursor, conn, current_aft_date, is_released)
+
+            daily_rate, _ = get_or_create_daily_rate(cursor, current_aft_date)
 
             # ۱. دریافت اطلاعات لیدر
             cursor.execute("""
@@ -127,7 +249,7 @@ def get_team_overview():
 
             referral_code = leader['referral_code'] or f"ADM-{leader['id']}"
             base_url = request.host_url.rstrip('/')
-            referral_link = f"{base_url}/?ref={referral_code}"
+            referral_link = f"{base_url}/index.html?ref={referral_code}"
 
             # ۲. ساختار ۵ نسل زیرمجموعه
             cursor.execute("""
@@ -171,10 +293,10 @@ def get_team_overview():
                                 next_codes.append(child['referral_code'])
                 current_codes = next_codes
 
-            # ۳. استخراج تراکنش‌ها و درآمد روزانه
+            # ۳. استخراج تراکنش‌ها، پاداش‌های ثبت‌شده و تفکیک نسل‌ها
             total_network_earnings = 0.00
             today_referral_income = 0.00
-            today_date_str = current_utc_date.strftime('%Y-%m-%d')
+            today_date_str = current_aft_date.strftime('%Y-%m-%d')
             tx_list = []
 
             try:
@@ -182,9 +304,9 @@ def get_team_overview():
                     SELECT rc.*, u.uid, u.username, u.email, u.phone
                     FROM referral_commissions rc
                     LEFT JOIN users u ON (rc.member_id = u.id)
-                    WHERE (rc.leader_id = %s OR rc.user_id = %s)
+                    WHERE rc.leader_id = %s
                     ORDER BY rc.id DESC
-                """, (current_uid, current_uid))
+                """, (current_uid,))
                 raw_txs = cursor.fetchall()
 
                 for tx in raw_txs:
@@ -194,11 +316,9 @@ def get_team_overview():
                     tx_type = str(tx.get('type') or '').upper()
 
                     if is_eligible:
-                        # اگر کمیسیون روزانه امروز است، تنها در صورتی که بعد از ۹ شب آزاد شده باشد به کل اضافه می‌شود
-                        if tx_type == 'DAILY' and tx_date_str == today_date_str:
-                            if is_released:
-                                total_network_earnings += amt
-                                today_referral_income += amt
+                        # در صورتی که کمیسیون روزانه مربوط به امروز باشد و هنوز ساعت ۲۱:۰۰ نشده باشد، تا ساعت ۲۱ در انتظار می‌ماند
+                        if tx_type == 'DAILY' and tx_date_str == today_date_str and not is_released:
+                            pass
                         else:
                             total_network_earnings += amt
                             if tx_date_str == today_date_str:
@@ -211,9 +331,9 @@ def get_team_overview():
                             if tx_type == 'DIRECT':
                                 generations[gen_key]['directBonus'] += amt
                             elif tx_type == 'DAILY':
-                                generations[gen_key]['dailyComm'] += amt
+                                if not (tx_date_str == today_date_str and not is_released):
+                                    generations[gen_key]['dailyComm'] += amt
 
-                    # نمایش دقیق تاریخ و ساعت به صورت عددی
                     time_str = created_at.strftime("%Y-%m-%d %H:%M") if isinstance(created_at, datetime) else str(created_at or '')
 
                     tx_list.append({
@@ -282,6 +402,8 @@ def get_team_overview():
 def process_direct_bonus():
     """
     پردازش آنی پاداش نخستین واریز عضو جدید (L1: 8%, L2: 2%, L3: 1%)
+    - پاداش بلافاصله به مجموع سودها (total_lifetime_profit) افزوده می‌شود.
+    - پاداش با وضعیت is_matured = 0 ثبت شده و دقیقاً پس از ۱۰ روز به سود قابل برداشت (withdrawable_profit) اضافه خواهد شد.
     """
     data = request.get_json() or {}
     member_id = data.get('member_id')
@@ -294,6 +416,13 @@ def process_direct_bonus():
     try:
         conn = get_db()
         with conn.cursor() as cursor:
+            # بررسی ایجاد ستون is_matured
+            try:
+                cursor.execute("ALTER TABLE referral_commissions ADD COLUMN is_matured TINYINT(1) DEFAULT 0")
+                conn.commit()
+            except Exception:
+                pass
+
             cursor.execute("""
                 SELECT COUNT(*) as cnt FROM transactions 
                 WHERE user_id = %s AND type = 'deposit' AND status = 'completed'
@@ -338,16 +467,16 @@ def process_direct_bonus():
                     if bonus > 0:
                         cursor.execute("""
                             INSERT INTO referral_commissions 
-                            (leader_id, member_id, generation, type, member_capital, applied_rate, amount, is_capped, created_at)
-                            VALUES (%s, %s, %s, 'DIRECT', %s, %s, %s, %s, NOW())
+                            (leader_id, member_id, generation, type, member_capital, applied_rate, amount, is_capped, is_matured, created_at)
+                            VALUES (%s, %s, %s, 'DIRECT', %s, %s, %s, %s, 0, NOW())
                         """, (leader_id, member_id, f"L{level}", deposit_amount, rate, bonus, is_capped))
 
+                        # افزودن مستقیم به مجموع کل بازدهی‌ها (مجموعه مفادها)
                         cursor.execute("""
                             UPDATE user_balances 
-                            SET withdrawable_profit = withdrawable_profit + %s,
-                                total_lifetime_profit = total_lifetime_profit + %s
+                            SET total_lifetime_profit = total_lifetime_profit + %s
                             WHERE user_id = %s
-                        """, (bonus, bonus, leader_id))
+                        """, (bonus, leader_id))
 
                         cursor.execute("""
                             INSERT INTO transactions (tx_id, user_id, type, amount, fee, net_amount, network, status, created_at)
@@ -355,6 +484,8 @@ def process_direct_bonus():
                         """, (leader_id, leader_id, bonus, bonus))
 
                 curr_ref_code = leader['referred_by']
+
+            conn.commit()
 
         return jsonify({"status": "success", "message": "Direct bonus processed successfully"}), 200
 
@@ -367,74 +498,15 @@ def process_direct_bonus():
 @team_bp.route('/process_daily_commissions', methods=['POST'])
 def process_daily_commissions():
     """
-    پردازش کمیسیون سود روزانه از اعضای تیم رأس ساعت ۲۱:۰۰ به وقت افغانستان (L1: 10%, L2: 5%, L3: 3%, L4: 2%, L5: 1%)
+    پردازش مستقیم کمیسیون سود روزانه از اعضای تیم رأس ساعت ۲۱:۰۰ به وقت افغانستان (L1: 10%, L2: 5%, L3: 3%, L4: 2%, L5: 1%)
     """
     conn = None
     try:
         conn = get_db()
         with conn.cursor() as cursor:
-            current_utc_date, _, _ = get_profit_cycle_state()
-            daily_rate, _ = get_or_create_daily_rate(cursor, current_utc_date)
-
-            cursor.execute("""
-                SELECT u.id, u.referred_by, b.active_capital
-                FROM users u
-                JOIN user_balances b ON u.id = b.user_id
-                WHERE b.active_capital >= 50.00 AND u.kyc_status = 'verified'
-            """)
-            members = cursor.fetchall()
-
-            commission_rates = {1: 10.0, 2: 5.0, 3: 3.0, 4: 2.0, 5: 1.0}
-
-            for member in members:
-                m_id = member['id']
-                m_cap = float(member['active_capital'])
-                curr_ref = member['referred_by']
-
-                for level in range(1, 6):
-                    if not curr_ref:
-                        break
-
-                    cursor.execute("""
-                        SELECT u.id, u.referred_by, u.kyc_status, b.active_capital
-                        FROM users u
-                        LEFT JOIN user_balances b ON u.id = b.user_id
-                        WHERE u.referral_code = %s
-                    """, (curr_ref,))
-                    leader = cursor.fetchone()
-                    if not leader:
-                        break
-
-                    l_id = leader['id']
-                    l_cap = float(leader['active_capital'] or 0.0)
-                    l_kyc = leader['kyc_status']
-
-                    if l_kyc == 'verified' and l_cap >= 50.00:
-                        is_capped = 1 if m_cap > l_cap else 0
-                        calc_cap = min(m_cap, l_cap)
-                        capped_profit = calc_cap * (daily_rate / 100.0)
-
-                        rate_pct = commission_rates[level]
-                        comm_amount = round(capped_profit * (rate_pct / 100.0), 4)
-
-                        if comm_amount > 0:
-                            cursor.execute("""
-                                INSERT INTO referral_commissions 
-                                (leader_id, member_id, generation, type, member_capital, applied_rate, amount, is_capped, created_at)
-                                VALUES (%s, %s, %s, 'DAILY', %s, %s, %s, %s, NOW())
-                            """, (l_id, m_id, f"L{level}", m_cap, rate_pct, comm_amount, is_capped))
-
-                            cursor.execute("""
-                                UPDATE user_balances 
-                                SET withdrawable_profit = withdrawable_profit + %s,
-                                    total_lifetime_profit = total_lifetime_profit + %s
-                                WHERE user_id = %s
-                            """, (comm_amount, comm_amount, l_id))
-
-                    curr_ref = leader['referred_by']
-
-        return jsonify({"status": "success", "message": "Nightly team commissions calculated successfully"}), 200
-
+            current_aft_date, is_released, _ = get_profit_cycle_state()
+            settle_team_commissions_and_maturation(cursor, conn, current_aft_date, True)
+            return jsonify({"status": "success", "message": "Nightly team commissions calculated successfully"}), 200
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
     finally:

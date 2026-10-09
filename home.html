@@ -332,7 +332,7 @@
         </div>
     </div>
 
-    <!-- ================= ۴. مودال دعوت از دوستان ================= -->
+    <!-- ================= ۴. مودال دعوت از دوستان با بارکد واقعی ================= -->
     <div id="inviteModal" class="full-modal-overlay hidden">
         <div class="full-modal-card">
             <div class="full-modal-header">
@@ -345,8 +345,9 @@
             </div>
 
             <div class="full-modal-content invite-body">
+                <!-- نمایش بارکد واقعی اختصاصی -->
                 <div class="qr-mockup">
-                    <div class="qr-box">QR CODE</div>
+                    <img id="inviteQrImg" class="qr-real-img" alt="QR Code" src="" style="width: 146px; height: 146px; border-radius: 12px; background: #ffffff; padding: 6px; object-fit: contain; display: block; margin: 0 auto; box-shadow: 0 4px 18px rgba(0,0,0,0.45);">
                 </div>
                 <div class="invite-field">
                     <label data-i18n="myInviteCode">کد دعوت اختصاصی:</label>

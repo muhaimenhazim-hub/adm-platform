@@ -703,11 +703,12 @@
             totalNetworkEarnings.textContent = (Number(d.stats.total_network_earnings) || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
           }
 
+          // نمایش وضعیت پاداش امروز شبکه هماهنگ با ساعت ۲۱:۰۰ افغانستان
           if (todayReferralIncome) {
             const todayInc = Number(d.stats.today_referral_income) || 0;
             if (!isLeaderEligible) {
               todayReferralIncome.textContent = '+0.00';
-            } else if (isReleasedToday || todayInc > 0) {
+            } else if (isReleasedToday) {
               todayReferralIncome.textContent = `+${todayInc.toFixed(2)}`;
             } else {
               todayReferralIncome.textContent = '---';

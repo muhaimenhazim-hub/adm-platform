@@ -822,6 +822,15 @@ if (confirmWithdrawBtn) {
 
             if (res.ok && (data.status === 'success' || data.success)) {
                 showToast(data.message || dict.withdrawSuccess, false);
+
+                // کسر قطعی و لحظه‌ای مبلغ تسویه‌شده از موجودی در رابط کاربری
+                if (currentWithdrawType === 'profit') {
+                    walletUser.withdrawableProfit = Math.max(0, walletUser.withdrawableProfit - amount);
+                } else {
+                    walletUser.unlockedPrincipal = Math.max(0, walletUser.unlockedPrincipal - amount);
+                }
+                updateWalletBalances();
+
                 withdrawAmountInput.value = '';
                 withdrawAddressInput.value = '';
                 await fetchWalletOverview();

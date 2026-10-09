@@ -22,12 +22,12 @@ const profileI18n = {
         langName: 'English',
         adminPanel: 'Admin Panel',
         navHome: 'Dashboard',
-        navInvest: 'Invest',
+        navInvest: 'Performance',
         navTeam: 'Team',
         navWallet: 'Wallet',
         navProfile: 'Profile',
         profileTitle: 'Profile & Security Center',
-        profileSub: 'Manage your account credentials, 2FA, identity verification, and support tickets.',
+        profileSub: 'Manage your account credentials, identity verification, and support tickets.',
         emailLabel: 'Email / Phone:',
         referralCodeLabel: 'Referral Code:',
         memberSinceLabel: 'Member Since:',
@@ -51,13 +51,6 @@ const profileI18n = {
         strengthMedium: 'Medium',
         strengthStrong: 'Strong',
         savePasswordBtn: 'Update Password',
-        twoFaTitle: 'Two-Factor Authentication (2FA)',
-        twoFaSub: 'Add an extra layer of protection for logins and withdrawals.',
-        scanQrGoogle: 'Scan QR in Authenticator',
-        twoFaSecretLabel: 'Secret Key:',
-        copyBtn: 'Copy',
-        verifyCodeLabel: '6-Digit 2FA Code:',
-        enableTwoFaBtn: 'Enable 2FA',
         sessionsTitle: 'Active Login Sessions',
         sessionsSub: 'Devices currently authorized to access this account.',
         terminateAllSessionsBtn: 'Terminate Other Sessions',
@@ -66,6 +59,9 @@ const profileI18n = {
         session2Meta: 'IP: 91.240.118.5 • Dubai, UAE • 2 hours ago',
         kycTitle: 'Identity Verification (KYC Level 2)',
         kycSub: 'Submit documents to increase daily withdrawal limits.',
+        fullNameLabel: 'Full Name:',
+        fullNamePlaceholder: 'Enter your full name...',
+        birthDateLabel: 'Date of Birth:',
         docTypeLabel: 'Document Type:',
         passport: 'International Passport',
         nationalId: 'National Identity Card',
@@ -81,7 +77,7 @@ const profileI18n = {
         ticketSubjectPlaceholder: 'Enter ticket title...',
         ticketCategoryLabel: 'Department:',
         catFinancial: 'Financial, Deposits & Withdrawals',
-        catSecurity: 'Account Security & 2FA',
+        catSecurity: 'Account Security & Settings',
         catKyc: 'Identity Verification (KYC)',
         catGeneral: 'General Inquiries & Network',
         ticketMsgLabel: 'Detailed Message:',
@@ -109,15 +105,13 @@ const profileI18n = {
         copiedNotice: 'Copied to clipboard!',
         passMismatch: 'New passwords do not match!',
         passSuccess: 'Password changed successfully.',
-        twoFaSuccess: 'Two-factor authentication successfully enabled!',
-        twoFaCodeErr: 'Code must be 6 digits.',
         sessionsTerminated: 'All other sessions have been terminated.',
-        kycSuccess: 'Documents compressed and submitted successfully!',
+        kycSuccess: 'Documents submitted successfully. Verification in progress.',
         ticketSuccess: 'Ticket submitted successfully.',
         avatarSuccess: 'Avatar image updated.',
         officialSupportName: 'ADM Official Support',
         errConnection: 'Network connection error with backend server.',
-        errDocNumRequired: 'Identity document number is required.',
+        errDocNumRequired: 'Please complete all identity verification fields.',
         errGeneral: 'An error occurred. Please try again.',
         errLoadChat: 'Failed to load conversation messages.'
     },
@@ -126,12 +120,12 @@ const profileI18n = {
         langName: 'Français',
         adminPanel: 'Panneau Admin',
         navHome: 'Accueil',
-        navInvest: 'Investir',
+        navInvest: 'Performance',
         navTeam: 'Équipe',
         navWallet: 'Portefeuille',
         navProfile: 'Profil',
         profileTitle: 'Profil et Centre de Sécurité',
-        profileSub: 'Gérez vos identifiants, 2FA, vérification d’identité et tickets de support.',
+        profileSub: 'Gérez vos identifiants, vérification d’identité et tickets de support.',
         emailLabel: 'Email / Téléphone :',
         referralCodeLabel: 'Code de parrainage :',
         memberSinceLabel: 'Membre depuis :',
@@ -155,13 +149,6 @@ const profileI18n = {
         strengthMedium: 'Moyen',
         strengthStrong: 'Fort',
         savePasswordBtn: 'Mettre à jour le mot de passe',
-        twoFaTitle: 'Authentification à deux facteurs (2FA)',
-        twoFaSub: 'Protection renforcée pour vos retraits et connexions.',
-        scanQrGoogle: 'Scanner le QR dans l’application',
-        twoFaSecretLabel: 'Clé secrète :',
-        copyBtn: 'Copier',
-        verifyCodeLabel: 'Code 2FA à 6 chiffres :',
-        enableTwoFaBtn: 'Activer 2FA',
         sessionsTitle: 'Sessions actives',
         sessionsSub: 'Appareils actuellement connectés à ce compte.',
         terminateAllSessionsBtn: 'Fermer les autres sessions',
@@ -170,6 +157,9 @@ const profileI18n = {
         session2Meta: 'IP : 91.240.118.5 • Dubaï, EAU • Il y a 2 heures',
         kycTitle: 'Vérification d’identité (KYC Niveau 2)',
         kycSub: 'Fournissez vos documents pour augmenter vos limites de retrait.',
+        fullNameLabel: 'Nom et prénom :',
+        fullNamePlaceholder: 'Entrez votre nom complet...',
+        birthDateLabel: 'Date de naissance :',
         docTypeLabel: 'Type de document :',
         passport: 'Passeport International',
         nationalId: 'Carte Nationale d’Identité',
@@ -185,7 +175,7 @@ const profileI18n = {
         ticketSubjectPlaceholder: 'Titre du ticket...',
         ticketCategoryLabel: 'Département :',
         catFinancial: 'Finances, Dépôts et Retraits',
-        catSecurity: 'Sécurité et 2FA',
+        catSecurity: 'Sécurité du compte',
         catKyc: 'Vérification d’identité (KYC)',
         catGeneral: 'Questions générales',
         ticketMsgLabel: 'Message détaillé :',
@@ -213,15 +203,13 @@ const profileI18n = {
         copiedNotice: 'Copié dans le presse-papiers !',
         passMismatch: 'Les mots de passe ne correspondent pas !',
         passSuccess: 'Mot de passe mis à jour avec succès.',
-        twoFaSuccess: 'Authentification 2FA activée avec succès !',
-        twoFaCodeErr: 'Le code doit contenir 6 chiffres.',
         sessionsTerminated: 'Toutes les autres sessions ont été fermées.',
-        kycSuccess: 'Documents compressés et transmis avec succès !',
+        kycSuccess: 'Documents transmis. Vérification automatique en cours.',
         ticketSuccess: 'Ticket envoyé avec succès.',
         avatarSuccess: 'Photo d’avatar mise à jour.',
         officialSupportName: 'Support officiel ADM',
         errConnection: 'Erreur de connexion au serveur.',
-        errDocNumRequired: 'Le numéro de document est obligatoire.',
+        errDocNumRequired: 'Veuillez remplir tous les champs requis.',
         errGeneral: 'Une erreur est survenue. Veuillez réessayer.',
         errLoadChat: 'Échec du chargement des messages.'
     },
@@ -230,12 +218,12 @@ const profileI18n = {
         langName: 'Русский',
         adminPanel: 'Панель админа',
         navHome: 'Главная',
-        navInvest: 'Инвестиции',
+        navInvest: 'Показатели',
         navTeam: 'Команда',
         navWallet: 'Кошелек',
         navProfile: 'Профиль',
         profileTitle: 'Профиль и Центр безопасности',
-        profileSub: 'Управление безопасностью, 2FA, верификацией и тикетами поддержки.',
+        profileSub: 'Управление безопасностью, верификацией и тикетами поддержки.',
         emailLabel: 'Email / Телефон:',
         referralCodeLabel: 'Реферальный код:',
         memberSinceLabel: 'Дата регистрации:',
@@ -259,13 +247,6 @@ const profileI18n = {
         strengthMedium: 'Средний',
         strengthStrong: 'Надежный',
         savePasswordBtn: 'Обновить пароль',
-        twoFaTitle: 'Двухфакторная аутентификация (2FA)',
-        twoFaSub: 'Дополнительная защита для входа и вывода средств.',
-        scanQrGoogle: 'Сканируйте QR в Google Authenticator',
-        twoFaSecretLabel: 'Секретный ключ:',
-        copyBtn: 'Копировать',
-        verifyCodeLabel: '6-значный код 2FA:',
-        enableTwoFaBtn: 'Включить 2FA',
         sessionsTitle: 'Активные сессии',
         sessionsSub: 'Устройства, авторизованные в аккаунте.',
         terminateAllSessionsBtn: 'Завершить другие сеансы',
@@ -274,6 +255,9 @@ const profileI18n = {
         session2Meta: 'IP: 91.240.118.5 • Дубай, ОАЭ • 2 часа назад',
         kycTitle: 'Верификация личности (KYC Уровень 2)',
         kycSub: 'Отправьте документы для повышения лимитов на вывод.',
+        fullNameLabel: 'ФИО (Имя и Фамилия):',
+        fullNamePlaceholder: 'Введите полное имя...',
+        birthDateLabel: 'Дата рождения:',
         docTypeLabel: 'Тип документа:',
         passport: 'Заграничный паспорт',
         nationalId: 'ID карта / Паспорт',
@@ -289,7 +273,7 @@ const profileI18n = {
         ticketSubjectPlaceholder: 'Введите тему...',
         ticketCategoryLabel: 'Отдел:',
         catFinancial: 'Финансы, ввод и вывод',
-        catSecurity: 'Безопасность и 2FA',
+        catSecurity: 'Безопасность аккаунта',
         catKyc: 'Верификация (KYC)',
         catGeneral: 'Общие вопросы',
         ticketMsgLabel: 'Текст обращения:',
@@ -317,15 +301,13 @@ const profileI18n = {
         copiedNotice: 'Скопировано в буфер обмена!',
         passMismatch: 'Пароли не совпадают!',
         passSuccess: 'Пароль успешно обновлен.',
-        twoFaSuccess: '2FA успешно активирована!',
-        twoFaCodeErr: 'Код должен состоять из 6 цифр.',
         sessionsTerminated: 'Все остальные сеансы завершены.',
-        kycSuccess: 'Документы сжаты и отправлены на проверку!',
+        kycSuccess: 'Документы отправлены. Выполняется автоматическая проверка.',
         ticketSuccess: 'Тикет успешно создан.',
         avatarSuccess: 'Аватар успешно обновлен.',
         officialSupportName: 'Официальная поддержка ADM',
         errConnection: 'Ошибка подключения к серверу.',
-        errDocNumRequired: 'Номер документа обязателен.',
+        errDocNumRequired: 'Пожалуйста, заполните все поля.',
         errGeneral: 'Произошла ошибка. Пожалуйста, попробуйте еще раз.',
         errLoadChat: 'Не удалось загрузить сообщения.'
     },
@@ -334,12 +316,12 @@ const profileI18n = {
         langName: 'العربية',
         adminPanel: 'لوحة الإدارة',
         navHome: 'الرئيسية',
-        navInvest: 'الاستثمار',
+        navInvest: 'المؤشرات',
         navTeam: 'الفريق',
         navWallet: 'المحفظة',
         navProfile: 'الملف',
         profileTitle: 'الملف الشخصي ومركز الأمان',
-        profileSub: 'إدارة أمان الحساب، المصادقة الثنائية، التحقق من الهوية وتذاكر الدعم.',
+        profileSub: 'إدارة أمان الحساب، التحقق من الهوية وتذاكر الدعم.',
         emailLabel: 'البريد / الهاتف:',
         referralCodeLabel: 'رمز الإحالة:',
         memberSinceLabel: 'تاريخ الانضمام:',
@@ -363,13 +345,6 @@ const profileI18n = {
         strengthMedium: 'متوسطة',
         strengthStrong: 'قوية',
         savePasswordBtn: 'تحديث كلمة المرور',
-        twoFaTitle: 'المصادقة الثنائية (Google 2FA)',
-        twoFaSub: 'طبقة حماية إضافية لعمليات السحب والدخول.',
-        scanQrGoogle: 'امسح الرمز في تطبيق المصادقة',
-        twoFaSecretLabel: 'المفتاح السري:',
-        copyBtn: 'نسخ',
-        verifyCodeLabel: 'رمز المصادقة المكون من 6 أرقام:',
-        enableTwoFaBtn: 'تفعيل 2FA',
         sessionsTitle: 'الجلسات والأجهزة النشطة',
         sessionsSub: 'الأجهزة المصرح لها بالوصول لهذا الحساب.',
         terminateAllSessionsBtn: 'تسجيل الخروج من بقية الأجهزة',
@@ -378,6 +353,9 @@ const profileI18n = {
         session2Meta: 'IP: 91.240.118.5 • دبي، الإمارات • منذ ساعتين',
         kycTitle: 'التحقق من الهوية (KYC المستوى 2)',
         kycSub: 'ارفع مستنداتك لرفع الحد اليومي للسحوبات.',
+        fullNameLabel: 'الاسم واللقب:',
+        fullNamePlaceholder: 'أدخل الاسم الكامل...',
+        birthDateLabel: 'تاريخ الميلاد:',
         docTypeLabel: 'نوع الوثيقة:',
         passport: 'جواز سفر دولي',
         nationalId: 'بطاقة الهوية الوطنية',
@@ -393,7 +371,7 @@ const profileI18n = {
         ticketSubjectPlaceholder: 'أدخل عنوان التذكرة...',
         ticketCategoryLabel: 'القسم المختص:',
         catFinancial: 'المالية، الإيداع والسحب',
-        catSecurity: 'الأمان و 2FA',
+        catSecurity: 'أمان الحساب',
         catKyc: 'التحقق من الهوية (KYC)',
         catGeneral: 'استفسارات عامة',
         ticketMsgLabel: 'نص الرسالة:',
@@ -421,15 +399,13 @@ const profileI18n = {
         copiedNotice: 'تم النسخ بنجاح!',
         passMismatch: 'كلمتا المرور غير متطابقتين!',
         passSuccess: 'تم تغيير كلمة المرور بنجاح.',
-        twoFaSuccess: 'تم تفعيل المصادقة الثنائية بنجاح!',
-        twoFaCodeErr: 'يجب أن يتكون الرمز من 6 أرقام.',
         sessionsTerminated: 'تم إنهاء جميع الجلسات الأخرى.',
-        kycSuccess: 'تم ضغط وإرسال المستندات بنجاح!',
+        kycSuccess: 'تم إرسال المستندات بنجاح. التحقق قيد المعالجة.',
         ticketSuccess: 'تم إرسال التذكرة بنجاح.',
         avatarSuccess: 'تم تحديث الصورة الشخصية.',
         officialSupportName: 'فريق دعم ADM الرسمي',
         errConnection: 'خطأ في الاتصال بالخادم.',
-        errDocNumRequired: 'رقم الوثيقة مطلوب.',
+        errDocNumRequired: 'يرجى ملء جميع الحقول المطلوبة.',
         errGeneral: 'حدث خطأ. يرجى المحاولة مرة أخرى.',
         errLoadChat: 'فشل تحميل الرسائل.'
     },
@@ -438,7 +414,7 @@ const profileI18n = {
         langName: 'فارسی',
         adminPanel: 'پنل مدیریت',
         navHome: 'داشبورد',
-        navInvest: 'سرمایه‌گذاری',
+        navInvest: 'شاخص‌ها',
         navTeam: 'تیم و شبکه',
         navWallet: 'کیف‌پول',
         navProfile: 'پروفایل',
@@ -467,13 +443,6 @@ const profileI18n = {
         strengthMedium: 'متوسط',
         strengthStrong: 'قوی',
         savePasswordBtn: 'به‌روزرسانی رمز عبور',
-        twoFaTitle: 'تایید دو مرحله‌ای (Google Authenticator 2FA)',
-        twoFaSub: 'محافظت دوچندان از درخواست‌های برداشت و ورود به پلتفرم',
-        scanQrGoogle: 'اسکن بارکد در اپلیکیشن',
-        twoFaSecretLabel: 'کلید مخفی اختصاصی (Secret Key):',
-        copyBtn: 'کپی',
-        verifyCodeLabel: 'کد ۶ رقمی اپلیکیشن جهت فعال‌سازی:',
-        enableTwoFaBtn: 'فعال‌سازی 2FA',
         sessionsTitle: 'نشست‌های فعال و دستگاه‌های متصل',
         sessionsSub: 'دستگاه‌هایی که در حال حاضر به این حساب دسترسی دارند',
         terminateAllSessionsBtn: 'خروج از سایر دستگاه‌ها',
@@ -482,6 +451,9 @@ const profileI18n = {
         session2Meta: 'IP: 91.240.118.5 • دبی، امارات • ۲ ساعت پیش',
         kycTitle: 'ارسال و اعتبارسنجی مدارک شناسایی (KYC Level 2)',
         kycSub: 'جهت افزایش سقف برداشت روزانه و تضمین امنیت حساب',
+        fullNameLabel: 'نام و نام خانوادگی:',
+        fullNamePlaceholder: 'نام و نام خانوادگی کامل...',
+        birthDateLabel: 'تاریخ تولد:',
         docTypeLabel: 'نوع مدرک شناسایی:',
         passport: 'گذرنامه بین‌المللی (Passport)',
         nationalId: 'کارت ملی هوشمند',
@@ -497,7 +469,7 @@ const profileI18n = {
         ticketSubjectPlaceholder: 'عنوان مشکل یا سوال...',
         ticketCategoryLabel: 'دپارتمان مربوطه:',
         catFinancial: 'مسائل مالی، واریز و برداشت',
-        catSecurity: 'امنیت حساب و 2FA',
+        catSecurity: 'امنیت حساب و تنظیمات',
         catKyc: 'احراز هویت (KYC)',
         catGeneral: 'سوالات عمومی و شبکه رفرال',
         ticketMsgLabel: 'شرح پیام شما:',
@@ -525,22 +497,19 @@ const profileI18n = {
         copiedNotice: 'در حافظه کپی شد!',
         passMismatch: 'رمز عبور جدید با تکرار آن یکسان نیست!',
         passSuccess: 'کلمه عبور شما با موفقیت تغییر یافت.',
-        twoFaCodeErr: 'کد باید ۶ رقمی باشد.',
-        twoFaSuccess: 'تایید دو مرحله‌ای با موفقیت فعال شد!',
         sessionsTerminated: 'تمامی نشست‌های متصل دیگر با موفقیت مسدود شدند.',
-        kycSuccess: 'مدارک با موفقیت فشرده‌سازی و جهت بررسی ارسال گردیدند!',
+        kycSuccess: 'مدارک ارسال شد و فرآیند بررسی خودکار آغاز گردید.',
         ticketSuccess: 'تیکت شما با موفقیت ثبت شد.',
         avatarSuccess: 'تصویر آواتار به‌روز شد.',
         officialSupportName: 'تیم پشتیبانی رسمی ADM',
         errConnection: 'خطا در برقراری ارتباط با سرور.',
-        errDocNumRequired: 'شماره مدرک شناسایی الزامی است.',
+        errDocNumRequired: 'لطفاً تمامی فیلدهای هویتی را تکمیل نمایید.',
         errGeneral: 'خطایی رخ داده است. لطفاً مجدداً تلاش کنید.',
         errLoadChat: 'خطا در دریافت پیام‌های گفت‌وگو.'
     }
 };
 
 const STORAGE_LANG_KEY = 'platform_lang';
-// زبان انتخابی سیستم با فال‌بک پیش‌فرض انگلیسی
 let currentLanguage = localStorage.getItem(STORAGE_LANG_KEY) || 'en';
 if (!profileI18n[currentLanguage]) currentLanguage = 'en';
 
@@ -604,15 +573,12 @@ const confirmPassInput = document.getElementById('confirmPassInput');
 const passStrengthBar = document.getElementById('passStrengthBar');
 const passStrengthLabel = document.getElementById('passStrengthLabel');
 
-const copySecretBtn = document.getElementById('copySecretBtn');
-const secretKeyDisplay = document.getElementById('secretKeyDisplay');
-const btnEnableTwoFa = document.getElementById('btnEnableTwoFa');
-const twoFaCodeInput = document.getElementById('twoFaCodeInput');
-
 const terminateSessionsBtn = document.getElementById('terminateSessionsBtn');
 const sessionsListWrap = document.getElementById('sessionsListWrap');
 
 const kycSubmitForm = document.getElementById('kycSubmitForm');
+const kycFullNameInput = document.getElementById('kycFullNameInput');
+const kycBirthDateInput = document.getElementById('kycBirthDateInput');
 const kycDocNumberInput = document.getElementById('kycDocNumberInput');
 const fileDocFront = document.getElementById('fileDocFront');
 const fileDocBack = document.getElementById('fileDocBack');
@@ -750,6 +716,7 @@ function renderProfileInfo() {
         }
     }
 
+    // به‌روزرسانی نشان وضعیت احراز هویت در تمام ۵ زبان
     if (displayKycBadge) {
         displayKycBadge.className = 'kyc-badge';
         if (currentUser.kycStatus === 'verified') {
@@ -766,7 +733,6 @@ function renderProfileInfo() {
 
     renderTicketsTable();
 }
-
 
 /**
  * توابع مدیریت وضعیت خوانده‌شدن اعلان پاسخ ادمین
@@ -839,7 +805,6 @@ function renderTicketsTable() {
         const safeDept = escapeHtml(tk.department);
         const safeStatus = escapeHtml(tk.status);
 
-        // نمایش اعلان ناخوانده فقط زمانی که کاربر هنوز پاسخ ادمین را باز نکرده است
         const replyBadgeHtml = isUnread
             ? `<span class="adm-reply-badge">● ${dict.newReplyBadge || 'پاسخ جدید'}</span>`
             : '';
@@ -868,7 +833,6 @@ window.openTicketChat = async function (ticketCode, subject, department, status)
     if (!ticketChatModal) return;
     const dict = profileI18n[currentLanguage] || profileI18n.en;
 
-    // علامت‌گذاری پاسخ به عنوان خوانده‌شده و به‌روزرسانی جدول جهت حذف فوری نشان اعلان
     markTicketReplyAsRead(ticketCode);
     renderTicketsTable();
 
@@ -986,7 +950,6 @@ if (chatReplyForm) {
             const data = await res.json();
             if (res.ok && data.status === 'success') {
                 if (chatReplyMessageInput) chatReplyMessageInput.value = '';
-                // بازنشانی وضعیت تا در پاسخ بعدی ادمین، اعلان مجدداً ظاهر شود
                 resetTicketReplyReadState(ticketCode);
                 showToast(dict.replySuccess, false);
                 await loadTicketMessages(ticketCode);
@@ -1279,28 +1242,6 @@ if (copyRefCodeBtn) {
     });
 }
 
-if (copySecretBtn) {
-    copySecretBtn.addEventListener('click', () => {
-        navigator.clipboard.writeText(secretKeyDisplay.textContent.trim()).then(() => {
-            const dict = profileI18n[currentLanguage] || profileI18n.en;
-            showToast(dict.copiedNotice, false);
-        });
-    });
-}
-
-if (btnEnableTwoFa) {
-    btnEnableTwoFa.addEventListener('click', () => {
-        const dict = profileI18n[currentLanguage] || profileI18n.en;
-        const code = twoFaCodeInput.value.trim();
-        if (code.length === 6) {
-            showToast(dict.twoFaSuccess, false);
-            twoFaCodeInput.value = '';
-        } else {
-            showToast(dict.twoFaCodeErr, true);
-        }
-    });
-}
-
 if (terminateSessionsBtn) {
     terminateSessionsBtn.addEventListener('click', async () => {
         const dict = profileI18n[currentLanguage] || profileI18n.en;
@@ -1377,13 +1318,17 @@ if (fileDocBack) {
     });
 }
 
+// ثبت مدارک احراز هویت با نام، تاریخ تولد، شماره مدرک و تصاویر
 if (kycSubmitForm) {
     kycSubmitForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const dict = profileI18n[currentLanguage] || profileI18n.en;
-        const docNum = kycDocNumberInput.value.trim();
+        
+        const fullName = kycFullNameInput ? kycFullNameInput.value.trim() : '';
+        const birthDate = kycBirthDateInput ? kycBirthDateInput.value.trim() : '';
+        const docNum = kycDocNumberInput ? kycDocNumberInput.value.trim() : '';
 
-        if (!docNum) {
+        if (!fullName || !birthDate || !docNum) {
             showToast(dict.errDocNumRequired, true);
             return;
         }
@@ -1397,6 +1342,8 @@ if (kycSubmitForm) {
                 credentials: 'include',
                 body: JSON.stringify({
                     userId: currentUser.userId,
+                    fullName: fullName,
+                    birthDate: birthDate,
                     docType: selectedDocType,
                     docNumber: docNum,
                     frontImage: frontImageBase64,
@@ -1516,9 +1463,8 @@ document.querySelectorAll('.bottom-nav .nav-item').forEach(link => {
     }, true);
 });
 
-
 /**
- * تزریق تضمینی استایل‌های مدرن بایننس برای پنجره چت تیکت، حذف کامل ساعت غول‌پیکر و روشنایی دکمه
+ * تزریق تضمینی استایل‌های مدرن بایننس برای پنجره چت تیکت
  */
 function injectChatModalStyles() {
     const styleId = 'adm-ticket-chat-enhanced-styles';
@@ -1527,11 +1473,6 @@ function injectChatModalStyles() {
     const styleEl = document.createElement('style');
     styleEl.id = styleId;
     styleEl.textContent = `
-        /* ========================================================================= */
-        /* استایل‌های اختصاصی مودال گفت‌وگو، دکمه روشن و اعلان پاسخ ادمین */
-        /* ========================================================================= */
-
-        /* دکمه باز کردن چت به رنگ روشن و کاملاً خوانا */
         .btn-open-chat {
             background: #F0B90B !important;
             color: #0B0E11 !important;
@@ -1556,7 +1497,6 @@ function injectChatModalStyles() {
             box-shadow: 0 4px 12px rgba(240, 185, 11, 0.4) !important;
         }
 
-        /* حالت دریافت پاسخ از طرف ادمین همراه با اعلان پالس‌دار */
         .btn-open-chat.has-admin-reply {
             background: #0ECB81 !important;
             color: #0B0E11 !important;
@@ -1578,7 +1518,6 @@ function injectChatModalStyles() {
             }
         }
 
-        /* بج اعلان پاسخ ادمین در کنار دکمه */
         .adm-reply-badge {
             background: #0B0E11 !important;
             color: #0ECB81 !important;
@@ -1591,7 +1530,6 @@ function injectChatModalStyles() {
             letter-spacing: 0.3px !important;
         }
 
-        /* اصلاح کامل پوشش و جایگاه مودال چت بالاتر از تمام المان‌ها و بالاتر از نوار ناوبری پایین */
         .chat-modal-overlay {
             position: fixed !important;
             top: 0 !important;
@@ -1614,7 +1552,6 @@ function injectChatModalStyles() {
             display: none !important;
         }
 
-        /* کارت مودال چت با ابعاد واکنش‌گرا و طراحی مدرن بایننس */
         .chat-modal-card {
             background: #181A20 !important;
             border: 1px solid #2B313A !important;
@@ -1629,7 +1566,6 @@ function injectChatModalStyles() {
             position: relative !important;
         }
 
-        /* هدر پنجره چت */
         .chat-modal-header {
             display: flex !important;
             justify-content: space-between !important;
@@ -1700,7 +1636,6 @@ function injectChatModalStyles() {
             color: #F6465D !important;
         }
 
-        /* بدنه پنجره چت */
         .chat-modal-body {
             flex: 1 !important;
             overflow-y: auto !important;
@@ -1712,7 +1647,6 @@ function injectChatModalStyles() {
             max-height: 48vh !important;
         }
 
-        /* رفع قطعی آیکون غول‌پیکر ساعت در نوار اعلان ۵ روزه */
         .chat-auto-purge-notice {
             display: flex !important;
             align-items: center !important;
@@ -1739,7 +1673,6 @@ function injectChatModalStyles() {
             display: inline-block !important;
         }
 
-        /* کانتینر پیام‌های گفت‌وگو */
         .chat-messages-container {
             display: flex !important;
             flex-direction: column !important;
@@ -1748,7 +1681,6 @@ function injectChatModalStyles() {
             overflow-y: auto !important;
         }
 
-        /* حباب پیام کاربر */
         .chat-bubble.user-msg {
             align-self: flex-end !important;
             background: #2B313A !important;
@@ -1760,7 +1692,6 @@ function injectChatModalStyles() {
             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2) !important;
         }
 
-        /* حباب پیام ادمین با رنگ طلایی بایننس و کادر مشخص */
         .chat-bubble.admin-msg {
             align-self: flex-start !important;
             background: rgba(240, 185, 11, 0.15) !important;
@@ -1792,7 +1723,6 @@ function injectChatModalStyles() {
             font-weight: 700 !important;
         }
 
-        /* فوتر چت و فرم ارسال پاسخ مجدد */
         .chat-modal-footer {
             padding: 12px 16px !important;
             border-top: 1px solid #2B313A !important;
@@ -1844,15 +1774,11 @@ function injectChatModalStyles() {
 }
 
 async function initProfilePage() {
-    // تزریق استایل‌های بهبودیافته چت و دکمه
     injectChatModalStyles();
-    // ۱. اعمال قطعی و فوری زبان در ثانیه صفر
     setLanguage(currentLanguage);
-    // ۲. دریافت اطلاعات زنده از سرور
     await fetchProfileData();
 }
 
-// اعمال آنی استایل‌ها در اولین ثانیه اجرا
 try { injectChatModalStyles(); } catch (e) {}
 
 if (document.readyState === 'loading') {
