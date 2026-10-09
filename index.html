@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ADM - Crypto Trading Platform</title>
+    <title>ADM - Client Portal</title>
+    <meta name="description" content="ADM Secure Client Portal & Workspace">
 
     <!-- تنظیم فوری زبان و جهت صفحه در ثانیه صفر جهت حذف کامل پرش زبانی -->
     <script>
@@ -64,7 +65,7 @@
                 <h1 class="card-title" data-i18n="loginTitle">Log In</h1>
                 <p class="card-subtitle" data-i18n="loginSubtitle">Enter your email or phone number to continue.</p>
 
-                <form id="loginForm" novalidate autocomplete="off">
+                <form id="loginForm" method="POST" action="#" onsubmit="return false;" novalidate autocomplete="off">
                     <div class="input-group">
                         <label data-i18n="identLabel">Email / Phone Number</label>
                         <div class="modern-input-wrapper">
@@ -101,7 +102,7 @@
                 <h1 class="card-title" data-i18n="regTitle">Create Account</h1>
                 <p class="card-subtitle" data-i18n="regSubtitle">Enter your details to register.</p>
 
-                <form id="registerForm" novalidate autocomplete="off">
+                <form id="registerForm" method="POST" action="#" onsubmit="return false;" novalidate autocomplete="off">
                     
                     <!-- ورودی ایمیل یا شماره موبایل -->
                     <div class="input-group">

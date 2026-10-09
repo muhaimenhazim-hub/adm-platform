@@ -1,6 +1,6 @@
 /**
  * ============================================================================
- * ADM BINANCE PRO - MASTER ADMIN PANEL JAVASCRIPT ENGINE
+ * ADM PLATFORM - MASTER ADMIN PANEL JAVASCRIPT ENGINE
  * File: admin.js
  * Dependent on: config.js (window.APP_CONFIG)
  * Backend Blueprint: admin.py (API: /api/admin/*)
@@ -30,14 +30,14 @@
             engine_active: "Engine Active",
             logout: "Back to Dashboard",
             header_subtitle: "Real-time system health & balance metrics",
-            stat_total_capital: "Total Circulating Capital",
-            stat_active_locked: "Locked & Working in Lots",
-            stat_total_profit: "Total Profit Distributed",
+            stat_total_capital: "Total Circulating Base",
+            stat_active_locked: "Allocated & Working in Lots",
+            stat_total_profit: "Total Distributed Yield",
             stat_accumulated: "Lifetime yield payouts",
-            stat_registered_users: "Registered Investors",
+            stat_registered_users: "Registered Users",
             stat_pending_actions: "Pending Requests",
             yield_engine_head: "Automated Nightly Yield Engine (21:00 UTC+4:30)",
-            yield_engine_desc: "Daily yield targets between 0.8% and 1.3%. System executes automatic batch profit allocation for verified users having >= $50 active capital.",
+            yield_engine_desc: "Daily yield metrics configured between 0.8% and 1.3%. System executes automatic batch allocation for verified users having >= $50 active balance.",
             btn_instant_distribute: "Distribute Today's Yield",
             recent_transactions: "Live Transaction Stream",
             refresh: "Refresh",
@@ -48,24 +48,24 @@
             col_network: "Network",
             col_status: "Status",
             col_date: "Date & Time",
-            col_active_capital: "Active Capital",
-            col_profit_balance: "Withdrawable Profit",
+            col_active_capital: "Active Base Balance",
+            col_profit_balance: "Available Settlement Balance",
             col_kyc: "KYC",
             col_created: "Registered",
             col_actions: "Actions",
             filter_all_roles: "All Roles",
             filter_all_kyc: "All KYC Statuses",
-            sub_pending_withdrawals: "Pending Withdrawals",
-            sub_pending_deposits: "Pending Deposits",
+            sub_pending_withdrawals: "Pending Settlements",
+            sub_pending_deposits: "Pending Allocations",
             sub_finance_history: "Financial Log History",
-            withdrawals_title: "Pending Withdrawal Requests",
+            withdrawals_title: "Pending Settlement Requests",
             withdrawals_subtitle: "Verify destination wallet address, selected blockchain network, and last action cooldown tier before approving payout.",
             col_dest_address: "Destination Wallet Address",
             col_requested_amount: "Amount",
             col_cooldown_tier: "Cooldown & Fee Tier",
             col_net_payout: "Net to Send",
-            deposits_title: "Manual / On-Chain Deposit Verification",
-            deposits_subtitle: "Confirm incoming USDT hash on blockchain explorer before locking as a 90-day investment lot.",
+            deposits_title: "Manual / On-Chain Allocation Verification",
+            deposits_subtitle: "Confirm incoming USDT hash on blockchain explorer before registering as a 90-day active lot.",
             col_txhash: "Transaction Hash (TXID)",
             col_fee: "Fee",
             col_note: "Admin Note",
@@ -75,13 +75,13 @@
             col_doc_number: "Document Number",
             col_front_view: "Front View",
             col_back_view: "Back View",
-            yield_config_title: "Today's Profit Configuration",
-            label_daily_rate: "Daily Profit Percentage (%)",
-            yield_range_hint: "Standard boundary: 0.8000% to 1.3000% (approx ~31% monthly compounded).",
+            yield_config_title: "Today's Yield Configuration",
+            label_daily_rate: "Daily Yield Percentage (%)",
+            yield_range_hint: "Standard boundary: 0.8000% to 1.3000%.",
             label_target_date: "Application Date",
             engine_rules_title: "Eligibility & Cap Validation:",
-            rule_kyc_50: "Only users with Verified KYC and Active Capital >= $50.00 receive profit.",
-            rule_mlm_cap: "Referral commissions (L1: 10%, L2: 5%, L3: 3%, L4: 2%, L5: 1%) are strictly capped by the Leader's active capital.",
+            rule_kyc_50: "Only users with Verified KYC and Active Balance >= $50.00 receive yield.",
+            rule_mlm_cap: "Referral commissions (L1: 10%, L2: 5%, L3: 3%, L4: 2%, L5: 1%) are strictly capped by the Leader's active balance.",
             btn_save_rate: "Save Rate Preset",
             btn_distribute_now: "Distribute Now",
             yield_monitor_title: "Engine Real-Time Monitor",
@@ -109,17 +109,17 @@
             opt_credit: "Credit (+) Add Funds",
             opt_debit: "Debit (-) Deduct Funds",
             label_balance_target: "Target Balance Bucket",
-            bucket_capital: "Total Active Capital",
-            bucket_locked: "Locked Principal",
-            bucket_unlocked: "Unlocked Principal",
-            bucket_profit: "Withdrawable Profit",
-            bucket_lifetime: "Total Lifetime Profit",
+            bucket_capital: "Total Active Base",
+            bucket_locked: "Allocated Base",
+            bucket_unlocked: "Matured Base",
+            bucket_profit: "Available Settlement Balance",
+            bucket_lifetime: "Total Lifetime Yield",
             label_adjust_amount: "Amount (USD)",
             label_admin_reason: "Reason / Audit Memo",
             cancel: "Cancel",
             btn_confirm_adjust: "Apply Adjustment",
-            modal_reject_withdrawal: "Reject Withdrawal & Refund Balance",
-            reject_warning_text: "Rejecting this payout will immediately refund the full requested amount back to the user's withdrawable balance.",
+            modal_reject_withdrawal: "Reject Settlement & Refund Balance",
+            reject_warning_text: "Rejecting this payout will immediately refund the full requested amount back to the user's available settlement balance.",
             label_rejection_reason: "Rejection Reason (Visible to user)",
             btn_confirm_reject: "Confirm Rejection",
             modal_inspect_kyc: "Inspect Identity Documents",
@@ -138,20 +138,20 @@
             tab_users: "مدیریت کاربران",
             tab_finance: "امور مالی و تاییدها",
             tab_kyc: "تایید مدارک هویت (KYC)",
-            tab_yield: "موتور سود روزانه",
+            tab_yield: "موتور عملکرد روزانه",
             tab_support: "میز پشتیبانی و تیکت‌ها",
             engine_active: "موتور فعال است",
             logout: "بازگشت به داشبورد",
-            header_subtitle: "پایش لحظه‌ای سلامت سیستم، سرمایه در گردش و سودها",
-            stat_total_capital: "کل سرمایه فعال در گردش",
-            stat_active_locked: "قفل‌شده در لات‌های ۹۰ روزه",
-            stat_total_profit: "کل سود واریزشده تا کنون",
+            header_subtitle: "پایش لحظه‌ای سلامت سیستم، موجودی در گردش و شاخص‌ها",
+            stat_total_capital: "کل موجودی پایه در گردش",
+            stat_active_locked: "تخصیص‌یافته در لات‌های دوره",
+            stat_total_profit: "کل بازدهی ثبت‌شده تا کنون",
             stat_accumulated: "پرداخت قطعی به کاربران",
             stat_registered_users: "کل کاربران ثبت‌نامی",
             stat_pending_actions: "درخواست‌های در انتظار",
-            yield_engine_head: "موتور هوشمند توزیع سود شبانه (ساعت ۲۱:۰۰ به وقت افغانستان)",
-            yield_engine_desc: "نرخ روزانه بین ۰.۸٪ تا ۱.۳٪ تنظیم می‌شود. واریز خودکار فقط برای کاربران دارای احراز هویت تاییدشده و سرمایه فعال ۵۰ دلار یا بیشتر اعمال می‌گردد.",
-            btn_instant_distribute: "توزیع فوری سود امروز",
+            yield_engine_head: "موتور هوشمند ثبت عملکرد شبانه (ساعت ۲۱:۰۰ به وقت افغانستان)",
+            yield_engine_desc: "نرخ روزانه بین ۰.۸٪ تا ۱.۳٪ تنظیم می‌شود. تخصیص خودکار فقط برای کاربران دارای احراز هویت تاییدشده و موجودی فعال ۵۰ دلار یا بیشتر اعمال می‌گردد.",
+            btn_instant_distribute: "ثبت فوری شاخص امروز",
             recent_transactions: "جریان زنده آخرین تراکنش‌ها",
             refresh: "بروزرسانی",
             col_txid: "شناسه تراکنش",
@@ -161,49 +161,49 @@
             col_network: "شبکه بلاکچین",
             col_status: "وضعیت",
             col_date: "تاریخ و ساعت",
-            col_active_capital: "سرمایه فعال",
-            col_profit_balance: "سود قابل برداشت",
+            col_active_capital: "موجودی پایه فعال",
+            col_profit_balance: "موجودی در دسترس تسویه",
             col_kyc: "احراز هویت",
             col_created: "تاریخ عضویت",
             col_actions: "عملیات",
             filter_all_roles: "تمام نقش‌ها",
             filter_all_kyc: "تمام وضعیت‌های KYC",
-            sub_pending_withdrawals: "برداشت‌های معلق",
-            sub_pending_deposits: "واریزهای در انتظار",
+            sub_pending_withdrawals: "تسویه‌های معلق",
+            sub_pending_deposits: "تخصیص‌های در انتظار",
             sub_finance_history: "تاریخچه کامل مالی",
-            withdrawals_title: "درخواست‌های برداشت در انتظار تایید",
+            withdrawals_title: "درخواست‌های تسویه در انتظار تایید",
             withdrawals_subtitle: "آدرس کیف‌پول کاربر، شبکه انتقال، و فاصله زمانی آخرین عملیات را پیش از تایید دقیقاً بررسی نمایید.",
             col_dest_address: "آدرس کیف‌پول مقصد",
             col_requested_amount: "مبلغ درخواستی",
             col_cooldown_tier: "فاصله روزها و پله کارمزد",
             col_net_payout: "خالص واریزی",
-            deposits_title: "بررسی و تایید واریزهای ارزی",
-            deposits_subtitle: "تایید هش تراکنش (TXID) روی اکسپلورر شبکه قبل از فعال‌سازی لات ۹۰ روزه سرمایه‌گذاری.",
+            deposits_title: "بررسی و تایید تخصیص‌های ارزی",
+            deposits_subtitle: "تایید هش تراکنش (TXID) روی اکسپلورر شبکه قبل از فعال‌سازی لات دوره در سیستم.",
             col_txhash: "هش تراکنش (TXID)",
             col_fee: "کارمزد",
             col_note: "یادداشت مدیر",
             kyc_desk_title: "میز اعتبارسنجی اسناد هویتی",
-            kyc_desk_subtitle: "تایید هویت، کاربر را مجاز به دریافت سود روزانه ساعت ۲۱:۰۰ و کمیسیون‌های تیمی شبکه می‌نماید.",
+            kyc_desk_subtitle: "تایید هویت، کاربر را مجاز به دریافت بازدهی روزانه ساعت ۲۱:۰۰ و کمیسیون‌های تیمی شبکه می‌نماید.",
             col_doc_type: "نوع مدرک",
             col_doc_number: "شماره مدرک",
             col_front_view: "تصویر روی مدرک",
             col_back_view: "تصویر پشت مدرک",
-            yield_config_title: "تنظیم نرخ سود روزانه پلتفرم",
-            label_daily_rate: "درصد سود امروز (%)",
-            yield_range_hint: "دامنه مجاز: ۰.۸۰۰۰٪ تا ۱.۳۰۰۰٪ (مجموعاً حدود ۳۱٪ در ماه)",
-            label_target_date: "تاریخ اعمال سود",
+            yield_config_title: "تنظیم شاخص روزانه پلتفرم",
+            label_daily_rate: "درصد شاخص امروز (%)",
+            yield_range_hint: "دامنه مجاز: ۰.۸۰۰۰٪ تا ۱.۳۰۰۰٪",
+            label_target_date: "تاریخ اعمال شاخص",
             engine_rules_title: "قوانین طلایی صلاحیت و سقف لیدر:",
-            rule_kyc_50: "تنها کاربران احراز هویت شده (Verified) با سرمایه فعال حداقل ۵۰ دلار سود دریافت می‌کنند.",
-            rule_mlm_cap: "پورسانت‌های تیمی ۵ نسل طبق قانون سقف سرمایه لیدر بر مبنای min(downline_profit, leader_capital) محدود می‌گردد.",
+            rule_kyc_50: "تنها کاربران احراز هویت شده (Verified) با موجودی فعال حداقل ۵۰ دلار بازدهی دریافت می‌کنند.",
+            rule_mlm_cap: "پورسانت‌های تیمی ۵ نسل طبق قانون سقف موجودی لیدر بر مبنای min(downline_profit, leader_capital) محدود می‌گردد.",
             btn_save_rate: "ذخیره پیش‌نویس نرخ",
-            btn_distribute_now: "توزیع آنی سود",
-            yield_monitor_title: "پایشگر وضعیت موتور سود",
-            metric_today_rate: "نرخ سود امروز:",
+            btn_distribute_now: "توزیع آنی بازدهی",
+            yield_monitor_title: "پایشگر وضعیت موتور عملکرد",
+            metric_today_rate: "شاخص امروز:",
             metric_today_distributed: "واریز شده امروز؟",
             metric_next_run: "زمان اجرای برنامه‌ریزی‌شده:",
             metric_eligible_users: "تعداد کاربران واجد شرایط:",
             yield_history_title: "سیاهه نرخ‌ها و توزیع‌های گذشته",
-            col_rate: "نرخ سود (%)",
+            col_rate: "نرخ بازدهی (%)",
             col_distributed: "توزیع شد؟",
             col_execution_time: "زمان دقیق اجرا",
             support_tickets_title: "تیکت‌های پشتیبانی کاربران",
@@ -222,17 +222,17 @@
             opt_credit: "افزایش موجودی (+ شارژ)",
             opt_debit: "کاهش موجودی (- کسر)",
             label_balance_target: "موجودی هدف",
-            bucket_capital: "کل سرمایه فعال (Active Capital)",
-            bucket_locked: "اصل سرمایه قفل‌شده (Locked Principal)",
-            bucket_unlocked: "اصل سرمایه آزادشده (Unlocked Principal)",
-            bucket_profit: "سود قابل برداشت (Withdrawable Profit)",
-            bucket_lifetime: "مجموع کل سودهای دریافتی (Total Lifetime Profit)",
+            bucket_capital: "کل موجودی پایه فعال (Active Base)",
+            bucket_locked: "موجودی پایه تخصیص‌یافته (Allocated Base)",
+            bucket_unlocked: "موجودی پایه آزادشده (Matured Base)",
+            bucket_profit: "موجودی در دسترس تسویه (Available Settlement)",
+            bucket_lifetime: "مجموع کل بازدهی‌های ثبت‌شده (Total Lifetime Yield)",
             label_adjust_amount: "مبلغ به دلار (USD)",
             label_admin_reason: "دلیل تغییر / شرح حسابرسی",
             cancel: "انصراف",
             btn_confirm_adjust: "اعمال تغییرات",
-            modal_reject_withdrawal: "رد درخواست برداشت و بازگشت وجه",
-            reject_warning_text: "با رد این درخواست، مبلغ کسر شده به صورت آنی به موجودی قابل برداشت کاربر بازگردانده می‌شود.",
+            modal_reject_withdrawal: "رد درخواست تسویه و بازگشت وجه",
+            reject_warning_text: "با رد این درخواست، مبلغ به صورت آنی به موجودی در دسترس تسویه کاربر بازگردانده می‌شود.",
             label_rejection_reason: "علت رد درخواست (نمایش به کاربر)",
             btn_confirm_reject: "تایید رد درخواست",
             modal_inspect_kyc: "بررسی دقیق مدارک هویتی",
@@ -495,11 +495,11 @@
                 document.getElementById("statTotalCapital").textContent = `$${parseFloat(data.stats.total_circulating_capital || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
                 document.getElementById("statTotalProfit").textContent = `$${parseFloat(data.stats.total_profit_distributed || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
                 document.getElementById("statTotalUsers").textContent = data.stats.total_users || 0;
-                document.getElementById("statActiveUsers").textContent = `${data.stats.active_verified_investors || 0} ${currentLang === 'fa' ? 'سرمایه‌گذار تاییدشده' : 'Verified Investors'}`;
+                document.getElementById("statActiveUsers").textContent = `${data.stats.active_verified_investors || 0} ${currentLang === 'fa' ? 'کاربر تاییدشده' : 'Verified Users'}`;
                 
                 const pendingTotal = (data.stats.pending_withdrawals_count || 0) + (data.stats.pending_kyc_count || 0);
                 document.getElementById("statPendingActionsTotal").textContent = pendingTotal;
-                document.getElementById("statPendingWithdrawCount").textContent = `${data.stats.pending_withdrawals_count || 0} ${currentLang === 'fa' ? 'برداشت معلق' : 'Withdrawals'}`;
+                document.getElementById("statPendingWithdrawCount").textContent = `${data.stats.pending_withdrawals_count || 0} ${currentLang === 'fa' ? 'تسویه معلق' : 'Settlements'}`;
                 document.getElementById("statPendingKycCount").textContent = `${data.stats.pending_kyc_count || 0} KYC`;
             }
         } catch (err) {
@@ -584,7 +584,7 @@
                         </td>
                         <td>
                             <div class="font-bold">$${totalCap}</div>
-                            <small class="text-muted" style="font-size:10.5px;">${currentLang === 'fa' ? 'قفل' : 'Locked'}: $${locked} | ${currentLang === 'fa' ? 'آزاد' : 'Unlocked'}: $${unlocked}</small>
+                            <small class="text-muted" style="font-size:10.5px;">${currentLang === 'fa' ? 'تخصیص‌یافته' : 'Allocated'}: $${locked} | ${currentLang === 'fa' ? 'آزاد' : 'Unlocked'}: $${unlocked}</small>
                         </td>
                         <td class="font-bold text-success">$${parseFloat(u.withdrawable_profit || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                         <td>${renderKycBadge(u.kyc_status)}</td>
@@ -676,7 +676,7 @@
         } else if (days >= 35 && days <= 50) {
             return { label: currentLang === 'fa' ? 'پله ۰٪ (رایگان)' : '0% Free Tier', cssClass: 'tier-free' };
         } else {
-            return { label: currentLang === 'fa' ? '۰٪ + ۳٪ بانس پاداش' : '0% + 3% Bonus', cssClass: 'tier-bonus' };
+            return { label: currentLang === 'fa' ? '۰٪ + ۳٪ پاداش' : '0% + 3% Bonus', cssClass: 'tier-bonus' };
         }
     }
 
@@ -813,7 +813,7 @@
                 document.getElementById("monitorTodayRate").textContent = `${todayRate.toFixed(2)}%`;
                 const distStatus = document.getElementById("monitorTodayStatus");
                 if (distStatus) {
-                    distStatus.textContent = data.is_distributed ? (currentLang === 'fa' ? 'بله، واریز شد' : 'YES, COMPLETED') : (currentLang === 'fa' ? 'خیر، در انتظار ساعت ۲۱:۰۰' : 'NO, PENDING');
+                    distStatus.textContent = data.is_distributed ? (currentLang === 'fa' ? 'بله، ثبت شد' : 'YES, COMPLETED') : (currentLang === 'fa' ? 'خیر، در انتظار ساعت ۲۱:۰۰' : 'NO, PENDING');
                     distStatus.className = `metric-state ${data.is_distributed ? 'text-success' : 'text-danger'}`;
                 }
 
@@ -1051,7 +1051,7 @@
         const btnQuickDist = document.getElementById("btnQuickDistribute");
 
         const executeDist = async () => {
-            if (!confirm(currentLang === 'fa' ? 'آیا از توزیع آنی سود شبانه برای کلیه کاربران واجد شرایط اطمینان دارید؟' : 'Are you sure you want to execute instant batch yield distribution?')) return;
+            if (!confirm(currentLang === 'fa' ? 'آیا از ثبت آنی شاخص برای کلیه کاربران واجد شرایط اطمینان دارید؟' : 'Are you sure you want to execute instant batch yield distribution?')) return;
             try {
                 const res = await fetch(resolveApiUrl("/api/admin/yield/distribute"), {
                     method: "POST",

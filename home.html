@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Platform - Home Dashboard</title>
+    <title>ADM - Dashboard & Operations</title>
+    <meta name="description" content="ADM Dashboard & Operational Management">
 
     <!-- تنظیم فوری زبان و جهت صفحه در ثانیه صفر جهت حذف کامل پرش زبانی -->
     <script>
@@ -50,7 +51,7 @@
                     <svg class="globe-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <circle cx="12" cy="12" r="10"></circle>
                         <line x1="2" y1="12" x2="22" y2="12"></line>
-                        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1 4-10z"></path>
+                        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
                     </svg>
                     <span id="currentLangLabel">Language</span>
                     <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -78,28 +79,28 @@
             <!-- ۴ کارت آمار مالی ردیف بالا -->
             <div class="summary-cards-grid">
                 
-                <!-- کارت ۱: کل سرمایه فعال -->
+                <!-- کارت ۱: کل موجودی پایه فعال -->
                 <div class="summary-card">
-                    <span class="card-caption" data-i18n="totalActiveCapital">کل سرمایه فعال</span>
+                    <span class="card-caption" data-i18n="totalActiveCapital">کل موجودی پایه فعال</span>
                     <div class="card-amount">
                         <span class="currency">$</span>
                         <span id="statTotalCapital">0.00</span>
                     </div>
                 </div>
 
-                <!-- کارت ۲: سود قابل برداشت -->
+                <!-- کارت ۲: موجودی در دسترس تسویه -->
                 <div class="summary-card">
-                    <span class="card-caption" data-i18n="withdrawableProfit">سود قابل برداشت</span>
+                    <span class="card-caption" data-i18n="withdrawableProfit">موجودی در دسترس تسویه</span>
                     <div class="card-amount">
                         <span class="currency">$</span>
                         <span id="statWithdrawableProfit" class="text-green">0.00</span>
                     </div>
                 </div>
 
-                <!-- کارت ۳: سود امروز -->
+                <!-- کارت ۳: بازدهی دوره جاری -->
                 <div class="summary-card">
                     <div class="card-head-flex">
-                        <span class="card-caption" data-i18n="todayEarnings">سود امروز</span>
+                        <span class="card-caption" data-i18n="todayEarnings">بازدهی دوره جاری</span>
                         <span class="yield-badge" id="statDailyRate">---</span>
                     </div>
                     <div class="card-amount">
@@ -108,9 +109,9 @@
                     </div>
                 </div>
 
-                <!-- کارت ۴: مجموع کل سودهای دریافتی -->
+                <!-- کارت ۴: مجموع کل بازدهی‌های ثبت‌شده -->
                 <div class="summary-card">
-                    <span class="card-caption" data-i18n="totalLifetimeProfit">مجموع کل سودهای دریافتی</span>
+                    <span class="card-caption" data-i18n="totalLifetimeProfit">مجموع کل بازدهی‌های ثبت‌شده</span>
                     <div class="card-amount">
                         <span class="currency">$</span>
                         <span id="statTotalLifetime" class="text-yellow">0.00</span>
@@ -125,21 +126,21 @@
                     <div class="action-icon deposit-icon">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></svg>
                     </div>
-                    <span class="action-label" data-i18n="depositBtn">افزایش سرمایه</span>
+                    <span class="action-label" data-i18n="depositBtn">تخصيص موجودی</span>
                 </button>
 
                 <button type="button" class="action-btn" id="actionCompound">
                     <div class="action-icon compound-icon">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
                     </div>
-                    <span class="action-label" data-i18n="compoundBtn">ترکیب سود</span>
+                    <span class="action-label" data-i18n="compoundBtn">تخصیص مجدد</span>
                 </button>
 
                 <button type="button" class="action-btn" id="openWithdrawModalBtn">
                     <div class="action-icon withdraw-icon">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
                     </div>
-                    <span class="action-label" data-i18n="withdrawBtn">برداشت وجه</span>
+                    <span class="action-label" data-i18n="withdrawBtn">درخواست تسویه</span>
                 </button>
 
                 <button type="button" class="action-btn" id="actionInvite">
@@ -161,14 +162,14 @@
         </section>
 
         <!-- بخش‌های جانبی -->
-        <section id="view-invest" class="spa-view"><div class="placeholder-card"><h2 data-i18n="navInvest">سرمایه‌گذاری</h2><button type="button" class="btn-primary-action" onclick="switchNavTab('home')">بازگشت به خانه</button></div></section>
+        <section id="view-invest" class="spa-view"><div class="placeholder-card"><h2 data-i18n="navInvest">شاخص‌ها</h2><button type="button" class="btn-primary-action" onclick="switchNavTab('home')">بازگشت به خانه</button></div></section>
         <section id="view-team" class="spa-view"><div class="placeholder-card"><h2 data-i18n="navTeam">تیم و شبکه</h2><button type="button" class="btn-primary-action" onclick="openInviteModal()">کد و لینک دعوت</button></div></section>
-        <section id="view-wallet" class="spa-view"><div class="placeholder-card"><h2 data-i18n="navWallet">کیف‌پول</h2><button type="button" class="btn-primary-action" onclick="openDepositModal()">واریز</button><button type="button" class="btn-primary-action" onclick="openWithdrawModal()">برداشت</button></div></section>
+        <section id="view-wallet" class="spa-view"><div class="placeholder-card"><h2 data-i18n="navWallet">کیف‌پول</h2><button type="button" class="btn-primary-action" onclick="openDepositModal()">واریز</button><button type="button" class="btn-primary-action" onclick="openWithdrawModal()">تسویه</button></div></section>
         <section id="view-profile" class="spa-view"><div class="placeholder-card"><h2 data-i18n="navProfile">پروفایل و امنیت</h2><button type="button" class="btn-danger-outline" onclick="window.location.href='index.html'">خروج از حساب</button></div></section>
 
     </main>
 
-    <!-- ================= ۱. مودال واریز (Deposit Modal) ================= -->
+    <!-- ================= ۱. مودال شارژ / تخصیص (Deposit Modal) ================= -->
     <div id="depositModal" class="full-modal-overlay hidden">
         <div class="full-modal-card">
             <div class="full-modal-header">
@@ -176,13 +177,13 @@
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m15 18-6-6 6-6"/></svg>
                     <span data-i18n="backBtn">بازگشت</span>
                 </button>
-                <h3 class="modal-main-title" data-i18n="depositModalTitle">شارژ حساب / واریز جدید (USDT)</h3>
+                <h3 class="modal-main-title" data-i18n="depositModalTitle">شارژ حساب / تخصیص جدید (USDT)</h3>
                 <div class="header-ghost-space"></div>
             </div>
 
             <div class="full-modal-content">
                 <div class="form-section">
-                    <label class="modal-label" data-i18n="chooseNetwork">انتخاب شبکه انتقال (Deposit Network):</label>
+                    <label class="modal-label" data-i18n="chooseNetwork">انتخاب شبکه انتقال (Transfer Network):</label>
                     <div class="binance-network-grid">
                         <div class="network-card active" data-network="TRC20">
                             <div class="net-title-row">
@@ -229,14 +230,14 @@
                 <div class="lot-lock-warning-box">
                     <div class="warning-badge-icon">!</div>
                     <p data-i18n="depositWarningText">
-                        توجه: این واریز به عنوان یک لات (Lot) جدید ثبت شده و تایمر ۹۰‌روزه قفل اختصاصی آن از همین لحظه فعال می‌گردد. پس از ۹۰ روز اصل این مبلغ کاملاً آزاد و قابل برداشت خواهد بود.
+                        توجه: این تخصیص به عنوان یک لات (Lot) جدید ثبت شده و چرخه ۹۰‌روزه اختصاصی آن فعال می‌گردد. پس از پایان دوره، موجودی پایه کاملاً آزاد و در دسترس خواهد بود.
                     </p>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- ================= ۲. مودال برداشت (Withdrawal Modal) ================= -->
+    <!-- ================= ۲. مودال تسویه حساب (Withdrawal Modal) ================= -->
     <div id="withdrawModal" class="full-modal-overlay hidden">
         <div class="full-modal-card">
             <div class="full-modal-header">
@@ -244,29 +245,29 @@
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m15 18-6-6 6-6"/></svg>
                     <span data-i18n="backBtn">بازگشت</span>
                 </button>
-                <h3 class="modal-main-title" data-i18n="withdrawModalTitle">برداشت از حساب (Withdrawal)</h3>
+                <h3 class="modal-main-title" data-i18n="withdrawModalTitle">تسویه حساب (USDT)</h3>
                 <div class="header-ghost-space"></div>
             </div>
 
             <div class="full-modal-content">
                 <div class="modal-balance-cards">
                     <div class="balance-card-item">
-                        <span class="b-label" data-i18n="withdrawableProfit">سود قابل برداشت</span>
+                        <span class="b-label" data-i18n="withdrawableProfit">موجودی در دسترس تسویه</span>
                         <span class="b-val text-green">$<span id="modalProfitBalance">0.00</span></span>
                     </div>
                     <div class="balance-card-item">
-                        <span class="b-label" data-i18n="unlockedPrincipal">اصل سرمایه آزادشده</span>
+                        <span class="b-label" data-i18n="unlockedPrincipal">موجودی پایه آزادشده</span>
                         <span class="b-val text-yellow">$<span id="modalUnlockedBalance">0.00</span></span>
                     </div>
                 </div>
 
                 <div class="withdraw-type-tabs">
-                    <button type="button" class="w-tab active" id="tabWithdrawProfit" data-i18n="withdrawProfitTab">برداشت سود</button>
-                    <button type="button" class="w-tab" id="tabWithdrawPrincipal" data-i18n="withdrawPrincipalTab">برداشت اصل سرمایه آزادشده</button>
+                    <button type="button" class="w-tab active" id="tabWithdrawProfit" data-i18n="withdrawProfitTab">تسویه بازدهی</button>
+                    <button type="button" class="w-tab" id="tabWithdrawPrincipal" data-i18n="withdrawPrincipalTab">تسویه موجودی پایه آزادشده</button>
                 </div>
 
                 <div class="form-section">
-                    <label class="modal-label" data-i18n="withdrawAmountLabel">مبلغ برداشت (USDT):</label>
+                    <label class="modal-label" data-i18n="withdrawAmountLabel">مبلغ تسویه (USDT):</label>
                     <div class="input-with-action">
                         <input type="number" id="withdrawAmountInput" placeholder="0.00" min="0" step="any">
                         <button type="button" class="max-btn" id="setMaxAmountBtn">MAX</button>
@@ -282,7 +283,7 @@
 
                 <div class="fee-calculator-box">
                     <div class="fee-row">
-                        <span data-i18n="estimatedFee">کارمزد پلتفرم و شبکه:</span>
+                        <span data-i18n="estimatedFee">کارمزد پردازش و شبکه:</span>
                         <span id="modalFeeValue">$0.00</span>
                     </div>
                     <div class="fee-row total-receive">
@@ -294,17 +295,17 @@
                 <div id="withdrawRuleNoticeBox" class="rule-notice-box">
                     <div class="notice-line">
                         <span class="status-indicator" id="tenPercentRuleDot"></span>
-                        <span id="tenPercentRuleText" data-i18n="ruleTenPercentText">شرط حداقل ۱۰٪ سود جهت برداشت انباشته</span>
+                        <span id="tenPercentRuleText" data-i18n="ruleTenPercentText">شرط حداقل ۱۰٪ انباشت جهت ثبت تسویه</span>
                     </div>
-                    <p class="processing-time-notice" data-i18n="processingTimeNotice">زمان بررسی و پردازش واریزها به کیف‌پول بین ۱ الی ۱۲ ساعت کاری می‌باشد.</p>
+                    <p class="processing-time-notice" data-i18n="processingTimeNotice">زمان بررسی و پردازش درخواست‌های تسویه بین ۱ الی ۱۲ ساعت کاری می‌باشد.</p>
                 </div>
 
-                <button type="button" class="submit-btn" id="confirmWithdrawBtn" disabled data-i18n="confirmWithdrawBtn">تایید و درخواست برداشت</button>
+                <button type="button" class="submit-btn" id="confirmWithdrawBtn" disabled data-i18n="confirmWithdrawBtn">تایید و ثبت تسویه</button>
             </div>
         </div>
     </div>
 
-    <!-- ================= ۳. مودال ترکیب سود ================= -->
+    <!-- ================= ۳. مودال تخصیص مجدد ================= -->
     <div id="compoundModal" class="full-modal-overlay hidden">
         <div class="full-modal-card">
             <div class="full-modal-header">
@@ -312,7 +313,7 @@
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m15 18-6-6 6-6"/></svg>
                     <span data-i18n="backBtn">بازگشت</span>
                 </button>
-                <h3 class="modal-main-title" data-i18n="compoundModalTitle">ترکیب سود به اصل سرمایه</h3>
+                <h3 class="modal-main-title" data-i18n="compoundModalTitle">تخصیص مجدد به موجودی پایه</h3>
                 <div class="header-ghost-space"></div>
             </div>
 
@@ -326,7 +327,7 @@
 
                 <div id="compoundStatusAlert" class="compound-status-msg"></div>
 
-                <button type="button" class="submit-btn" id="confirmCompoundBtn" data-i18n="confirmCompoundBtn">تأیید و افزودن به اصل سرمایه</button>
+                <button type="button" class="submit-btn" id="confirmCompoundBtn" data-i18n="confirmCompoundBtn">تأیید و تخصیص مجدد</button>
             </div>
         </div>
     </div>
@@ -368,7 +369,7 @@
     <!-- نوار ناوبری ۵ گزینه‌ای پایین صفحه -->
     <nav class="bottom-nav">
         <button type="button" class="nav-item active" data-target="home"><div class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div><span class="nav-label" data-i18n="navHome">داشبورد</span></button>
-        <button type="button" class="nav-item" data-target="invest"><div class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg></div><span class="nav-label" data-i18n="navInvest">سرمایه‌گذاری</span></button>
+        <button type="button" class="nav-item" data-target="invest"><div class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg></div><span class="nav-label" data-i18n="navInvest">شاخص‌ها</span></button>
         <button type="button" class="nav-item" data-target="team"><div class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></div><span class="nav-label" data-i18n="navTeam">تیم و شبکه</span></button>
         <button type="button" class="nav-item" data-target="wallet"><div class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"></path><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"></path><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"></path></svg></div><span class="nav-label" data-i18n="navWallet">کیف‌پول</span></button>
         <button type="button" class="nav-item" data-target="profile"><div class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="5"></circle><path d="M20 21a8 8 0 0 0-16 0"></path></svg></div><span class="nav-label" data-i18n="navProfile">پروفایل</span></button>

@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Platform - Investment & Analytics</title>
+    <title>ADM - Performance & Analytics Portal</title>
+    <meta name="description" content="ADM Operational Performance and Analytics Management">
     
     <!-- تنظیم فوری زبان و جهت صفحه در ثانیه صفر جهت حذف کامل پرش زبانی -->
     <script>
@@ -68,7 +69,7 @@
 
         <div class="summary-cards-grid">
             <div class="summary-card">
-                <span class="card-caption" data-i18n="accumulatedProfit">مجموع سود انباشته‌شده</span>
+                <span class="card-caption" data-i18n="accumulatedProfit">مجموع بازدهی انباشته</span>
                 <div class="card-amount">
                     <span class="currency">$</span>
                     <span id="statAccumulatedProfit" class="text-green">0.00</span>
@@ -77,7 +78,7 @@
 
             <div class="summary-card">
                 <div class="card-head-flex">
-                    <span class="card-caption" data-i18n="todayProfit">سود امروز</span>
+                    <span class="card-caption" data-i18n="todayProfit">بازدهی دوره جاری</span>
                     <span class="yield-badge" id="statDailyRate">---</span>
                 </div>
                 <div class="card-amount">
@@ -86,12 +87,12 @@
                 </div>
                 <div class="profit-release-status">
                     <span class="status-pulse-dot" id="releaseStatusDot"></span>
-                    <span id="releaseStatusText" data-i18n="pendingRelease">در حال پردازش / تسویه خودکار روزانه</span>
+                    <span id="releaseStatusText" data-i18n="pendingRelease">در حال پردازش / تسویه دوره‌ای</span>
                 </div>
             </div>
 
             <div class="summary-card">
-                <span class="card-caption" data-i18n="totalCapitalTitle">اصل سرمایه کل</span>
+                <span class="card-caption" data-i18n="totalCapitalTitle">موجودی پایه کل</span>
                 <div class="card-amount">
                     <span class="currency">$</span>
                     <span id="statTotalCapital">0.00</span>
@@ -99,12 +100,12 @@
                 <div class="capital-breakdown">
                     <div class="breakdown-item">
                         <span class="b-dot locked"></span>
-                        <span data-i18n="lockedCapLabel">قفل‌شده:</span>
+                        <span data-i18n="lockedCapLabel">تخصیص‌یافته:</span>
                         <strong id="statLockedCapital">$0.00</strong>
                     </div>
                     <div class="breakdown-item">
                         <span class="b-dot unlocked"></span>
-                        <span data-i18n="unlockedCapLabel">آزادشده:</span>
+                        <span data-i18n="unlockedCapLabel">آزاد:</span>
                         <strong id="statUnlockedCapital">$0.00</strong>
                     </div>
                 </div>
@@ -114,8 +115,8 @@
         <div class="analytics-card-wrapper">
             <div class="analytics-head">
                 <div class="analytics-title-group">
-                    <h3 data-i18n="chartSectionTitle">نمودار بازدهی و واریزهای سود روزانه</h3>
-                    <span class="analytics-sub" data-i18n="chartSectionSub">تاریخچه سودهای واریزشده بر اساس نوسان ۰.۸٪ تا ۱.۳٪</span>
+                    <h3 data-i18n="chartSectionTitle">نمودار عملکرد و تحلیل آماری</h3>
+                    <span class="analytics-sub" data-i18n="chartSectionSub">تاریخچه شاخص‌های ثبت‌شده در دوره فعال</span>
                 </div>
 
                 <!-- دکمه‌های فیلتر زمانی به همراه دکمه ۲۴ ساعته روزانه -->
@@ -127,7 +128,7 @@
                 </div>
             </div>
 
-            <!-- ساختار نمودار مجهز به دیوار ثابت فیصدی در سمت چپ -->
+            <!-- ساختار نمودار مجهز به دیوار ثابت در سمت چپ -->
             <div class="chart-viewport-wrapper">
                 <canvas id="yAxisCanvas" class="y-axis-sticky-canvas"></canvas>
                 <div class="chart-scroll-container">
@@ -139,14 +140,14 @@
             </div>
 
             <div class="daily-transactions-box">
-                <h4 class="box-title" data-i18n="dailyHistoryTableTitle">ریز سوابق سودهای روزانه اخیر</h4>
+                <h4 class="box-title" data-i18n="dailyHistoryTableTitle">گزارش سوابق دوره‌ای</h4>
                 <div class="table-responsive">
                     <table class="binance-table">
                         <thead>
                             <tr>
                                 <th data-i18n="thDate">تاریخ</th>
-                                <th data-i18n="thDailyYield">نرخ بازدهی</th>
-                                <th data-i18n="thAmount">مبلغ سود واریزی</th>
+                                <th data-i18n="thDailyYield">شاخص عملکرد</th>
+                                <th data-i18n="thAmount">مقدار ثبت‌شده</th>
                                 <th data-i18n="thStatus">وضعیت</th>
                             </tr>
                         </thead>
@@ -159,11 +160,11 @@
         <div class="compound-module-card">
             <div class="compound-header">
                 <div class="c-title-area">
-                    <h3 data-i18n="compoundModuleTitle">سیستم سود مرکب (تبدیل سود به سرمایه)</h3>
-                    <p data-i18n="compoundModuleDesc">با افزودن سودهای دریافتی به اصل سرمایه، حجم پکیج سرمایه‌گذاری خود را افزایش دهید.</p>
+                    <h3 data-i18n="compoundModuleTitle">سیستم تخصیص مجدد و بازتولید</h3>
+                    <p data-i18n="compoundModuleDesc">مدیریت و انتقال منابع به حجم عملیاتی اصلی سیستم.</p>
                 </div>
                 <div class="current-profit-badge">
-                    <span data-i18n="currentAvailableProfit">موجودی سود فعلی:</span>
+                    <span data-i18n="currentAvailableProfit">موجودی در دسترس:</span>
                     <strong class="text-green">$<span id="txtCurrentProfit">0.00</span></strong>
                 </div>
             </div>
@@ -171,7 +172,7 @@
             <div class="compound-calculator-grid">
                 <div class="compound-form-side">
                     <div class="form-group">
-                        <label data-i18n="amountToCompound">مبلغ مورد نظر جهت ترکیب (USDT):</label>
+                        <label data-i18n="amountToCompound">مقدار مورد نظر جهت تخصیص (USDT):</label>
                         <div class="input-with-action">
                             <input type="number" id="compoundAmountInput" placeholder="0.00" min="0" step="any">
                             <button type="button" class="max-btn" id="compoundMaxBtn">MAX</button>
@@ -179,30 +180,30 @@
                     </div>
 
                     <div class="days-holding-counter">
-                        <span data-i18n="profitHoldDuration">مدت زمان نگهداری این سود:</span>
+                        <span data-i18n="profitHoldDuration">مدت زمان چرخه فعال:</span>
                         <strong id="txtHoldDays">۰ روز</strong>
                     </div>
 
                     <div class="fee-calculation-preview">
                         <div class="calc-row">
-                            <span data-i18n="commissionFeeRate">کارمزد کسر قانونی:</span>
+                            <span data-i18n="commissionFeeRate">کارمزد پردازش:</span>
                             <span id="txtFeeRate">0%</span>
                         </div>
                         <div class="calc-row">
-                            <span data-i18n="commissionAmount">مبلغ کارمزد:</span>
+                            <span data-i18n="commissionAmount">مبلغ پردازش:</span>
                             <span id="txtFeeAmount">$0.00</span>
                         </div>
                         <div class="calc-row highlight">
-                            <span data-i18n="netCapitalAdded">مبلغ خالص افزوده شده به اصل سرمایه:</span>
+                            <span data-i18n="netCapitalAdded">مقدار خالص افزوده شده به حساب:</span>
                             <strong class="text-yellow" id="txtNetCompound">$0.00</strong>
                         </div>
                     </div>
 
-                    <button type="button" class="btn-compound-cta" id="btnExecuteCompound" data-i18n="btnCompoundNow">ترکیب و افزودن به اصل سرمایه</button>
+                    <button type="button" class="btn-compound-cta" id="btnExecuteCompound" data-i18n="btnCompoundNow">تایید و انتقال به موجودی اصلی</button>
                 </div>
 
                 <div class="compound-rules-side">
-                    <h5 data-i18n="matrixTitle">قوانین محاسبه کارمزد سود مرکب:</h5>
+                    <h5 data-i18n="matrixTitle">قوانین پردازش سیستم:</h5>
                     <ul class="matrix-list" id="compoundMatrixList"></ul>
                 </div>
             </div>
@@ -211,8 +212,8 @@
         <div class="lots-section-card">
             <div class="lots-header">
                 <div>
-                    <h3 data-i18n="lotSectionTitle">جدول وضعیت قفل سرمایه‌ها (Lot-Based 90-Day Lock)</h3>
-                    <p class="lots-sub" data-i18n="lotSectionSub">هر واریز مستقیم یا سود مرکب به عنوان یک لات مستقل با دوره قفل ۹۰ روزه ثبت می‌گردد.</p>
+                    <h3 data-i18n="lotSectionTitle">دفتر کل دوره‌های نگهداری (Lot Records)</h3>
+                    <p class="lots-sub" data-i18n="lotSectionSub">سوابق کلیه تخصیص‌ها و دوره‌های زمانی در این جدول ثبت و مدیریت می‌گردد.</p>
                 </div>
             </div>
 
@@ -223,9 +224,9 @@
                             <th data-i18n="thLotId">شناسه لات</th>
                             <th data-i18n="thRegDate">تاریخ ثبت</th>
                             <th data-i18n="thLotAmount">مبلغ (USDT)</th>
-                            <th data-i18n="thLotSource">منبع واریز</th>
+                            <th data-i18n="thLotSource">منبع</th>
                             <th data-i18n="thDaysLeft">روزهای باقی‌مانده</th>
-                            <th data-i18n="thLockStatus">وضعیت قفل</th>
+                            <th data-i18n="thLockStatus">وضعیت</th>
                         </tr>
                     </thead>
                     <tbody id="lotsTableBody"></tbody>
@@ -243,7 +244,7 @@
 
         <button type="button" class="nav-item active">
             <div class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg></div>
-            <span class="nav-label" data-i18n="navInvest">سرمایه‌گذاری</span>
+            <span class="nav-label" data-i18n="navInvest">شاخص‌ها</span>
         </button>
 
         <button type="button" class="nav-item" onclick="showToast(dashboardI18n[currentLanguage].comingSoon)">

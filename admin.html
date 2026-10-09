@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ADM Binance Pro - Master Administration Panel</title>
+    <title>ADM - Master Administration Panel</title>
+    <meta name="description" content="ADM Master Control and Administration Panel">
     <link rel="stylesheet" href="admin.css">
     <link rel="icon" type="image/x-icon" href="favicon.ico">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -22,7 +23,7 @@
                         <span class="symbol-core">ADM</span>
                     </div>
                     <div class="brand-text">
-                        <span class="brand-title">BINANCE<span class="brand-badge">PRO</span></span>
+                        <span class="brand-title">ADM<span class="brand-badge">PRO</span></span>
                         <span class="brand-sub">CORE ENGINE v3.2</span>
                     </div>
                 </div>
@@ -126,20 +127,20 @@
                     <div class="stats-grid">
                         <div class="stat-card">
                             <div class="stat-header">
-                                <span class="stat-label" data-i18n="stat_total_capital">Total Circulating Capital</span>
+                                <span class="stat-label" data-i18n="stat_total_capital">Total Circulating Base</span>
                                 <div class="stat-icon-box gold">
                                     <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 14h-2v-2h2v2zm0-4h-2V7h2v5z"/></svg>
                                 </div>
                             </div>
                             <div class="stat-value" id="statTotalCapital">$0.0000</div>
                             <div class="stat-footer positive">
-                                <span data-i18n="stat_active_locked">Locked & Working in Lots</span>
+                                <span data-i18n="stat_active_locked">Allocated & Working in Lots</span>
                             </div>
                         </div>
 
                         <div class="stat-card">
                             <div class="stat-header">
-                                <span class="stat-label" data-i18n="stat_total_profit">Total Profit Distributed</span>
+                                <span class="stat-label" data-i18n="stat_total_profit">Total Distributed Yield</span>
                                 <div class="stat-icon-box green">
                                     <svg viewBox="0 0 24 24"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/></svg>
                                 </div>
@@ -152,14 +153,14 @@
 
                         <div class="stat-card">
                             <div class="stat-header">
-                                <span class="stat-label" data-i18n="stat_registered_users">Registered Investors</span>
+                                <span class="stat-label" data-i18n="stat_registered_users">Registered Users</span>
                                 <div class="stat-icon-box cyan">
                                     <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3z"/></svg>
                                 </div>
                             </div>
                             <div class="stat-value" id="statTotalUsers">0</div>
                             <div class="stat-footer highlight">
-                                <span id="statActiveUsers">0 Verified with Active Plan</span>
+                                <span id="statActiveUsers">0 Verified Users</span>
                             </div>
                         </div>
 
@@ -172,7 +173,7 @@
                             </div>
                             <div class="stat-value" id="statPendingActionsTotal">0</div>
                             <div class="stat-footer-tags">
-                                <span class="tag red" id="statPendingWithdrawCount">0 Withdrawals</span>
+                                <span class="tag red" id="statPendingWithdrawCount">0 Settlements</span>
                                 <span class="tag yellow" id="statPendingKycCount">0 KYC</span>
                             </div>
                         </div>
@@ -184,7 +185,7 @@
                             <div class="engine-pulse-bulb"></div>
                             <div>
                                 <h3 data-i18n="yield_engine_head">Automated Nightly Yield Engine (21:00 UTC+4:30)</h3>
-                                <p data-i18n="yield_engine_desc">Daily yield targets between 0.8% and 1.3%. System executes automatic batch profit allocation for verified users having >= $50 active capital.</p>
+                                <p data-i18n="yield_engine_desc">Daily yield metrics configured between 0.8% and 1.3%. System executes automatic batch allocation for verified users having >= $50 active balance.</p>
                             </div>
                         </div>
                         <div class="engine-bar-actions">
@@ -252,8 +253,8 @@
                                     <tr>
                                         <th>UID</th>
                                         <th data-i18n="col_user">Identity</th>
-                                        <th data-i18n="col_active_capital">Active Capital</th>
-                                        <th data-i18n="col_profit_balance">Withdrawable Profit</th>
+                                        <th data-i18n="col_active_capital">Active Base Balance</th>
+                                        <th data-i18n="col_profit_balance">Available Settlement Balance</th>
                                         <th data-i18n="col_kyc">KYC</th>
                                         <th data-i18n="col_status">Status</th>
                                         <th data-i18n="col_created">Registered</th>
@@ -271,8 +272,8 @@
                 <!-- 3. FINANCE & APPROVALS TAB -->
                 <section class="tab-pane" id="pane-finance">
                     <div class="pane-sub-nav">
-                        <button class="sub-nav-btn active" data-sub="withdrawals" data-i18n="sub_pending_withdrawals">Pending Withdrawals (<span id="countWithdrawSub">0</span>)</button>
-                        <button class="sub-nav-btn" data-sub="deposits" data-i18n="sub_pending_deposits">Pending Deposits (<span id="countDepositSub">0</span>)</button>
+                        <button class="sub-nav-btn active" data-sub="withdrawals" data-i18n="sub_pending_withdrawals">Pending Settlements (<span id="countWithdrawSub">0</span>)</button>
+                        <button class="sub-nav-btn" data-sub="deposits" data-i18n="sub_pending_deposits">Pending Allocations (<span id="countDepositSub">0</span>)</button>
                         <button class="sub-nav-btn" data-sub="completed" data-i18n="sub_finance_history">Financial Log History</button>
                     </div>
 
@@ -281,7 +282,7 @@
                         <div class="adm-card">
                             <div class="card-header">
                                 <div>
-                                    <h2 data-i18n="withdrawals_title">Pending Withdrawal Requests</h2>
+                                    <h2 data-i18n="withdrawals_title">Pending Settlement Requests</h2>
                                     <p class="section-subtitle" data-i18n="withdrawals_subtitle">Verify destination wallet address, selected blockchain network, and last action cooldown tier before approving payout.</p>
                                 </div>
                                 <button class="adm-btn btn-secondary btn-sm" id="btnRefreshWithdrawals" data-i18n="refresh">Refresh</button>
@@ -303,7 +304,7 @@
                                         </tr>
                                     </thead>
                                     <tbody id="pendingWithdrawalsBody">
-                                        <tr><td colspan="9" class="text-center py-4 text-muted" data-i18n="loading_data">Loading pending withdrawals...</td></tr>
+                                        <tr><td colspan="9" class="text-center py-4 text-muted" data-i18n="loading_data">Loading pending settlements...</td></tr>
                                     </tbody>
                                 </table>
                             </div>
@@ -315,8 +316,8 @@
                         <div class="adm-card">
                             <div class="card-header">
                                 <div>
-                                    <h2 data-i18n="deposits_title">Manual / On-Chain Deposit Verification</h2>
-                                    <p class="section-subtitle" data-i18n="deposits_subtitle">Confirm incoming USDT hash on blockchain explorer before locking as a 90-day investment lot.</p>
+                                    <h2 data-i18n="deposits_title">Manual / On-Chain Allocation Verification</h2>
+                                    <p class="section-subtitle" data-i18n="deposits_subtitle">Confirm incoming USDT hash on blockchain explorer before registering as a 90-day active lot.</p>
                                 </div>
                                 <button class="adm-btn btn-secondary btn-sm" id="btnRefreshDeposits" data-i18n="refresh">Refresh</button>
                             </div>
@@ -327,7 +328,7 @@
                                         <tr>
                                             <th>TX ID</th>
                                             <th data-i18n="col_user">User UID</th>
-                                            <th data-i18n="col_amount">Deposit Amount</th>
+                                            <th data-i18n="col_amount">Amount</th>
                                             <th data-i18n="col_network">Network</th>
                                             <th data-i18n="col_txhash">Transaction Hash (TXID)</th>
                                             <th data-i18n="col_date">Submitted Date</th>
@@ -335,7 +336,7 @@
                                         </tr>
                                     </thead>
                                     <tbody id="pendingDepositsBody">
-                                        <tr><td colspan="7" class="text-center py-4 text-muted" data-i18n="loading_data">Loading pending deposits...</td></tr>
+                                        <tr><td colspan="7" class="text-center py-4 text-muted" data-i18n="loading_data">Loading pending allocations...</td></tr>
                                     </tbody>
                                 </table>
                             </div>
@@ -413,17 +414,17 @@
                         <!-- Rate Setup Card -->
                         <div class="adm-card yield-setup-card">
                             <div class="card-header">
-                                <h2 data-i18n="yield_config_title">Today's Profit Configuration</h2>
+                                <h2 data-i18n="yield_config_title">Today's Yield Configuration</h2>
                             </div>
                             <div class="card-body">
                                 <form id="formSetDailyRate">
                                     <div class="form-group">
-                                        <label for="yieldInputRate" data-i18n="label_daily_rate">Daily Profit Percentage (%)</label>
+                                        <label for="yieldInputRate" data-i18n="label_daily_rate">Daily Yield Percentage (%)</label>
                                         <div class="rate-input-container">
                                             <input type="number" step="0.0001" min="0.8000" max="1.3000" id="yieldInputRate" class="adm-input font-bold" placeholder="e.g. 1.0500" required>
                                             <span class="rate-percent-symbol">%</span>
                                         </div>
-                                        <small class="form-hint" data-i18n="yield_range_hint">Standard boundary: 0.8000% to 1.3000% (approx ~31% monthly compounded).</small>
+                                        <small class="form-hint" data-i18n="yield_range_hint">Standard boundary: 0.8000% to 1.3000%.</small>
                                     </div>
 
                                     <div class="form-group">
@@ -434,8 +435,8 @@
                                     <div class="yield-rules-callout">
                                         <h4 data-i18n="engine_rules_title">Eligibility & Cap Validation:</h4>
                                         <ul>
-                                            <li data-i18n="rule_kyc_50">Only users with <strong>Verified KYC</strong> and <strong>Active Capital &ge; $50.00</strong> receive profit.</li>
-                                            <li data-i18n="rule_mlm_cap">Referral commissions (L1: 10%, L2: 5%, L3: 3%, L4: 2%, L5: 1%) are strictly capped by the Leader's active capital: <code>min(downline_profit, leader_active_cap)</code>.</li>
+                                            <li data-i18n="rule_kyc_50">Only users with <strong>Verified KYC</strong> and <strong>Active Balance &ge; $50.00</strong> receive yield.</li>
+                                            <li data-i18n="rule_mlm_cap">Referral commissions (L1: 10%, L2: 5%, L3: 3%, L4: 2%, L5: 1%) are strictly capped by the Leader's active balance: <code>min(downline_profit, leader_active_cap)</code>.</li>
                                         </ul>
                                     </div>
 
@@ -591,11 +592,11 @@
                     <div class="form-group">
                         <label data-i18n="label_balance_target">Target Balance Bucket</label>
                         <select id="adjustTargetBucket" class="adm-select" required>
-                            <option value="active_capital" data-i18n="bucket_capital">Total Active Capital (کل سرمایه فعال)</option>
-                            <option value="locked_principal" data-i18n="bucket_locked">Locked Principal (اصل سرمایه قفل‌شده)</option>
-                            <option value="unlocked_principal" data-i18n="bucket_unlocked">Unlocked Principal (اصل سرمایه آزادشده)</option>
-                            <option value="withdrawable_profit" data-i18n="bucket_profit">Withdrawable Profit (سود قابل برداشت)</option>
-                            <option value="total_lifetime_profit" data-i18n="bucket_lifetime">Total Lifetime Profit (مجموع کل سودهای دریافتی)</option>
+                            <option value="active_capital" data-i18n="bucket_capital">Total Active Base (کل موجودی پایه فعال)</option>
+                            <option value="locked_principal" data-i18n="bucket_locked">Allocated Base (موجودی پایه تخصیص‌یافته)</option>
+                            <option value="unlocked_principal" data-i18n="bucket_unlocked">Matured Base (موجودی پایه آزادشده)</option>
+                            <option value="withdrawable_profit" data-i18n="bucket_profit">Available Settlement (موجودی در دسترس تسویه)</option>
+                            <option value="total_lifetime_profit" data-i18n="bucket_lifetime">Total Lifetime Yield (مجموع کل بازدهی‌های ثبت‌شده)</option>
                         </select>
                     </div>
 
@@ -606,7 +607,7 @@
 
                     <div class="form-group">
                         <label data-i18n="label_admin_reason">Reason / Audit Memo</label>
-                        <input type="text" id="adjustReason" class="adm-input" placeholder="e.g. Deposit compensation, correction, manual bonus..." required>
+                        <input type="text" id="adjustReason" class="adm-input" placeholder="e.g. Allocation adjustment, correction, manual bonus..." required>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -621,13 +622,13 @@
     <div class="adm-modal-backdrop" id="modalRejectWithdrawal">
         <div class="adm-modal">
             <div class="modal-header">
-                <h3 data-i18n="modal_reject_withdrawal">Reject Withdrawal & Refund Balance</h3>
+                <h3 data-i18n="modal_reject_withdrawal">Reject Settlement & Refund Balance</h3>
                 <button class="modal-close-btn" data-close="modalRejectWithdrawal">&times;</button>
             </div>
             <form id="formRejectWithdrawal">
                 <div class="modal-body">
                     <input type="hidden" id="rejectTxId">
-                    <p class="modal-warning-text" data-i18n="reject_warning_text">Rejecting this payout will immediately refund the full requested amount back to the user's withdrawable balance.</p>
+                    <p class="modal-warning-text" data-i18n="reject_warning_text">Rejecting this payout will immediately refund the full requested amount back to the user's available settlement balance.</p>
 
                     <div class="form-group">
                         <label data-i18n="label_rejection_reason">Rejection Reason (Visible to user)</label>

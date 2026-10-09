@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Platform - Wallet &amp; Withdrawals</title>
+    <title>ADM - Asset &amp; Settlement Portal</title>
+    <meta name="description" content="ADM Secure Asset Management and Settlement Portal">
 
     <!-- تنظیم فوری زبان و جهت صفحه در ثانیه صفر جهت حذف کامل پرش زبانی -->
     <script>
@@ -16,7 +17,7 @@
     </script>
 
     <link rel="stylesheet" href="wallet.css">
-    <!-- فونت‌های استاندارد بایننس -->
+    <!-- فونت‌های استاندارد بین‌المللی -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -53,7 +54,7 @@
                     <svg class="globe-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <circle cx="12" cy="12" r="10"></circle>
                         <line x1="2" y1="12" x2="22" y2="12"></line>
-                        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1 4-10z"></path>
+                        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
                     </svg>
                     <span id="currentLangLabel">Language</span>
                     <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -79,10 +80,10 @@
             <!-- ================= بخش ۱: کارت‌های تفکیک موجودی و دارایی‌ها ================= -->
             <section class="balance-cards-grid" id="walletBalancesOverview">
                 
-                <!-- کارت ۱: کل سرمایه فعال با تفکیک قفل‌شده و آزادشده -->
+                <!-- کارت ۱: کل موجودی پایه فعال با تفکیک تخصیص‌یافته و آزادشده -->
                 <div class="balance-summary-card">
                     <div class="card-top-row">
-                        <span class="card-label" data-i18n="totalActiveCapital">کل سرمایه فعال</span>
+                        <span class="card-label" data-i18n="totalActiveCapital">کل موجودی پایه فعال</span>
                         <span class="crypto-tag">USDT</span>
                     </div>
                     <div class="card-main-amount">
@@ -91,21 +92,21 @@
                     </div>
                     <div class="capital-breakdown-row">
                         <div class="sub-balance-item">
-                            <span class="sub-label" data-i18n="lockedPrincipal">اصل سرمایه قفل‌شده:</span>
+                            <span class="sub-label" data-i18n="lockedPrincipal">موجودی پایه تخصیص‌یافته:</span>
                             <span class="sub-val" id="statLockedPrincipal">$0.00</span>
                         </div>
                         <div class="sub-balance-divider"></div>
                         <div class="sub-balance-item">
-                            <span class="sub-label" data-i18n="unlockedPrincipal">اصل سرمایه آزادشده:</span>
+                            <span class="sub-label" data-i18n="unlockedPrincipal">موجودی پایه آزادشده:</span>
                             <span class="sub-val text-yellow" id="statUnlockedPrincipal">$0.00</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- کارت ۲: سود قابل برداشت با بررسی شرط ۱۰٪ -->
+                <!-- کارت ۲: موجودی در دسترس تسویه با بررسی شرط ۱۰٪ -->
                 <div class="balance-summary-card">
                     <div class="card-top-row">
-                        <span class="card-label" data-i18n="withdrawableProfit">سود قابل برداشت</span>
+                        <span class="card-label" data-i18n="withdrawableProfit">موجودی در دسترس تسویه</span>
                         <span class="status-pill ready" id="profitRuleBadge" data-i18n="tenPercentMetBadge">شرط ۱۰٪ محقق شده</span>
                     </div>
                     <div class="card-main-amount">
@@ -114,13 +115,13 @@
                     </div>
                     <div class="rule-hint-row">
                         <span class="rule-dot ready" id="overviewRuleDot"></span>
-                        <span class="rule-hint-text" data-i18n="ruleTenPercentText">شرط حداقل ۱۰٪ سود جهت برداشت انباشته</span>
+                        <span class="rule-hint-text" data-i18n="ruleTenPercentText">شرط حداقل ۱۰٪ انباشت جهت ثبت تسویه</span>
                     </div>
                 </div>
 
             </section>
 
-            <!-- ================= بخش ۲: تب‌های اصلی عملیاتی (واریز / برداشت) ================= -->
+            <!-- ================= بخش ۲: تب‌های اصلی عملیاتی (تخصیص / تسویه) ================= -->
             <section class="wallet-operations-container" id="walletActionSection">
                 
                 <!-- هدر تب‌های عملیاتی: هیچ‌کدام پیش‌فرض active نیستند -->
@@ -131,14 +132,14 @@
                                 <line x1="12" y1="5" x2="12" y2="19"></line>
                                 <polyline points="19 12 12 19 5 12"></polyline>
                             </svg>
-                            <span>شارژ حساب / واریز</span>
+                            <span>شارژ حساب / تخصیص</span>
                         </button>
                         <button type="button" class="action-tab-btn" id="tabSwitchWithdraw" data-i18n="actionWithdrawTab">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
                                 <line x1="12" y1="19" x2="12" y2="5"></line>
                                 <polyline points="5 12 12 5 19 12"></polyline>
                             </svg>
-                            <span>برداشت وجه</span>
+                            <span>درخواست تسویه</span>
                         </button>
                     </div>
                 </div>
@@ -149,18 +150,18 @@
                         <rect x="2" y="5" width="20" height="14" rx="2"></rect>
                         <line x1="2" y1="10" x2="22" y2="10"></line>
                     </svg>
-                    <span data-i18n="selectActionPrompt">لطفاً برای انجام عملیات، یکی از گزینه‌های واریز یا برداشت را انتخاب نمایید.</span>
+                    <span data-i18n="selectActionPrompt">لطفاً برای انجام عملیات، یکی از گزینه‌های تخصیص یا تسویه را انتخاب نمایید.</span>
                 </div>
 
-                <!-- کادر عملیاتی: پنل واریز (Deposit Panel) - پیش‌فرض hidden -->
+                <!-- کادر عملیاتی: پنل تخصیص (Deposit Panel) - پیش‌فرض hidden -->
                 <div class="operation-card-body hidden" id="panelDeposit">
                     <div class="panel-header-title">
-                        <h2 data-i18n="depositModalTitle">شارژ حساب / واریز جدید (USDT)</h2>
+                        <h2 data-i18n="depositModalTitle">شارژ حساب / تخصیص جدید (USDT)</h2>
                     </div>
 
                     <!-- انتخاب استاندارد شبکه انتقال بر اساس بایننس -->
                     <div class="form-section">
-                        <label class="modal-label" data-i18n="chooseNetwork">انتخاب شبکه انتقال (Deposit Network):</label>
+                        <label class="modal-label" data-i18n="chooseNetwork">انتخاب شبکه انتقال (Transfer Network):</label>
                         <div class="binance-network-grid">
                             <div class="network-card active" data-network="TRC20">
                                 <div class="net-title-row">
@@ -211,42 +212,42 @@
                         </div>
                     </div>
 
-                    <!-- باکس اخطار قانون قفل ۹۰‌روزه لات‌ها -->
+                    <!-- باکس اخطار چرخه نگهداری لات‌ها -->
                     <div class="lot-lock-warning-box">
                         <div class="warning-badge-icon">!</div>
                         <p data-i18n="depositWarningText">
-                            توجه: این واریز به عنوان یک لات (Lot) جدید ثبت شده و تایمر ۹۰‌روزه قفل اختصاصی آن از همین لحظه فعال می‌گردد. پس از ۹۰ روز اصل این مبلغ کاملاً آزاد و قابل برداشت خواهد بود.
+                            توجه: این تخصیص به عنوان یک لات (Lot) جدید ثبت شده و چرخه ۹۰‌روزه اختصاصی آن فعال می‌گردد. پس از پایان دوره، موجودی پایه کاملاً آزاد و در دسترس خواهد بود.
                         </p>
                     </div>
                 </div>
 
-                <!-- کادر عملیاتی: پنل برداشت (Withdrawal Panel) - پیش‌فرض hidden -->
+                <!-- کادر عملیاتی: پنل تسویه (Withdrawal Panel) - پیش‌فرض hidden -->
                 <div class="operation-card-body hidden" id="panelWithdraw">
                     <div class="panel-header-title">
-                        <h2 data-i18n="withdrawModalTitle">برداشت از حساب (Withdrawal)</h2>
+                        <h2 data-i18n="withdrawModalTitle">تسویه حساب (USDT)</h2>
                     </div>
 
-                    <!-- کارت‌های نمایش سریع موجودی سود و اصل سرمایه آزادشده -->
+                    <!-- کارت‌های نمایش سریع موجودی بازدهی و موجودی پایه آزادشده -->
                     <div class="modal-balance-cards">
                         <div class="balance-card-item">
-                            <span class="b-label" data-i18n="withdrawableProfit">سود قابل برداشت</span>
+                            <span class="b-label" data-i18n="withdrawableProfit">موجودی در دسترس تسویه</span>
                             <span class="b-val text-green">$<span id="withdrawModalProfit">0.00</span></span>
                         </div>
                         <div class="balance-card-item">
-                            <span class="b-label" data-i18n="unlockedPrincipal">اصل سرمایه آزادشده</span>
+                            <span class="b-label" data-i18n="unlockedPrincipal">موجودی پایه آزادشده</span>
                             <span class="b-val text-yellow">$<span id="withdrawModalUnlocked">0.00</span></span>
                         </div>
                     </div>
 
-                    <!-- تب‌بار انتخاب نوع برداشت -->
+                    <!-- تب‌بار انتخاب نوع تسویه -->
                     <div class="withdraw-type-tabs">
-                        <button type="button" class="w-tab active" id="tabWithdrawProfit" data-i18n="withdrawProfitTab">برداشت سود</button>
-                        <button type="button" class="w-tab" id="tabWithdrawPrincipal" data-i18n="withdrawPrincipalTab">برداشت اصل سرمایه آزادشده</button>
+                        <button type="button" class="w-tab active" id="tabWithdrawProfit" data-i18n="withdrawProfitTab">تسویه بازدهی</button>
+                        <button type="button" class="w-tab" id="tabWithdrawPrincipal" data-i18n="withdrawPrincipalTab">تسویه موجودی پایه آزادشده</button>
                     </div>
 
                     <!-- فیلد ورودی مبلغ با دکمه MAX -->
                     <div class="form-section">
-                        <label class="modal-label" data-i18n="withdrawAmountLabel">مبلغ برداشت (USDT):</label>
+                        <label class="modal-label" data-i18n="withdrawAmountLabel">مبلغ تسویه (USDT):</label>
                         <div class="input-with-action">
                             <input type="number" id="withdrawAmountInput" placeholder="0.00" min="0" step="any">
                             <button type="button" class="max-btn" id="setMaxAmountBtn">MAX</button>
@@ -264,7 +265,7 @@
                     <!-- ماشین‌حساب محاسبه کارمزد و دریافتی خالص -->
                     <div class="fee-calculator-box">
                         <div class="fee-row">
-                            <span data-i18n="estimatedFee">کارمزد پلتفرم و شبکه:</span>
+                            <span data-i18n="estimatedFee">کارمزد پردازش و شبکه:</span>
                             <span id="modalFeeValue">$0.00</span>
                         </div>
                         <div class="fee-row fee-tier-row">
@@ -277,30 +278,30 @@
                         </div>
                     </div>
 
-                    <!-- باکس راهنمای قوانین و کارمزد پلکانی برداشت -->
+                    <!-- باکس راهنمای قوانین و کارمزد پلکانی -->
                     <div id="withdrawRuleNoticeBox" class="rule-notice-box">
                         <div class="notice-line">
                             <span class="status-indicator" id="tenPercentRuleDot"></span>
-                            <span id="tenPercentRuleText" data-i18n="ruleTenPercentText">شرط حداقل ۱۰٪ سود جهت برداشت انباشته</span>
+                            <span id="tenPercentRuleText" data-i18n="ruleTenPercentText">شرط حداقل ۱۰٪ انباشت جهت ثبت تسویه</span>
                         </div>
                         <p class="processing-time-notice" id="feePolicyNoticeText" data-i18n="feeTierExplanation">
-                            کارمزد برداشت سود دقیقاً مشابه ترکیب سود است: زیر ۱۰ روز مجاز نیست؛ ۱۰-۱۵ روز ۵٪؛ ۱۵-۲۵ روز ۳٪؛ ۲۵-۳۵ روز ۱٪؛ بیش از ۳۵ روز رایگان (۰٪). کارمزد برداشت اصل سرمایه آزادشده بعد از ۹۰ روز به صورت ثابت ۵٪ می‌باشد.
+                            کارمزد تسویه بازدهی طبق جدول دوره‌ای اعمال می‌شود: زیر ۱۰ روز مجاز نیست؛ ۱۰-۱۵ روز ۵٪؛ ۱۵-۲۵ روز ۳٪؛ ۲۵-۳۵ روز ۱٪؛ بیش از ۳۵ روز رایگان (۰٪). کارمزد تسویه موجودی پایه آزادشده بعد از ۹۰ روز به صورت ثابت ۵٪ می‌باشد.
                         </p>
                     </div>
 
-                    <!-- دکمه تایید نهایی برداشت -->
-                    <button type="button" class="submit-btn" id="confirmWithdrawBtn" disabled data-i18n="confirmWithdrawBtn">تایید و درخواست برداشت</button>
+                    <!-- دکمه تایید نهایی تسویه -->
+                    <button type="button" class="submit-btn" id="confirmWithdrawBtn" disabled data-i18n="confirmWithdrawBtn">تایید و ثبت تسویه</button>
                 </div>
 
             </section>
 
-            <!-- ================= بخش ۳: جدول جامع تاریخچه تراکنش‌های کیف‌پول ================= -->
+            <!-- ================= بخش ۳: جدول جامع تاریخچه تراکنش‌ها ================= -->
             <section class="tx-history-section">
                 
                 <div class="tx-header-wrap">
                     <div class="tx-header-title">
-                        <h3 data-i18n="txHistoryTitle">تاریخچه تراکنش‌های کیف‌پول</h3>
-                        <span class="tx-subtitle" data-i18n="txHistorySub">فهرست کامل واریزها، برداشت سود و آزادسازی‌های انجام شده</span>
+                        <h3 data-i18n="txHistoryTitle">تاریخچه تراکنش‌های سیستم</h3>
+                        <span class="tx-subtitle" data-i18n="txHistorySub">فهرست کامل تخصیص‌ها، تسویه بازدهی و سوابق عملیاتی</span>
                     </div>
 
                     <!-- نوار فیلترها و جستجو همراه با منوهای کشویی مدرن بایننس -->
@@ -316,9 +317,9 @@
                             </button>
                             <div class="dropdown-menu-list" id="filterTypeMenu">
                                 <div class="dropdown-menu-item active" data-value="all"><span data-i18n="filterAllTypes">همه انواع تراکنش</span> <span class="check-mark">✓</span></div>
-                                <div class="dropdown-menu-item" data-value="deposit"><span data-i18n="filterDeposit">واریز (Deposit)</span> <span class="check-mark">✓</span></div>
-                                <div class="dropdown-menu-item" data-value="withdraw_profit"><span data-i18n="filterWithdrawProfit">برداشت سود</span> <span class="check-mark">✓</span></div>
-                                <div class="dropdown-menu-item" data-value="withdraw_principal"><span data-i18n="filterWithdrawPrincipal">برداشت اصل سرمایه</span> <span class="check-mark">✓</span></div>
+                                <div class="dropdown-menu-item" data-value="deposit"><span data-i18n="filterDeposit">تخصیص (USDT)</span> <span class="check-mark">✓</span></div>
+                                <div class="dropdown-menu-item" data-value="withdraw_profit"><span data-i18n="filterWithdrawProfit">تسویه بازدهی</span> <span class="check-mark">✓</span></div>
+                                <div class="dropdown-menu-item" data-value="withdraw_principal"><span data-i18n="filterWithdrawPrincipal">تسویه موجودی پایه</span> <span class="check-mark">✓</span></div>
                             </div>
                         </div>
 
@@ -404,7 +405,7 @@
                     <line x1="6" y1="20" x2="6" y2="14"></line>
                 </svg>
             </div>
-            <span class="nav-label" data-i18n="navInvest">سرمایه‌گذاری</span>
+            <span class="nav-label" data-i18n="navInvest">شاخص‌ها</span>
         </a>
 
         <a href="team.html" class="nav-item" data-target="team">
